@@ -20,10 +20,12 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app.database.seed import seed  # noqa: E402
 from app.main import app  # noqa: E402
+from app.middlewares.ratelimit import limiter  # noqa: E402
 
 
 @pytest.fixture(scope="module")
 def client():
+    limiter.enabled = False
     seed(reset=True)
     with TestClient(app) as c:
         yield c

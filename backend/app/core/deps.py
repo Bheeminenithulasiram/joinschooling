@@ -1,9 +1,9 @@
-"""FastAPI dependencies: current user, role gates."""
+"""FastAPI dependencies: current user, role gates, resource ownership checks."""
 from __future__ import annotations
 
 from typing import Iterable, Optional
 
-from fastapi import Depends, Header, Cookie, HTTPException, status
+from fastapi import Cookie, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.security import JWTError, decode_token
@@ -60,12 +60,30 @@ def get_optional_user(
 
 def require_role(*roles: str):
     """Dependency factory: assert current user has one of the roles."""
-
     allowed: Iterable[str] = roles
 
     def _guard(user: User = Depends(get_current_user)) -> User:
         if user.role not in allowed:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Action forbidden for role '{user.role}'. Required one of: {list(allowed)}",
+            )
         return user
 
     return _guard
+
+
+def require_verified_email(user: User = Depends(get_current_user)) -> User:
+    """Assert current user has verified their email."""
+    if not user.is_email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email verification required before accessing this feature.",
+        )
+    return user
+
+
+require_student = require_role("student", "admin")
+require_college_rep = require_role("college_rep", "admin")
+require_recruiter = require_role("recruiter", "admin")
+require_admin = require_role("admin")

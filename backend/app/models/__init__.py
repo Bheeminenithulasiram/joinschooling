@@ -33,7 +33,7 @@ def _uuid() -> str:
     return str(uuid.uuid4())
 
 
-UserRole = SAEnum("student", "admin", "recruiter", "mentor", name="user_role")
+UserRole = SAEnum("student", "admin", "recruiter", "mentor", "college_rep", name="user_role")
 ApplicationStatus = SAEnum(
     "draft", "submitted", "under_review", "shortlisted", "rejected",
     "accepted", "withdrawn", name="application_status",
@@ -69,7 +69,23 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     student = relationship("Student", uselist=False, back_populates="user", cascade="all, delete-orphan")
+    college_rep = relationship("CollegeRepresentative", uselist=False, back_populates="user", cascade="all, delete-orphan")
+    recruiter_profile = relationship("CompanyRecruiter", uselist=False, back_populates="user", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    email_verification_tokens = relationship("EmailVerificationToken", back_populates="user", cascade="all, delete-orphan")
+
+
+class EmailVerificationToken(Base):
+    __tablename__ = "email_verification_tokens"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship("User", back_populates="email_verification_tokens")
 
 
 class RefreshToken(Base):
@@ -115,6 +131,42 @@ class Student(Base, TimestampMixin):
     github_url: Mapped[Optional[str]] = mapped_column(Text)
 
     user = relationship("User", back_populates="student")
+
+
+class CollegeRepresentative(Base, TimestampMixin):
+    __tablename__ = "college_representatives"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    college_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("colleges.id", ondelete="SET NULL"), nullable=True, index=True)
+    college_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    first_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    designation: Mapped[str] = mapped_column(String(120), nullable=False)
+    official_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    website_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    user = relationship("User", back_populates="college_rep")
+    college = relationship("College")
+
+
+class CompanyRecruiter(Base, TimestampMixin):
+    __tablename__ = "company_recruiters"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    company_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True, index=True)
+    company_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    first_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    designation: Mapped[str] = mapped_column(String(120), nullable=False)
+    industry: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    website_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    user = relationship("User", back_populates="recruiter_profile")
+    company = relationship("Company")
 
 
 class Company(Base, TimestampMixin, SoftDeleteMixin):
@@ -307,7 +359,8 @@ class AiFinderRun(Base):
 
 
 __all__ = [
-    "User", "RefreshToken", "Student",
+    "User", "RefreshToken", "EmailVerificationToken", "Student",
+    "CollegeRepresentative", "CompanyRecruiter",
     "Company", "College", "Course", "Placement",
     "Internship", "Application", "SavedItem", "Review",
     "Notification", "AiFinderRun",

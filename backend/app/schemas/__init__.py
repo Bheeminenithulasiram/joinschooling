@@ -19,7 +19,33 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     first_name: str = Field(min_length=1, max_length=80)
     last_name: str = Field(min_length=1, max_length=80)
+    role: Literal["student", "college_rep", "recruiter"] = "student"
     phone: Optional[str] = Field(default=None, max_length=20)
+    
+    # Student specifics:
+    preferred_course: Optional[str] = None
+    graduation_year: Optional[int] = None
+    # College Rep specifics:
+    college_name: Optional[str] = None
+    designation: Optional[str] = None
+    official_email: Optional[EmailStr] = None
+    website_url: Optional[str] = None
+    # Recruiter specifics:
+    company_name: Optional[str] = None
+    industry: Optional[str] = None
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+    role: Optional[Literal["student", "college_rep", "recruiter"]] = "student"
+
+
+class EmailVerifyRequest(BaseModel):
+    token: str = Field(min_length=16, max_length=128)
+
+
+class ResendVerifyRequest(BaseModel):
+    email: EmailStr
 
 
 class LoginRequest(BaseModel):
@@ -42,6 +68,9 @@ class AuthTokens(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     expires_in: int
+    user_id: Optional[str] = None
+    role: Optional[str] = None
+    email: Optional[str] = None
 
 
 class StudentProfile(BaseModel):
@@ -62,6 +91,28 @@ class StudentProfile(BaseModel):
     expected_package_lpa: Optional[float] = None
     skills: List[str] = Field(default_factory=list)
     preferred_companies: List[str] = Field(default_factory=list)
+
+
+class CollegeRepProfile(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    first_name: str
+    last_name: str
+    college_name: str
+    designation: str
+    official_email: Optional[str] = None
+    website_url: Optional[str] = None
+    is_verified: bool = False
+
+
+class RecruiterProfile(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    first_name: str
+    last_name: str
+    company_name: str
+    designation: str
+    industry: Optional[str] = None
+    website_url: Optional[str] = None
+    is_verified: bool = False
 
 
 class StudentProfileUpdate(BaseModel):
@@ -89,7 +140,10 @@ class UserOut(BaseModel):
     email: EmailStr
     role: str
     is_email_verified: bool
-    profile: Optional[StudentProfile] = None
+    profile: Optional[Any] = None
+    student: Optional[StudentProfile] = None
+    college_rep: Optional[CollegeRepProfile] = None
+    recruiter_profile: Optional[RecruiterProfile] = None
 
 
 class CollegeCard(BaseModel):

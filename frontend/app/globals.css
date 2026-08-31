@@ -24,6 +24,8 @@
   .btn-ghost { @apply btn text-ink-700 hover:bg-slate-100; }
   .btn-outline { @apply btn border border-slate-200 bg-white hover:bg-slate-50; }
   .input { @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 outline-none placeholder:text-ink-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100; }
+  .input-icon-pad { padding-left: 2.75rem !important; }
+  .input-icon-right { padding-right: 2.75rem !important; }
   .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500; }
   .gradient-text { @apply bg-gradient-to-r from-brand-600 via-fuchsia-500 to-accent-500 bg-clip-text text-transparent; }
   .section-title { @apply font-display text-3xl font-extrabold tracking-tight sm:text-4xl; }
