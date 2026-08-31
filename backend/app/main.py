@@ -66,9 +66,13 @@ def create_app() -> FastAPI:
     app.include_router(saved.router, prefix=api_prefix)
     app.include_router(ai_finder.router, prefix=api_prefix)
 
-    # In dev, auto-create tables (production uses Alembic)
-    if settings.APP_ENV == "development":
-        Base.metadata.create_all(bind=engine)
+    # Ensure tables exist and seed demo data on initial deploy
+    Base.metadata.create_all(bind=engine)
+    try:
+        from app.database.seed import seed
+        seed(reset=False)
+    except Exception as e:
+        logging.getLogger("uvicorn.error").warning(f"Auto-seed notification: {e}")
 
     return app
 
