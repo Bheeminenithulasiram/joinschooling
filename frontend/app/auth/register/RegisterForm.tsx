@@ -14,7 +14,6 @@ import {
   Briefcase,
   Eye,
   EyeOff,
-  Globe,
   Award,
 } from "lucide-react";
 import { registerAction, googleLoginAction } from "@/lib/actions/auth";
@@ -27,7 +26,7 @@ function SubmitBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:pointer-events-none active:scale-[0.98] font-semibold text-sm shadow-md"
+      className="btn-primary w-full flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-200 disabled:opacity-60 disabled:pointer-events-none active:scale-[0.98] font-semibold text-sm shadow-md"
     >
       {pending ? (
         <>
@@ -52,7 +51,6 @@ export default function RegisterForm() {
   const handleGoogleAuth = async () => {
     setIsGoogleLoading(true);
     try {
-      // Create standard secure payload for Google OIDC token exchange
       const mockGoogleCredential = btoa(
         JSON.stringify({
           sub: `google_${Date.now()}`,
@@ -69,65 +67,65 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="mt-6 space-y-6">
+    <div className="mt-5 space-y-5">
       {/* Role Selection Switcher */}
       <div>
         <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
           I am registering as
         </label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5">
           <button
             type="button"
             onClick={() => setSelectedRole("student")}
-            className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${
               selectedRole === "student"
-                ? "border-brand-500 bg-brand-50/80 text-brand-700 shadow-sm ring-2 ring-brand-200"
-                : "border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100/70"
+                ? "border-brand-500 bg-brand-50/90 text-brand-700 shadow-xs ring-2 ring-brand-200"
+                : "border-slate-200 bg-slate-50/60 text-slate-600 hover:bg-slate-100/80"
             }`}
           >
-            <GraduationCap size={18} className={selectedRole === "student" ? "text-brand-600" : "text-slate-400"} />
+            <GraduationCap size={17} className={selectedRole === "student" ? "text-brand-600" : "text-slate-400"} />
             <span>Student</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedRole("college_rep")}
-            className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${
               selectedRole === "college_rep"
-                ? "border-brand-500 bg-brand-50/80 text-brand-700 shadow-sm ring-2 ring-brand-200"
-                : "border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100/70"
+                ? "border-brand-500 bg-brand-50/90 text-brand-700 shadow-xs ring-2 ring-brand-200"
+                : "border-slate-200 bg-slate-50/60 text-slate-600 hover:bg-slate-100/80"
             }`}
           >
-            <Building2 size={18} className={selectedRole === "college_rep" ? "text-brand-600" : "text-slate-400"} />
+            <Building2 size={17} className={selectedRole === "college_rep" ? "text-brand-600" : "text-slate-400"} />
             <span>College Rep</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedRole("recruiter")}
-            className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${
               selectedRole === "recruiter"
-                ? "border-brand-500 bg-brand-50/80 text-brand-700 shadow-sm ring-2 ring-brand-200"
-                : "border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100/70"
+                ? "border-brand-500 bg-brand-50/90 text-brand-700 shadow-xs ring-2 ring-brand-200"
+                : "border-slate-200 bg-slate-50/60 text-slate-600 hover:bg-slate-100/80"
             }`}
           >
-            <Briefcase size={18} className={selectedRole === "recruiter" ? "text-brand-600" : "text-slate-400"} />
+            <Briefcase size={17} className={selectedRole === "recruiter" ? "text-brand-600" : "text-slate-400"} />
             <span>Recruiter</span>
           </button>
         </div>
       </div>
 
-      {/* Social Login Button */}
+      {/* Google OAuth Button */}
       <button
         type="button"
         onClick={handleGoogleAuth}
         disabled={isGoogleLoading}
-        className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-ink-800 shadow-xs hover:bg-slate-50/80 transition active:scale-[0.99] disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition active:scale-[0.99] disabled:opacity-60"
       >
         {isGoogleLoading ? (
-          <Loader2 size={16} className="animate-spin text-brand-600" />
+          <Loader2 size={18} className="animate-spin text-brand-600" />
         ) : (
-          <svg className="h-4.5 w-4.5" viewBox="0 0 24 24">
+          <svg width="18" height="18" viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -149,46 +147,47 @@ export default function RegisterForm() {
         <span>Continue with Google</span>
       </button>
 
-      <div className="relative flex items-center justify-center">
+      {/* Divider */}
+      <div className="relative flex items-center justify-center my-2">
         <div className="w-full border-t border-slate-200" />
-        <span className="bg-white px-3 text-xs uppercase tracking-wider text-slate-400 font-medium absolute">
-          or register with details
+        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-slate-400 font-semibold absolute">
+          or register with email
         </span>
       </div>
 
-      <form action={action} className="grid gap-4.5">
+      <form action={action} className="space-y-4">
         <input type="hidden" name="role" value={selectedRole} />
 
-        {/* Common Name Fields */}
+        {/* First & Last Name */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+            <label className="mb-1 block text-xs font-semibold text-slate-600">
               First Name
             </label>
             <div className="relative flex items-center">
               <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-                <User size={16} />
+                <User size={15} />
               </div>
               <input
                 name="first_name"
                 required
-                className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Aditya"
               />
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+            <label className="mb-1 block text-xs font-semibold text-slate-600">
               Last Name
             </label>
             <div className="relative flex items-center">
               <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-                <User size={16} />
+                <User size={15} />
               </div>
               <input
                 name="last_name"
                 required
-                className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Sharma"
               />
             </div>
@@ -197,7 +196,7 @@ export default function RegisterForm() {
 
         {/* Email Address */}
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-600">
             {selectedRole === "college_rep"
               ? "Official College Email"
               : selectedRole === "recruiter"
@@ -206,13 +205,13 @@ export default function RegisterForm() {
           </label>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-              <Mail size={16} />
+              <Mail size={15} />
             </div>
             <input
               name="email"
               required
               type="email"
-              className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder={
                 selectedRole === "college_rep"
                   ? "dean@university.edu.in"
@@ -224,26 +223,26 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        {/* Role Specific Additional Fields */}
+        {/* Role Specific Fields */}
         {selectedRole === "student" && (
           <div className="grid grid-cols-2 gap-3 animate-fadeIn">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 Target Degree
               </label>
               <div className="relative flex items-center">
                 <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-                  <Award size={16} />
+                  <Award size={15} />
                 </div>
                 <input
                   name="preferred_course"
-                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
-                  placeholder="e.g. B.Tech CSE"
+                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                  placeholder="B.Tech CSE"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 Graduation Year
               </label>
               <input
@@ -251,7 +250,7 @@ export default function RegisterForm() {
                 type="number"
                 min={2020}
                 max={2032}
-                className="input w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                className="input w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="2027"
               />
             </div>
@@ -261,29 +260,29 @@ export default function RegisterForm() {
         {selectedRole === "college_rep" && (
           <div className="grid grid-cols-2 gap-3 animate-fadeIn">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 College Name
               </label>
               <div className="relative flex items-center">
                 <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-                  <Building2 size={16} />
+                  <Building2 size={15} />
                 </div>
                 <input
                   name="college_name"
                   required
-                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                   placeholder="IIT Bombay"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 Designation
               </label>
               <input
                 name="designation"
                 required
-                className="input w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                className="input w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Dean of Admissions"
               />
             </div>
@@ -293,29 +292,29 @@ export default function RegisterForm() {
         {selectedRole === "recruiter" && (
           <div className="grid grid-cols-2 gap-3 animate-fadeIn">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 Company Name
               </label>
               <div className="relative flex items-center">
                 <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-                  <Briefcase size={16} />
+                  <Briefcase size={15} />
                 </div>
                 <input
                   name="company_name"
                   required
-                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                  className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                   placeholder="Amazon"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-600">
                 Designation
               </label>
               <input
                 name="designation"
                 required
-                className="input w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                className="input w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Technical Recruiter"
               />
             </div>
@@ -324,19 +323,19 @@ export default function RegisterForm() {
 
         {/* Password */}
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-600">
             Password
           </label>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-              <Lock size={16} />
+              <Lock size={15} />
             </div>
             <input
               name="password"
               required
               minLength={8}
               type={showPassword ? "text" : "password"}
-              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder="At least 8 characters"
             />
             <button
@@ -352,19 +351,19 @@ export default function RegisterForm() {
 
         {/* Confirm Password */}
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-600">
             Confirm Password
           </label>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-              <Lock size={16} />
+              <Lock size={15} />
             </div>
             <input
               name="confirm_password"
               required
               minLength={8}
               type={showConfirmPassword ? "text" : "password"}
-              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder="Re-enter your password"
             />
             <button
@@ -379,18 +378,18 @@ export default function RegisterForm() {
         </div>
 
         {state && state.ok === false && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-700 animate-fadeIn">
-            <AlertTriangle size={16} className="text-rose-500 shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700 animate-fadeIn">
+            <AlertTriangle size={15} className="text-rose-500 shrink-0" />
             <span className="font-medium">{state.error}</span>
           </div>
         )}
 
-        <label className="flex items-start gap-2.5 text-xs text-ink-500 cursor-pointer select-none">
+        <label className="flex items-start gap-2 text-xs text-slate-500 cursor-pointer select-none pt-1">
           <input
             type="checkbox"
             required
             defaultChecked
-            className="mt-0.5 h-4.5 w-4.5 rounded border-slate-200 text-brand-600 focus:ring-brand-500 cursor-pointer"
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
           />
           <span>
             I agree to the{" "}
@@ -405,7 +404,9 @@ export default function RegisterForm() {
           </span>
         </label>
 
-        <SubmitBtn />
+        <div className="pt-1">
+          <SubmitBtn />
+        </div>
       </form>
     </div>
   );

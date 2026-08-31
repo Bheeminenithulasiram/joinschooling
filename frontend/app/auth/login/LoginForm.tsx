@@ -11,7 +11,7 @@ function SubmitBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:pointer-events-none active:scale-[0.98] font-semibold text-sm shadow-md"
+      className="btn-primary w-full flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-200 disabled:opacity-60 disabled:pointer-events-none active:scale-[0.98] font-semibold text-sm shadow-md"
     >
       {pending ? (
         <>
@@ -50,18 +50,18 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="mt-6 space-y-6">
-      {/* Social Login Button */}
+    <div className="mt-5 space-y-5">
+      {/* Google OAuth Button */}
       <button
         type="button"
         onClick={handleGoogleAuth}
         disabled={isGoogleLoading}
-        className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-ink-800 shadow-xs hover:bg-slate-50/80 transition active:scale-[0.99] disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition active:scale-[0.99] disabled:opacity-60"
       >
         {isGoogleLoading ? (
-          <Loader2 size={16} className="animate-spin text-brand-600" />
+          <Loader2 size={18} className="animate-spin text-brand-600" />
         ) : (
-          <svg className="h-4.5 w-4.5" viewBox="0 0 24 24">
+          <svg width="18" height="18" viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -83,27 +83,28 @@ export default function LoginForm() {
         <span>Continue with Google</span>
       </button>
 
-      <div className="relative flex items-center justify-center">
+      {/* Divider */}
+      <div className="relative flex items-center justify-center my-2">
         <div className="w-full border-t border-slate-200" />
-        <span className="bg-white px-3 text-xs uppercase tracking-wider text-slate-400 font-medium absolute">
+        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-slate-400 font-semibold absolute">
           or log in with email
         </span>
       </div>
 
-      <form action={action} className="grid gap-4.5">
+      <form action={action} className="space-y-4">
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+          <label className="mb-1 block text-xs font-semibold text-slate-600">
             Email Address
           </label>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-              <Mail size={16} />
+              <Mail size={15} />
             </div>
             <input
               name="email"
               required
               type="email"
-              className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              className="input input-icon-pad w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder="name@example.com"
               defaultValue="student@educonnect.dev"
             />
@@ -111,23 +112,23 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-slate-600">
               Password
             </label>
-            <Link href="#" className="text-xs font-semibold text-brand-700 hover:text-brand-800 transition">
+            <Link href="#" className="text-xs font-medium text-brand-700 hover:text-brand-800 transition">
               Forgot password?
             </Link>
           </div>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
-              <Lock size={16} />
+              <Lock size={15} />
             </div>
             <input
               name="password"
               required
               type={showPassword ? "text" : "password"}
-              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder="••••••••"
               defaultValue="student1234"
             />
@@ -143,24 +144,26 @@ export default function LoginForm() {
         </div>
 
         {state && state.ok === false && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-700 animate-fadeIn">
-            <AlertTriangle size={16} className="text-rose-500 shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700 animate-fadeIn">
+            <AlertTriangle size={15} className="text-rose-500 shrink-0" />
             <span className="font-medium">{state.error}</span>
           </div>
         )}
 
-        <div className="flex items-center text-sm text-ink-700">
-          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <div className="flex items-center text-xs text-slate-600 pt-1">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               defaultChecked
-              className="h-4.5 w-4.5 rounded border-slate-200 text-brand-600 focus:ring-brand-500 cursor-pointer"
+              className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
             />
             Remember my session
           </label>
         </div>
 
-        <SubmitBtn />
+        <div className="pt-1">
+          <SubmitBtn />
+        </div>
       </form>
     </div>
   );
