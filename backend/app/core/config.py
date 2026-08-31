@@ -1,6 +1,6 @@
 """Application settings loaded from environment variables."""
 from functools import lru_cache
-from typing import List
+from typing import List, Union, Any
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = Field(
+    BACKEND_CORS_ORIGINS: Union[List[str], str] = Field(
         default_factory=lambda: ["http://localhost:3000"]
     )
 
@@ -52,7 +52,13 @@ class Settings(BaseSettings):
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def _split_cors(cls, v):
-        if isinstance(v, str) and not v.startswith("["):
+        if isinstance(v, str):
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    import json
+                    return json.loads(v)
+                except Exception:
+                    pass
             return [o.strip() for o in v.split(",") if o.strip()]
         return v
 
