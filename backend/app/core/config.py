@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
 
     # OAuth
-    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_ID: str = "984571154887-n473mh9lnvta8h0d8r0qimuj8pomudlc.apps.googleusercontent.com"
     GOOGLE_CLIENT_SECRET: str = ""
 
     # Email

@@ -1,9 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Mail, Lock, ArrowRight, AlertTriangle, Loader2, Eye, EyeOff } from "lucide-react";
 import { loginAction, googleLoginAction } from "@/lib/actions/auth";
+
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "984571154887-n473mh9lnvta8h0d8r0qimuj8pomudlc.apps.googleusercontent.com";
 
 declare global {
   interface Window {
@@ -37,66 +41,84 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const initGoogle = () => {
+      if (window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: async (response: any) => {
+              if (response?.credential) {
+                setIsGoogleLoading(true);
+                await googleLoginAction(response.credential, "student");
+              }
+            },
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          if (googleBtnRef.current) {
+            window.google.accounts.id.renderButton(googleBtnRef.current, {
+              theme: "outline",
+              size: "large",
+              type: "standard",
+              shape: "rectangular",
+              text: "continue_with",
+              logo_alignment: "left",
+              width: 380,
+            });
+          }
+        } catch (e) {
+          console.error("Error initializing Google Identity:", e);
+        }
+      }
+    };
+
     if (!document.getElementById("google-gsi-client")) {
       const script = document.createElement("script");
       script.id = "google-gsi-client";
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
+      script.onload = initGoogle;
       document.body.appendChild(script);
+    } else {
+      initGoogle();
     }
   }, []);
 
-  const handleGoogleAuth = async () => {
+  const handleCustomGoogleClick = () => {
     setIsGoogleLoading(true);
     setGoogleError(null);
 
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
-    if (window.google?.accounts?.id && clientId) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: async (response: any) => {
-            if (response?.credential) {
-              await googleLoginAction(response.credential, "student");
-            }
-          },
-        });
-        window.google.accounts.id.prompt();
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt((notification: any) => {
         setIsGoogleLoading(false);
-        return;
-      } catch (err) {
-        console.error("Google Auth Prompt Error:", err);
-      }
-    }
-
-    try {
-      const mockGoogleCredential = btoa(
-        JSON.stringify({
-          sub: `google_user_${Date.now()}`,
-          email: "student@educonnect.dev",
-          given_name: "Demo",
-          family_name: "Student",
-          email_verified: true,
-        })
-      );
-      await googleLoginAction(mockGoogleCredential, "student");
-    } catch (err: any) {
-      setGoogleError("Google Sign-In is initializing. Please configure your Google Client ID.");
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          const redirectUri = encodeURIComponent(window.location.origin);
+          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=id_token&scope=openid%20email%20profile&nonce=${Date.now()}`;
+          window.location.href = authUrl;
+        }
+      });
+    } else {
       setIsGoogleLoading(false);
+      setGoogleError("Google Sign-In is initializing. Please try again in a moment.");
     }
   };
 
   return (
     <div className="mt-5 flex flex-col gap-5">
       {/* Google OAuth Button */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 items-center justify-center">
+        {/* Render Official Google Button container */}
+        <div ref={googleBtnRef} className="w-full flex justify-center overflow-hidden rounded-xl" />
+
+        {/* Fallback custom button */}
         <button
           type="button"
-          onClick={handleGoogleAuth}
+          onClick={handleCustomGoogleClick}
           disabled={isGoogleLoading}
           className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition active:scale-[0.99] disabled:opacity-60"
         >
