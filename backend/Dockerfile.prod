@@ -1,0 +1,63 @@
+# Multi-stage production image for the EduConnect API.
+#
+#   docker build -f Dockerfile.prod -t educonnect-api:latest .
+#   docker run --env-file .env -p 8000:8000 educonnect-api:latest
+#
+# - Deps installed in a builder image, copied over as read-only.
+# - Runs as an unprivileged user.
+# - Ships a HEALTHCHECK backed by /healthz.
+
+########################### builder ###########################
+FROM python:3.12-slim AS builder
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --prefix=/install -r requirements.txt \
+    && pip install --prefix=/install "gunicorn>=22" "uvicorn[standard]>=0.30"
+
+########################### runtime ###########################
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    APP_ENV=production \
+    PORT=8000
+
+# libpq5 needed to talk to Postgres from psycopg.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 curl tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system app \
+    && useradd  --system --gid app --home /app --shell /usr/sbin/nologin app
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
+COPY --chown=app:app app ./app
+
+USER app
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:${PORT}/healthz || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["gunicorn", "app.main:app", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--workers", "2", \
+     "--bind", "0.0.0.0:8000", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-", \
+     "--graceful-timeout", "30", \
+     "--timeout", "60"]

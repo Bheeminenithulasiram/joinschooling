@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EduConnect — Phase 1 Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand:   { 50:'#eef1ff',100:'#e0e5ff',200:'#c7cffe',300:'#a4affc',500:'#4F46E5',600:'#4338ca',700:'#3730a3' },
+          violet2: '#7C3AED',
+          accent:  '#2563EB',
+          coral:   '#FB7185',
+          amber2:  '#F59E0B',
+          mint:    '#10B981',
+          sky2:    '#38BDF8',
+          ink:     '#111827'
+        },
+        fontFamily: {
+          sans:  ['Inter','ui-sans-serif','system-ui'],
+          display:['Poppins','Inter','sans-serif'],
+          mono:  ['JetBrains Mono','ui-monospace']
+        },
+        boxShadow: {
+          soft:  '0 10px 30px -12px rgba(79,70,229,.25)',
+          pop:   '0 20px 60px -20px rgba(124,58,237,.35)'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;color:#111827;background:#F8FAFC}
+  .font-display{font-family:'Poppins',sans-serif}
+  .font-mono{font-family:'JetBrains Mono',ui-monospace}
+  .gradient-text{background:linear-gradient(90deg,#4F46E5 0%,#7C3AED 45%,#EC4899 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grid-bg{
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(79,70,229,.18), transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(236,72,153,.15), transparent 55%),
+      radial-gradient(circle at 50% 90%, rgba(56,189,248,.15), transparent 55%),
+      linear-gradient(#fff,#F8FAFC);
+  }
+  .dots{background-image:radial-gradient(rgba(79,70,229,.15) 1px, transparent 1px);background-size:22px 22px}
+  .card{background:#fff;border:1px solid rgba(17,24,39,.06);border-radius:1.25rem;transition:.25s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 24px 60px -24px rgba(79,70,229,.30)}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .7rem;border-radius:999px;font-size:.72rem;font-weight:600}
+  .kbd{font-family:'JetBrains Mono';font-size:.72rem;background:#EEF2FF;color:#3730A3;padding:.15rem .45rem;border-radius:.375rem;border:1px solid #C7D2FE}
+  .ring-brand{box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+  pre.code{background:#0B1020;color:#E5E7EB;border-radius:1rem;padding:1.1rem 1.2rem;overflow:auto;font-size:.78rem;line-height:1.55;font-family:'JetBrains Mono'}
+  pre.code .k{color:#93c5fd}
+  pre.code .s{color:#fca5a5}
+  pre.code .c{color:#64748b;font-style:italic}
+  pre.code .n{color:#fcd34d}
+  pre.code .t{color:#86efac}
+  .ascii{white-space:pre;font-family:'JetBrains Mono';font-size:.72rem;line-height:1.35;color:#334155;background:#F1F5F9;border:1px dashed #CBD5E1;border-radius:1rem;padding:1rem 1.15rem;overflow:auto}
+  .num-pill{width:2rem;height:2rem;border-radius:.75rem;display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+  .tab-btn{padding:.55rem 1rem;border-radius:.75rem;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s}
+  .tab-btn[aria-selected="true"]{background:linear-gradient(90deg,#4F46E5,#7C3AED);color:#fff;box-shadow:0 8px 20px -8px rgba(79,70,229,.55)}
+  .tab-btn[aria-selected="false"]{background:#EEF2FF;color:#4338CA}
+  .tab-btn[aria-selected="false"]:hover{background:#E0E7FF}
+  .panel{display:none}
+  .panel.active{display:block}
+  details>summary{list-style:none;cursor:pointer}
+  details>summary::-webkit-details-marker{display:none}
+  .step-line{background-image:linear-gradient(180deg,#4F46E5,#EC4899);width:2px}
+  .marquee{display:flex;gap:2rem;animation:scroll 30s linear infinite}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+<!-- ============== ARCHITECTURE ============== -->
+<section id="architecture" class="py-20 md:py-24">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-brand-50 text-brand-700 mb-3">01 · System Architecture</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">How the pieces fit together</h2>
+      <p class="mt-3 text-slate-600 text-lg">Edge-rendered Next.js speaks JWT to a FastAPI monolith backed by PostgreSQL and Redis. Long-running work (email, AI scoring, reports) is offloaded to Celery.</p>
+    </div>
+
+    <div class="mt-10 grid lg:grid-cols-5 gap-6">
+      <!-- diagram -->
+      <div class="lg:col-span-3 card p-5">
+        <div class="ascii">                        ┌────────────────────────┐
+                        │     Cloudflare CDN     │
+                        └───────────┬────────────┘
+                                    │
+                    ┌───────────────▼────────────────┐
+                    │   Next.js 15 · Vercel Edge     │
+                    │   RSC · ShadCN · TanStack Q    │
+                    └───────┬────────────────────────┘
+                            │  HTTPS · JWT (Bearer)
+                            ▼
+                    ┌────────────────────────────────┐    ┌──────────────┐
+                    │   FastAPI · Railway / Render   │◀──▶│ Redis (cache │
+                    │   REST · OpenAPI · OAuth2      │    │ + rate-limit │
+                    │   SQLAlchemy · Pydantic v2     │    │ + broker)    │
+                    └──────┬──────────────┬──────────┘    └──────────────┘
+                           │              │ enqueue
+                           ▼              ▼
+                ┌────────────────┐  ┌────────────────┐
+                │ PostgreSQL 15  │  │  Celery Worker │
+                │ Neon / Supabase│  │  email · AI    │
+                └────────────────┘  │  finder · PDF  │
+                                    └───────┬────────┘
+                                            ▼
+                                    ┌────────────────┐
+                                    │  Cloudinary    │
+                                    │  (media store) │
+                                    └────────────────┘</div>
+      </div>
+
+      <!-- key decisions -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="card p-5">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-brand-500">1</span>
+            <h3 class="font-display font-bold text-lg">RSC-first frontend</h3>
+          </div>
+          <p class="text-slate-600 text-sm mt-2">SEO-heavy pages (landing, college/internship listings & details, blogs) stream from the edge as React Server Components. Interactive pages hydrate with TanStack Query for cache-first UX.</p>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-violet2">2</span>
+            <h3 class="font-display font-bold text-lg">JWT + rotating refresh</h3>
+          </div>
+          <p class="text-slate-600 text-sm mt-2">15-min access, 30-day refresh with server-side revocation via <span class="font-mono text-brand-700">refresh_tokens</span> table. Role enum on users drives <span class="font-mono text-brand-700">require_role()</span> deps.</p>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-pink-500">3</span>
+            <h3 class="font-display font-bold text-lg">Redis + Celery</h3>
+          </div>
+          <p class="text-slate-600 text-sm mt-2">Cache-aside for public GETs, token-bucket rate limits, Celery broker for OTP delivery, AI Finder scoring, and PDF/CSV exports.</p>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-emerald-500">4</span>
+            <h3 class="font-display font-bold text-lg">Postgres-native search</h3>
+          </div>
+          <p class="text-slate-600 text-sm mt-2"><span class="font-mono text-brand-700">pg_trgm</span> + GIN indexes cover college / internship / company search up to ~100k rows before we graduate to OpenSearch.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOLDER STRUCTURE ============== -->
+<section id="structure" class="py-20 md:py-24 bg-gradient-to-b from-white to-brand-50/40">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="max-w-3xl">
+        <div class="chip bg-violet2/10 text-violet2 mb-3">02 · Folder Structure</div>
+        <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">Predictable, scalable layouts</h2>
+        <p class="mt-3 text-slate-600 text-lg">Two workspaces — <span class="font-mono text-brand-700">frontend/</span> and <span class="font-mono text-brand-700">backend/</span> — each with a strict, feature-oriented layout that maps 1:1 to the module list.</p>
+      </div>
+      <div role="tablist" data-group="fs" class="flex gap-2">
+        <button data-group="fs" data-tab="fe" aria-selected="true"  class="tab-btn">Frontend</button>
+        <button data-group="fs" data-tab="be" aria-selected="false" class="tab-btn">Backend</button>
+      </div>
+    </div>
+
+    <div class="mt-8 card p-5">
+      <div data-panel-group="fs" data-panel="fe" class="panel active">
+<pre class="code">frontend/
+├── app/                           <span class="c"># Next.js App Router</span>
+│   ├── (marketing)/page.tsx       <span class="c"># landing</span>
+│   ├── (auth)/(login|register|reset)/page.tsx
+│   ├── colleges/
+│   │   ├── page.tsx               <span class="c"># RSC list</span>
+│   │   ├── [slug]/page.tsx        <span class="c"># RSC detail</span>
+│   │   └── compare/page.tsx       <span class="c"># client</span>
+│   ├── internships/(page|[slug]).tsx
+│   ├── workshops/ · hackathons/ · scholarships/
+│   ├── career-hub/(roadmaps/[slug]|resume-builder|ats-checker)/page.tsx
+│   ├── ai-finder/page.tsx         <span class="c"># 10-step form → results</span>
+│   ├── dashboard/                 <span class="c"># student</span>
+│   │   ├── layout.tsx  page.tsx  profile/  applications/  saved/  analytics/  settings/
+│   ├── admin/                     <span class="c"># RBAC-protected</span>
+│   │   ├── layout.tsx  page.tsx  colleges/  users/  internships/  reports/
+│   ├── api/                       <span class="c"># route handlers (proxy, revalidate)</span>
+│   ├── layout.tsx  globals.css
+├── components/
+│   ├── ui/                        <span class="c"># ShadCN primitives</span>
+│   ├── site/                      <span class="c"># Header, Footer, Nav</span>
+│   ├── college/  internship/  dashboard/  ai-finder/  charts/
+├── hooks/       <span class="c"># useAuth, useDebounce, useInView</span>
+├── contexts/    <span class="c"># ThemeContext, AuthContext</span>
+├── services/    <span class="c"># axios clients + TanStack query keys</span>
+├── lib/         <span class="c"># api.ts, cn.ts, seo.ts, env.ts</span>
+├── utils/       types/          <span class="c"># types generated from OpenAPI</span>
+├── styles/      public/</pre>
+      </div>
+      <div data-panel-group="fs" data-panel="be" class="panel">
+<pre class="code">backend/
+├── app/
+│   ├── main.py                    <span class="c"># FastAPI entrypoint, mounts routers</span>
+│   ├── api/v1/
+│   │   ├── auth.py   users.py    colleges.py    compare.py    ai_finder.py
+│   │   ├── internships.py        workshops.py   hackathons.py scholarships.py
+│   │   ├── roadmaps.py           applications.py saved.py     reviews.py
+│   │   ├── alumni.py             notifications.py             admin.py
+│   ├── core/                      <span class="c"># settings, security, logging, config</span>
+│   ├── models/                    <span class="c"># SQLAlchemy ORM (mirrors schema.sql)</span>
+│   ├── schemas/                   <span class="c"># Pydantic v2 DTOs</span>
+│   ├── repositories/              <span class="c"># thin DB access</span>
+│   ├── services/                  <span class="c"># business logic</span>
+│   ├── database/                  <span class="c"># session, base, seeds</span>
+│   ├── middlewares/               <span class="c"># cors, rate_limit, request_id, errors</span>
+│   ├── auth/                      <span class="c"># jwt, oauth_google, deps</span>
+│   ├── tasks/                     <span class="c"># Celery: email, otp, ai_finder, reports</span>
+│   ├── utils/                     <span class="c"># slugify, pagination, storage, mailer</span>
+│   └── migrations/                <span class="c"># Alembic versions</span>
+└── tests/
+    ├── unit/  integration/  e2e/</pre>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============== NAV ============== -->
+<header class="sticky top-0 z-40 backdrop-blur bg-white/80 border-b border-slate-200/60">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2">
+      <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 via-violet2 to-pink-500 flex items-center justify-center shadow-soft">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 10l9-6 9 6-9 6-9-6z"/><path d="M7 12v5c0 1.5 3 3 5 3s5-1.5 5-3v-5"/></svg>
+      </span>
+      <span class="font-display font-extrabold text-lg tracking-tight">Edu<span class="gradient-text">Connect</span></span>
+      <span class="chip bg-brand-50 text-brand-700 ml-2">Phase 1 · Blueprint</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+      <a href="#architecture" class="hover:text-brand-600">Architecture</a>
+      <a href="#structure"   class="hover:text-brand-600">Structure</a>
+      <a href="#database"    class="hover:text-brand-600">Database</a>
+      <a href="#api"         class="hover:text-brand-600">API</a>
+      <a href="#modules"     class="hover:text-brand-600">Modules</a>
+      <a href="#roadmap"     class="hover:text-brand-600">Roadmap</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href="schema.sql"   class="hidden sm:inline-flex chip bg-slate-100 text-slate-700 hover:bg-slate-200">schema.sql</a>
+      <a href="openapi.yaml" class="hidden sm:inline-flex chip bg-slate-100 text-slate-700 hover:bg-slate-200">openapi.yaml</a>
+      <a href="architecture.md" class="chip bg-gradient-to-r from-brand-500 to-violet2 text-white shadow-soft">Full doc →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============== HERO ============== -->
+<section id="top" class="relative grid-bg overflow-hidden">
+  <div class="absolute inset-0 dots opacity-40 pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-5 md:px-8 pt-16 pb-24 md:pt-24 md:pb-32 relative">
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 chip bg-white shadow-soft border border-brand-100">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-slate-700">Vibrant Education Marketplace · 14 Modules</span>
+        </div>
+        <h1 class="font-display font-extrabold text-4xl md:text-6xl leading-[1.05] mt-5">
+          The <span class="gradient-text">production blueprint</span><br class="hidden md:block"/> for a modern student platform.
+        </h1>
+        <p class="mt-5 text-slate-600 text-lg max-w-xl">
+          Next.js 15 · FastAPI · PostgreSQL · Redis · Celery. This blueprint delivers the folder structure, ER-modeled schema, and complete OpenAPI contract to build EduConnect end-to-end.
+        </p>
+        <div class="mt-7 flex flex-wrap items-center gap-3">
+          <a href="#architecture" class="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet2 text-white font-semibold shadow-pop hover:opacity-95">Explore the blueprint</a>
+          <a href="#api" class="px-5 py-3 rounded-xl bg-white border border-slate-200 font-semibold text-slate-800 hover:border-brand-300">View API →</a>
+          <span class="text-xs text-slate-500 ml-1">Press <span class="kbd">/</span> to search sections</span>
+        </div>
+        <div class="mt-8 grid grid-cols-3 gap-3 max-w-md">
+          <div class="card p-3 text-center"><div class="font-display text-2xl font-extrabold gradient-text">28</div><div class="text-[11px] uppercase tracking-wide text-slate-500">DB tables</div></div>
+          <div class="card p-3 text-center"><div class="font-display text-2xl font-extrabold gradient-text">42</div><div class="text-[11px] uppercase tracking-wide text-slate-500">Endpoints</div></div>
+          <div class="card p-3 text-center"><div class="font-display text-2xl font-extrabold gradient-text">14</div><div class="text-[11px] uppercase tracking-wide text-slate-500">Modules</div></div>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="absolute -inset-6 bg-gradient-to-tr from-brand-200/60 via-pink-200/40 to-sky-200/50 rounded-[2rem] blur-2xl"></div>
+        <div class="relative card p-5 shadow-pop">
+          <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span class="ml-3 text-xs text-slate-500 font-mono">GET /api/v1/ai/college-finder</span>
+          </div>
+<pre class="code mt-3"><span class="c">// AI College Finder → recommendation</span>
+<span class="k">POST</span> /ai/college-finder
+{
+  <span class="t">"tenth_percentage"</span>:   <span class="n">94</span>,
+  <span class="t">"twelfth_percentage"</span>: <span class="n">89</span>,
+  <span class="t">"preferred_course"</span>:  <span class="s">"Computer Science"</span>,
+  <span class="t">"budget_max_lpa"</span>:    <span class="n">3.0</span>,
+  <span class="t">"state"</span>:             <span class="s">"Telangana"</span>,
+  <span class="t">"hostel_required"</span>:   true,
+  <span class="t">"expected_package_lpa"</span>: <span class="n">12</span>
+}
+<span class="c">// →</span>
+{
+  <span class="t">"run_id"</span>: <span class="s">"a4c…"</span>,
+  <span class="t">"recommendations"</span>: [
+    { <span class="t">"college"</span>: <span class="s">"VNR VJIET"</span>,   <span class="t">"match_score"</span>: <span class="n">0.95</span>,
+      <span class="t">"predicted_package_lpa"</span>: <span class="n">12.0</span>,
+      <span class="t">"admission_probability"</span>: <span class="n">0.83</span> },
+    { <span class="t">"college"</span>: <span class="s">"GITAM University"</span>, <span class="t">"match_score"</span>: <span class="n">0.92</span> },
+    { <span class="t">"college"</span>: <span class="s">"KL University"</span>,   <span class="t">"match_score"</span>: <span class="n">0.89</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TECH STACK MARQUEE ============== -->
+<section class="border-y border-slate-200/70 bg-white overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 py-6">
+    <div class="text-center text-xs uppercase tracking-[0.25em] text-slate-500 font-semibold mb-4">Built with a modern, opinionated stack</div>
+    <div class="overflow-hidden">
+      <div class="marquee whitespace-nowrap text-sm font-semibold text-slate-600">
+        <div class="flex items-center gap-8 pr-8">
+          <span>Next.js 15</span><span>·</span><span>React 19</span><span>·</span><span>TypeScript</span><span>·</span><span>Tailwind</span><span>·</span><span>ShadCN</span><span>·</span><span>Framer Motion</span><span>·</span><span>TanStack Query</span><span>·</span><span>Recharts</span><span>·</span><span>FastAPI</span><span>·</span><span>SQLAlchemy</span><span>·</span><span>Alembic</span><span>·</span><span>Pydantic v2</span><span>·</span><span>PostgreSQL 15</span><span>·</span><span>Redis</span><span>·</span><span>Celery</span><span>·</span><span>Cloudinary</span><span>·</span><span>JWT + OAuth2</span>
+        </div>
+        <div class="flex items-center gap-8 pr-8" aria-hidden="true">
+          <span>Next.js 15</span><span>·</span><span>React 19</span><span>·</span><span>TypeScript</span><span>·</span><span>Tailwind</span><span>·</span><span>ShadCN</span><span>·</span><span>Framer Motion</span><span>·</span><span>TanStack Query</span><span>·</span><span>Recharts</span><span>·</span><span>FastAPI</span><span>·</span><span>SQLAlchemy</span><span>·</span><span>Alembic</span><span>·</span><span>Pydantic v2</span><span>·</span><span>PostgreSQL 15</span><span>·</span><span>Redis</span><span>·</span><span>Celery</span><span>·</span><span>Cloudinary</span><span>·</span><span>JWT + OAuth2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============== DATABASE ============== -->
+<section id="database" class="py-20 md:py-24">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-pink-500/10 text-pink-600 mb-3">03 · Database Schema</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">A normalized, indexed foundation</h2>
+      <p class="mt-3 text-slate-600 text-lg">28 tables. UUID PKs, soft deletes, audit fields, trigram + GIN indexes. Every entity has a home; every hot query has an index.</p>
+    </div>
+
+    <div class="mt-10 card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-display font-bold text-lg">Entity relationships</h3>
+        <a href="schema.sql" class="chip bg-slate-100 text-slate-700 hover:bg-slate-200">Download schema.sql →</a>
+      </div>
+      <div class="ascii">                            ┌────────┐
+                            │ users  │ ── role: student|admin|recruiter|mentor
+                            └────┬───┘
+              ┌────────┬─────────┼──────────┬──────────┐
+              ▼        ▼         ▼          ▼          ▼
+        ┌──────────┐ ┌────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐
+        │ students │ │ admins │ │recruiters│ │ alumni   │ │refresh_tokens│
+        └────┬─────┘ └────────┘ └────┬─────┘ │_profiles │ └──────────────┘
+             │                       │       └────┬─────┘
+   ┌─────────┼──────────────┬────────┴──────┐     │
+   ▼         ▼              ▼               ▼     ▼
+┌──────────┐┌──────────┐┌────────────┐┌────────────┐
+│applications││saved_items││reviews    ││notifications│
+└────┬───────┘└─────┬────┘└─────┬─────┘└────────────┘
+     │  polymorphic (kind, target_id)
+     ▼
+ ─── internships ─── colleges ─── workshops ─── hackathons ─── scholarships
+
+┌──────────┐   1..N   ┌────────┐    ┌───────────┐   ┌────────────────────┐
+│ colleges │────────▶│ courses │    │placements │◀──│  college_gallery   │
+└────┬─────┘         └────────┘    └───────────┘   └────────────────────┘
+     │  M..N via college_top_recruiters
+     ▼
+┌──────────┐   1..N   ┌───────────────┐
+│companies │────────▶│  internships   │
+└──────────┘         └───────────────┘
+
+ai_finder_runs · activity_log · messages · contact_messages · faq · blogs · career_roadmaps</div>
+    </div>
+
+    <div class="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card p-5">
+        <div class="chip bg-brand-50 text-brand-700 mb-2">Identity</div>
+        <ul class="text-sm text-slate-700 space-y-1 font-mono">
+          <li>users</li><li>refresh_tokens</li><li>otp_codes</li>
+          <li>students · admins · recruiters</li>
+          <li>alumni_profiles</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <div class="chip bg-violet2/10 text-violet2 mb-2">Colleges</div>
+        <ul class="text-sm text-slate-700 space-y-1 font-mono">
+          <li>colleges</li><li>courses</li><li>placements</li>
+          <li>college_gallery</li><li>college_top_recruiters</li>
+          <li>companies</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <div class="chip bg-pink-500/10 text-pink-600 mb-2">Opportunities</div>
+        <ul class="text-sm text-slate-700 space-y-1 font-mono">
+          <li>internships</li><li>workshops</li><li>hackathons</li>
+          <li>scholarships</li><li>career_roadmaps</li><li>blogs</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <div class="chip bg-emerald-500/10 text-emerald-600 mb-2">Engagement</div>
+        <ul class="text-sm text-slate-700 space-y-1 font-mono">
+          <li>applications</li><li>saved_items</li><li>reviews</li>
+          <li>notifications</li><li>messages</li><li>ai_finder_runs</li>
+          <li>activity_log · faq · contact_messages</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 grid lg:grid-cols-2 gap-6">
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-display font-bold">Colleges table (excerpt)</h3>
+          <span class="chip bg-slate-100 text-slate-700">DDL</span>
+        </div>
+<pre class="code"><span class="k">CREATE TABLE</span> colleges (
+  id               <span class="t">UUID</span>  <span class="k">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  name             <span class="t">VARCHAR</span>(200)  <span class="k">NOT NULL</span>,
+  slug             <span class="t">VARCHAR</span>(220)  <span class="k">NOT NULL UNIQUE</span>,
+  type             college_type    <span class="k">NOT NULL</span>,   <span class="c">-- enum</span>
+  state            <span class="t">VARCHAR</span>(80)   <span class="k">NOT NULL</span>,
+  city             <span class="t">VARCHAR</span>(80)   <span class="k">NOT NULL</span>,
+  naac_grade       <span class="t">VARCHAR</span>(5),
+  nirf_rank        <span class="t">INT</span>,
+  avg_package_lpa  <span class="t">NUMERIC</span>(6,2),
+  highest_package_lpa <span class="t">NUMERIC</span>(6,2),
+  placement_percent   <span class="t">NUMERIC</span>(5,2),
+  hostel_available <span class="t">BOOLEAN NOT NULL DEFAULT</span> <span class="n">FALSE</span>,
+  infrastructure   <span class="t">JSONB NOT NULL DEFAULT</span> <span class="s">'{}'</span>::jsonb,
+  facilities       <span class="t">TEXT</span>[],
+  rating           <span class="t">NUMERIC</span>(3,2)   <span class="k">NOT NULL DEFAULT</span> <span class="n">0</span>,
+  created_at       <span class="t">TIMESTAMPTZ NOT NULL DEFAULT</span> now(),
+  updated_at       <span class="t">TIMESTAMPTZ NOT NULL DEFAULT</span> now(),
+  deleted_at       <span class="t">TIMESTAMPTZ</span>
+);
+<span class="k">CREATE INDEX</span> idx_colleges_state_city  <span class="k">ON</span> colleges(state, city);
+<span class="k">CREATE INDEX</span> idx_colleges_name_trgm   <span class="k">ON</span> colleges <span class="k">USING gin</span> (name gin_trgm_ops);
+<span class="k">CREATE INDEX</span> idx_colleges_avg_package <span class="k">ON</span> colleges(avg_package_lpa <span class="k">DESC</span>);</pre>
+      </div>
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-display font-bold">Applications (polymorphic)</h3>
+          <span class="chip bg-slate-100 text-slate-700">DDL</span>
+        </div>
+<pre class="code"><span class="k">CREATE TABLE</span> applications (
+  id           <span class="t">UUID</span> <span class="k">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  student_id   <span class="t">UUID</span> <span class="k">NOT NULL REFERENCES</span> students(user_id) <span class="k">ON DELETE CASCADE</span>,
+  target_kind  <span class="t">VARCHAR</span>(20) <span class="k">NOT NULL</span>,
+    <span class="c">-- 'internship' | 'college' | 'scholarship' | 'hackathon' | 'workshop'</span>
+  target_id    <span class="t">UUID</span> <span class="k">NOT NULL</span>,
+  status       application_status <span class="k">NOT NULL DEFAULT</span> <span class="s">'submitted'</span>,
+  cover_letter <span class="t">TEXT</span>,
+  resume_url   <span class="t">TEXT</span>,
+  answers      <span class="t">JSONB NOT NULL DEFAULT</span> <span class="s">'{}'</span>::jsonb,
+  reviewed_by  <span class="t">UUID</span> <span class="k">REFERENCES</span> users(id),
+  reviewed_at  <span class="t">TIMESTAMPTZ</span>,
+  submitted_at <span class="t">TIMESTAMPTZ NOT NULL DEFAULT</span> now(),
+  <span class="k">UNIQUE</span>(student_id, target_kind, target_id)  <span class="c">-- idempotent apply</span>
+);</pre>
+      </div>
+    </div>
+
+    <div class="mt-8 grid md:grid-cols-4 gap-4">
+      <div class="card p-5"><div class="text-brand-600 font-bold">Soft deletes</div><p class="text-sm text-slate-600 mt-1"><span class="font-mono">deleted_at</span> on business tables; hard delete for tokens/OTPs.</p></div>
+      <div class="card p-5"><div class="text-violet2 font-bold">Audit fields</div><p class="text-sm text-slate-600 mt-1">Auto-touched <span class="font-mono">updated_at</span> via <span class="font-mono">touch_updated_at()</span> trigger.</p></div>
+      <div class="card p-5"><div class="text-pink-600 font-bold">Fuzzy search</div><p class="text-sm text-slate-600 mt-1">GIN + <span class="font-mono">gin_trgm_ops</span> on names, titles, skills, tags.</p></div>
+      <div class="card p-5"><div class="text-emerald-600 font-bold">Enums</div><p class="text-sm text-slate-600 mt-1"><span class="font-mono">user_role, work_mode, application_status, saved_kind, college_type</span>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== API DESIGN ============== -->
+<section id="api" class="py-20 md:py-24 bg-gradient-to-b from-brand-50/40 to-white">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-accent/10 text-accent mb-3">04 · REST API</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">A clean, consistent contract</h2>
+      <p class="mt-3 text-slate-600 text-lg">Versioned under <span class="font-mono text-brand-700">/api/v1</span>. Bearer JWT. Uniform pagination & error envelope. Full spec generated at <span class="font-mono text-brand-700">/docs</span> via FastAPI.</p>
+    </div>
+
+    <div class="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="card p-5"><div class="chip bg-brand-50 text-brand-700 mb-2">Auth</div><p class="text-sm text-slate-600"><span class="font-mono">Authorization: Bearer &lt;access&gt;</span> · refresh via <span class="font-mono">/auth/refresh</span> · rotating refresh tokens with server-side revocation.</p></div>
+      <div class="card p-5"><div class="chip bg-violet2/10 text-violet2 mb-2">Pagination</div><p class="text-sm text-slate-600"><span class="font-mono">?page=&amp;page_size=</span> → <span class="font-mono">{items, pagination:{total,has_next}}</span> · max 100/page.</p></div>
+      <div class="card p-5"><div class="chip bg-pink-500/10 text-pink-600 mb-2">Errors</div><p class="text-sm text-slate-600">RFC 7807 <span class="font-mono">application/problem+json</span> with <span class="font-mono">errors[]</span> for 422s.</p></div>
+      <div class="card p-5"><div class="chip bg-emerald-500/10 text-emerald-600 mb-2">Rate limits</div><p class="text-sm text-slate-600">60/min anon · 300/min user · 10/min on <span class="font-mono">/auth/*</span>. Token-bucket in Redis.</p></div>
+      <div class="card p-5"><div class="chip bg-amber-500/10 text-amber-600 mb-2">Cache</div><p class="text-sm text-slate-600">Public GETs 60s Redis + <span class="font-mono">stale-while-revalidate=300</span>.</p></div>
+      <div class="card p-5"><div class="chip bg-sky-500/10 text-sky-600 mb-2">Docs</div><p class="text-sm text-slate-600"><span class="font-mono">/docs</span> Swagger · <span class="font-mono">/redoc</span> · <span class="font-mono">/openapi.json</span> → typed FE via <span class="font-mono">openapi-typescript</span>.</p></div>
+    </div>
+
+    <div class="mt-10">
+      <div role="tablist" data-group="api" class="flex flex-wrap gap-2">
+        <button data-group="api" data-tab="auth"    aria-selected="true"  class="tab-btn">Auth</button>
+        <button data-group="api" data-tab="college" aria-selected="false" class="tab-btn">Colleges</button>
+        <button data-group="api" data-tab="ai"      aria-selected="false" class="tab-btn">AI Finder</button>
+        <button data-group="api" data-tab="intern"  aria-selected="false" class="tab-btn">Internships</button>
+        <button data-group="api" data-tab="dash"    aria-selected="false" class="tab-btn">Dashboard</button>
+        <button data-group="api" data-tab="admin"   aria-selected="false" class="tab-btn">Admin</button>
+      </div>
+
+      <div class="mt-5 card p-5">
+        <div data-panel-group="api" data-panel="auth" class="panel active">
+          <div class="grid md:grid-cols-2 gap-3 text-sm font-mono">
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/register</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/login</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/google</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/refresh</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/verify-email</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/forgot-password</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/reset-password</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/auth/logout</div>
+          </div>
+        </div>
+
+        <div data-panel-group="api" data-panel="college" class="panel">
+          <div class="grid md:grid-cols-2 gap-3 text-sm font-mono">
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/colleges<span class="text-slate-400 ml-2">?q&amp;state&amp;type&amp;min_rating&amp;sort&amp;page</span></div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/colleges/{slug}</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/colleges/compare<span class="text-slate-400 ml-2">?ids=a,b,c</span></div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/saved<span class="text-slate-400 ml-2">{kind:'college'}</span></div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/reviews</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/reviews?kind=college&amp;target_id=…</div>
+          </div>
+        </div>
+
+        <div data-panel-group="api" data-panel="ai" class="panel">
+<pre class="code"><span class="k">POST</span> /ai/college-finder
+<span class="k">Content-Type</span>: application/json
+{
+  <span class="t">"tenth_percentage"</span>:   <span class="n">94</span>,
+  <span class="t">"twelfth_percentage"</span>: <span class="n">89</span>,
+  <span class="t">"cgpa"</span>:               <span class="n">8.6</span>,
+  <span class="t">"preferred_course"</span>:   <span class="s">"Computer Science Engineering"</span>,
+  <span class="t">"budget_min_lpa"</span>:     <span class="n">1.0</span>,
+  <span class="t">"budget_max_lpa"</span>:     <span class="n">3.0</span>,
+  <span class="t">"state"</span>:              <span class="s">"Telangana"</span>,
+  <span class="t">"city"</span>:               <span class="s">"Hyderabad"</span>,
+  <span class="t">"hostel_required"</span>:    true,
+  <span class="t">"expected_package_lpa"</span>: <span class="n">12</span>,
+  <span class="t">"preferred_companies"</span>: [<span class="s">"Amazon"</span>, <span class="s">"Microsoft"</span>, <span class="s">"TCS"</span>]
+}
+
+<span class="c">// pipeline: candidate-generate → weighted score → optional LLM re-rank → persist ai_finder_runs</span>
+<span class="c">// weights: academics 30% · budget 20% · placement fit 25% · location 10% · facilities 15%</span></pre>
+        </div>
+
+        <div data-panel-group="api" data-panel="intern" class="panel">
+          <div class="grid md:grid-cols-2 gap-3 text-sm font-mono">
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/internships<span class="text-slate-400 ml-2">?q&amp;domain&amp;work_mode&amp;min_stipend</span></div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/internships/{slug}</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/internships/{id}/apply</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/applications</div>
+          </div>
+        </div>
+
+        <div data-panel-group="api" data-panel="dash" class="panel">
+<pre class="code"><span class="k">GET</span> /me/dashboard        <span class="c">// single aggregated payload → kills waterfall</span>
+
+{
+  <span class="t">"stats"</span>: { <span class="t">"applications"</span>: <span class="n">12</span>, <span class="t">"saved_colleges"</span>: <span class="n">7</span>,
+              <span class="t">"saved_internships"</span>: <span class="n">4</span>, <span class="t">"unread_notifs"</span>: <span class="n">3</span> },
+  <span class="t">"recent_applications"</span>: [ ...ApplicationRow ],
+  <span class="t">"recommended_colleges"</span>: [ ...CollegeCard ],
+  <span class="t">"upcoming_deadlines"</span>:   [ { <span class="t">"kind"</span>: <span class="s">"scholarship"</span>, <span class="t">"title"</span>: <span class="s">"…"</span>, <span class="t">"ends_at"</span>: <span class="s">"…"</span> } ]
+}</pre>
+        </div>
+
+        <div data-panel-group="api" data-panel="admin" class="panel">
+          <div class="grid md:grid-cols-2 gap-3 text-sm font-mono">
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/admin/stats</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-sky-100 text-sky-700 mr-2">GET</span>/admin/users</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-emerald-100 text-emerald-700 mr-2">POST</span>/admin/colleges</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-amber-100 text-amber-700 mr-2">PATCH</span>/admin/colleges/{id}</div>
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-100"><span class="chip bg-rose-100 text-rose-700 mr-2">DELETE</span>/admin/colleges/{id}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PRIORITY MODULES ============== -->
+<section id="modules" class="py-20 md:py-24">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-brand-50 text-brand-700 mb-3">05 · Priority Modules</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">Three modules, drawn end-to-end</h2>
+      <p class="mt-3 text-slate-600 text-lg">The AI Finder, College listing/detail flow, and Student Dashboard get UI wireframes, data contracts, and the exact tables/endpoints they touch.</p>
+    </div>
+
+    <div class="mt-12 grid lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-2 card p-6">
+        <div class="flex items-center gap-3">
+          <span class="num-pill bg-gradient-to-br from-brand-500 to-pink-500">AI</span>
+          <h3 class="font-display font-extrabold text-xl">AI College Finder</h3>
+        </div>
+        <p class="text-slate-600 text-sm mt-2">10-step form collects academics, budget, location, hostel, expected package and preferred companies. The engine returns ranked matches with pros/cons and an admission-probability score.</p>
+        <div class="mt-4 space-y-3">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Data</div>
+            <div class="flex flex-wrap gap-1.5 text-xs font-mono">
+              <span class="chip bg-brand-50 text-brand-700">students</span>
+              <span class="chip bg-brand-50 text-brand-700">colleges</span>
+              <span class="chip bg-brand-50 text-brand-700">placements</span>
+              <span class="chip bg-brand-50 text-brand-700">ai_finder_runs</span>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Endpoints</div>
+            <div class="flex flex-wrap gap-1.5 text-xs font-mono">
+              <span class="chip bg-emerald-50 text-emerald-700">POST /ai/college-finder</span>
+              <span class="chip bg-sky-50 text-sky-700">GET /ai/college-finder/history</span>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Scoring rubric</div>
+            <div class="grid grid-cols-5 gap-1 text-center text-[10px] font-semibold">
+              <div class="rounded-md py-2 bg-brand-500 text-white">Academics<div class="text-sm">30%</div></div>
+              <div class="rounded-md py-2 bg-violet2 text-white">Budget<div class="text-sm">20%</div></div>
+              <div class="rounded-md py-2 bg-pink-500 text-white">Placement<div class="text-sm">25%</div></div>
+              <div class="rounded-md py-2 bg-sky-500 text-white">Location<div class="text-sm">10%</div></div>
+              <div class="rounded-md py-2 bg-emerald-500 text-white">Facilities<div class="text-sm">15%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-3 card p-4 md:p-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="font-display font-bold">Your Top College Matches</span>
+            <span class="chip bg-slate-100 text-slate-600">wireframe · /ai-finder</span>
+          </div>
+          <button class="chip bg-brand-500 text-white">Refine Search</button>
+        </div>
+        <div class="mt-4 grid md:grid-cols-2 gap-3">
+          <div class="rounded-xl p-4 border border-slate-100 bg-gradient-to-br from-white to-brand-50/50">
+            <div class="flex items-center justify-between">
+              <div class="text-sm font-bold">Your Preferences</div>
+              <button class="text-xs text-brand-600 font-semibold">Edit</button>
+            </div>
+            <dl class="mt-3 space-y-2 text-xs">
+              <div class="flex justify-between"><dt class="text-slate-500">Course</dt><dd class="font-semibold">Computer Science</dd></div>
+              <div class="flex justify-between"><dt class="text-slate-500">Location</dt><dd class="font-semibold">Hyderabad, TS</dd></div>
+              <div class="flex justify-between"><dt class="text-slate-500">Budget</dt><dd class="font-semibold">₹1L–₹3L</dd></div>
+              <div class="flex justify-between"><dt class="text-slate-500">12th %</dt><dd class="font-semibold">89%</dd></div>
+              <div class="flex justify-between"><dt class="text-slate-500">Hostel</dt><dd class="font-semibold">Yes</dd></div>
+              <div class="flex justify-between"><dt class="text-slate-500">Expected pkg</dt><dd class="font-semibold">₹12+ LPA</dd></div>
+            </dl>
+          </div>
+          <div class="space-y-3">
+            <div class="rounded-xl p-3 border border-slate-100 flex items-center gap-3 hover:border-brand-200 transition">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white grid place-items-center font-display font-extrabold">95%</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">VNR VJIET</div>
+                <div class="text-[11px] text-slate-500">Hyderabad · ₹1.20L · 92% placement</div>
+              </div>
+              <button class="chip bg-brand-500 text-white">View</button>
+            </div>
+            <div class="rounded-xl p-3 border border-slate-100 flex items-center gap-3 hover:border-brand-200 transition">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white grid place-items-center font-display font-extrabold">92%</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">GITAM University</div>
+                <div class="text-[11px] text-slate-500">Vizag · ₹1.40L · 89% placement</div>
+              </div>
+              <button class="chip bg-brand-500 text-white">View</button>
+            </div>
+            <div class="rounded-xl p-3 border border-slate-100 flex items-center gap-3 hover:border-brand-200 transition">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet2 to-pink-500 text-white grid place-items-center font-display font-extrabold">89%</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">KL University</div>
+                <div class="text-[11px] text-slate-500">Vijayawada · ₹1.30L · 85% placement</div>
+              </div>
+              <button class="chip bg-brand-500 text-white">View</button>
+            </div>
+            <div class="rounded-xl p-3 border border-slate-100 flex items-center gap-3 hover:border-brand-200 transition">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber2 to-coral text-white grid place-items-center font-display font-extrabold">86%</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">BVRIT Hyderabad</div>
+                <div class="text-[11px] text-slate-500">Hyderabad · ₹1.10L · 80% placement</div>
+              </div>
+              <button class="chip bg-brand-500 text-white">View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 grid lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-3 card p-4 md:p-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="font-display font-bold">Explore Colleges</span>
+            <span class="chip bg-slate-100 text-slate-600">wireframe · /colleges</span>
+          </div>
+          <span class="text-xs text-slate-500">128 results</span>
+        </div>
+        <div class="mt-4 grid md:grid-cols-[220px_1fr] gap-4">
+          <aside class="rounded-xl p-4 border border-slate-100 bg-slate-50/60">
+            <div class="text-xs font-bold text-slate-700 mb-2">Filters</div>
+            <div class="space-y-3 text-xs">
+              <div><div class="text-slate-500 mb-1">State</div>
+                <div class="flex flex-wrap gap-1"><span class="chip bg-white border border-brand-200 text-brand-700">Telangana ✕</span><span class="chip bg-white border border-slate-200 text-slate-600">Karnataka</span></div>
+              </div>
+              <div><div class="text-slate-500 mb-1">Type</div>
+                <div class="flex flex-wrap gap-1"><span class="chip bg-white border border-slate-200 text-slate-600">Government</span><span class="chip bg-white border border-brand-200 text-brand-700">Private ✕</span></div>
+              </div>
+              <div><div class="text-slate-500 mb-1">Fees (LPA)</div>
+                <div class="h-2 rounded-full bg-slate-200 relative"><div class="absolute inset-y-0 left-1/4 right-1/3 rounded-full bg-gradient-to-r from-brand-500 to-violet2"></div></div>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>₹1L</span><span>₹5L</span></div>
+              </div>
+              <div><div class="text-slate-500 mb-1">Facilities</div>
+                <div class="flex flex-wrap gap-1"><span class="chip bg-white border border-slate-200 text-slate-600">Hostel</span><span class="chip bg-white border border-slate-200 text-slate-600">Sports</span><span class="chip bg-white border border-slate-200 text-slate-600">Wi-Fi</span></div>
+              </div>
+            </div>
+          </aside>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="rounded-xl border border-slate-100 overflow-hidden">
+              <div class="h-20 bg-gradient-to-r from-brand-500 to-violet2"></div>
+              <div class="p-3">
+                <div class="font-semibold text-sm">VNR VJIET</div>
+                <div class="text-[11px] text-slate-500">Hyderabad, TS · NAAC A++</div>
+                <div class="flex items-center justify-between mt-2 text-[11px]">
+                  <span class="chip bg-emerald-50 text-emerald-700">92% placement</span>
+                  <span class="font-semibold">₹1.2L/yr</span>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-100 overflow-hidden">
+              <div class="h-20 bg-gradient-to-r from-pink-500 to-amber2"></div>
+              <div class="p-3">
+                <div class="font-semibold text-sm">GITAM University</div>
+                <div class="text-[11px] text-slate-500">Visakhapatnam, AP · NAAC A+</div>
+                <div class="flex items-center justify-between mt-2 text-[11px]">
+                  <span class="chip bg-emerald-50 text-emerald-700">89% placement</span>
+                  <span class="font-semibold">₹1.4L/yr</span>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-100 overflow-hidden">
+              <div class="h-20 bg-gradient-to-r from-sky-500 to-brand-500"></div>
+              <div class="p-3">
+                <div class="font-semibold text-sm">KL University</div>
+                <div class="text-[11px] text-slate-500">Vijayawada, AP · NIRF 50</div>
+                <div class="flex items-center justify-between mt-2 text-[11px]">
+                  <span class="chip bg-emerald-50 text-emerald-700">85% placement</span>
+                  <span class="font-semibold">₹1.3L/yr</span>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-100 overflow-hidden">
+              <div class="h-20 bg-gradient-to-r from-emerald-500 to-sky-500"></div>
+              <div class="p-3">
+                <div class="font-semibold text-sm">BVRIT Hyderabad</div>
+                <div class="text-[11px] text-slate-500">Hyderabad, TS · Autonomous</div>
+                <div class="flex items-center justify-between mt-2 text-[11px]">
+                  <span class="chip bg-emerald-50 text-emerald-700">80% placement</span>
+                  <span class="font-semibold">₹1.1L/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-4">
+        <div class="card p-6">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-brand-500">🎓</span>
+            <h3 class="font-display font-extrabold text-xl">Colleges — Listing &amp; Detail</h3>
+          </div>
+          <ul class="mt-3 text-sm text-slate-700 space-y-1.5">
+            <li>• RSC list with SSR filters, sort, pagination</li>
+            <li>• Detail: overview · placements · courses · fees · infrastructure · reviews · gallery · top recruiters · admission process · Apply</li>
+            <li>• Compare (2–4) side-by-side with a winner-per-attribute matrix</li>
+            <li>• Wishlist via <span class="font-mono text-brand-700">saved_items(kind='college')</span></li>
+          </ul>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-xs font-mono">
+            <span class="chip bg-brand-50 text-brand-700">colleges</span>
+            <span class="chip bg-brand-50 text-brand-700">courses</span>
+            <span class="chip bg-brand-50 text-brand-700">placements</span>
+            <span class="chip bg-brand-50 text-brand-700">college_gallery</span>
+            <span class="chip bg-brand-50 text-brand-700">reviews</span>
+            <span class="chip bg-brand-50 text-brand-700">saved_items</span>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-1.5 text-xs font-mono">
+            <span class="chip bg-sky-50 text-sky-700">GET /colleges</span>
+            <span class="chip bg-sky-50 text-sky-700">GET /colleges/{slug}</span>
+            <span class="chip bg-sky-50 text-sky-700">GET /colleges/compare</span>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <div class="flex items-center gap-3">
+            <span class="num-pill bg-violet2">📊</span>
+            <h3 class="font-display font-extrabold text-xl">Student Dashboard</h3>
+          </div>
+          <p class="text-slate-600 text-sm mt-2">Aggregated payload via <span class="font-mono text-brand-700">/me/dashboard</span> avoids hydration waterfalls.</p>
+          <div class="mt-4 grid grid-cols-4 gap-2">
+            <div class="rounded-xl p-3 bg-gradient-to-br from-brand-500 to-violet2 text-white text-center">
+              <div class="text-lg font-display font-extrabold">12</div><div class="text-[10px] opacity-90">Applications</div>
+            </div>
+            <div class="rounded-xl p-3 bg-gradient-to-br from-pink-500 to-coral text-white text-center">
+              <div class="text-lg font-display font-extrabold">7</div><div class="text-[10px] opacity-90">Colleges</div>
+            </div>
+            <div class="rounded-xl p-3 bg-gradient-to-br from-amber2 to-orange-500 text-white text-center">
+              <div class="text-lg font-display font-extrabold">4</div><div class="text-[10px] opacity-90">Internships</div>
+            </div>
+            <div class="rounded-xl p-3 bg-gradient-to-br from-emerald-500 to-sky-500 text-white text-center">
+              <div class="text-lg font-display font-extrabold">3</div><div class="text-[10px] opacity-90">Alerts</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-xs text-slate-500 mb-1">Application funnel</div>
+            <div class="h-24 flex items-end gap-2">
+              <div class="flex-1 rounded-t-md bg-brand-200" style="height:80%"></div>
+              <div class="flex-1 rounded-t-md bg-brand-300" style="height:60%"></div>
+              <div class="flex-1 rounded-t-md bg-brand-400" style="height:45%"></div>
+              <div class="flex-1 rounded-t-md bg-brand-500" style="height:30%"></div>
+              <div class="flex-1 rounded-t-md bg-violet2" style="height:18%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>Draft</span><span>Sent</span><span>Review</span><span>Shortlist</span><span>Offer</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MODULE MATRIX ============== -->
+<section class="py-16 bg-gradient-to-b from-white to-brand-50/40">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-emerald-500/10 text-emerald-600 mb-3">06 · Module Matrix</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">All 14 modules at a glance</h2>
+    </div>
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card p-5"><div class="text-2xl">🏠</div><div class="font-display font-bold mt-2">Landing</div><p class="text-xs text-slate-500 mt-1">Hero · Search · Featured Colleges · Latest Internships · Roadmaps · Testimonials · FAQ · Newsletter · Footer.</p></div>
+      <div class="card p-5"><div class="text-2xl">🔐</div><div class="font-display font-bold mt-2">Auth</div><p class="text-xs text-slate-500 mt-1">Register · Login · Google OAuth · OTP · Reset · JWT + Role-based access.</p></div>
+      <div class="card p-5"><div class="text-2xl">📊</div><div class="font-display font-bold mt-2">Student Dashboard</div><p class="text-xs text-slate-500 mt-1">Profile · Saved · Applications · Analytics · Notifications · Settings.</p></div>
+      <div class="card p-5"><div class="text-2xl">🎓</div><div class="font-display font-bold mt-2">Colleges</div><p class="text-xs text-slate-500 mt-1">List · Filters · Detail · Reviews · Gallery · Placements · Apply.</p></div>
+      <div class="card p-5"><div class="text-2xl">⚖️</div><div class="font-display font-bold mt-2">Compare</div><p class="text-xs text-slate-500 mt-1">2–4 side-by-side · Winner per attribute · Save comparison.</p></div>
+      <div class="card p-5"><div class="text-2xl">🤖</div><div class="font-display font-bold mt-2">AI Finder</div><p class="text-xs text-slate-500 mt-1">10-step form · Weighted rubric · Pros/Cons · Admission probability.</p></div>
+      <div class="card p-5"><div class="text-2xl">💼</div><div class="font-display font-bold mt-2">Internships</div><p class="text-xs text-slate-500 mt-1">Search · Filters · Apply · Save · Detail · Skills · Requirements.</p></div>
+      <div class="card p-5"><div class="text-2xl">🧠</div><div class="font-display font-bold mt-2">Workshops</div><p class="text-xs text-slate-500 mt-1">Instructor · Agenda · Reviews · Certificate · Price · Register.</p></div>
+      <div class="card p-5"><div class="text-2xl">🏆</div><div class="font-display font-bold mt-2">Hackathons</div><p class="text-xs text-slate-500 mt-1">Timeline · Rules · Themes · Sponsors · Prizes · Leaderboard.</p></div>
+      <div class="card p-5"><div class="text-2xl">💰</div><div class="font-display font-bold mt-2">Scholarships</div><p class="text-xs text-slate-500 mt-1">Eligibility · Benefits · Docs · Deadline · Apply.</p></div>
+      <div class="card p-5"><div class="text-2xl">🧭</div><div class="font-display font-bold mt-2">Career Hub</div><p class="text-xs text-slate-500 mt-1">Resume builder · ATS checker · Mock interview · Blogs.</p></div>
+      <div class="card p-5"><div class="text-2xl">🗺️</div><div class="font-display font-bold mt-2">Roadmaps</div><p class="text-xs text-slate-500 mt-1">Stages · Timeline · Projects · Resources · Interview Q&amp;A.</p></div>
+      <div class="card p-5"><div class="text-2xl">🎓</div><div class="font-display font-bold mt-2">Alumni</div><p class="text-xs text-slate-500 mt-1">Search · Mentorship · Messaging · LinkedIn integration.</p></div>
+      <div class="card p-5"><div class="text-2xl">🛠️</div><div class="font-display font-bold mt-2">Admin</div><p class="text-xs text-slate-500 mt-1">Users · Colleges · Content · Analytics · Reports · Exports.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SECURITY / PERF ============== -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 grid lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <div class="chip bg-rose-500/10 text-rose-600 mb-3">07 · Security</div>
+      <h3 class="font-display font-extrabold text-2xl">Zero-trust defaults</h3>
+      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-700">
+        <li>• Argon2id password hashing</li>
+        <li>• JWT RS256 with key rotation</li>
+        <li>• Rotating refresh tokens</li>
+        <li>• Redis token-bucket rate limits</li>
+        <li>• Pydantic strict validation</li>
+        <li>• ORM = no SQL injection</li>
+        <li>• Bleach-sanitized markdown</li>
+        <li>• CORS allowlist per env</li>
+        <li>• Every mutation → activity_log</li>
+        <li>• HTTPS-only + HSTS</li>
+      </ul>
+    </div>
+    <div class="card p-6">
+      <div class="chip bg-sky-500/10 text-sky-600 mb-3">08 · Performance</div>
+      <h3 class="font-display font-extrabold text-2xl">Fast where it matters</h3>
+      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-700">
+        <li>• Next.js RSC + edge streaming</li>
+        <li>• <span class="font-mono">next/image</span> AVIF/WebP</li>
+        <li>• Route-level ISR (revalidate=300)</li>
+        <li>• Skeleton + optimistic UI</li>
+        <li>• SQLAlchemy <span class="font-mono">selectin</span> loads</li>
+        <li>• Redis cache-aside 60s</li>
+        <li>• Pool 20 + overflow 30</li>
+        <li>• Composite &amp; GIN indexes</li>
+        <li>• Materialized rating aggregate</li>
+        <li>• PWA + service-worker precache</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ROADMAP ============== -->
+<section id="roadmap" class="py-20 md:py-24 bg-gradient-to-b from-white to-brand-50/40">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl">
+      <div class="chip bg-brand-50 text-brand-700 mb-3">09 · Delivery Roadmap</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">Five phases to production</h2>
+    </div>
+    <div class="mt-10 relative">
+      <div class="absolute left-4 md:left-1/2 -translate-x-0 md:-translate-x-1/2 top-2 bottom-2 step-line rounded-full"></div>
+      <ol class="space-y-8">
+        <li class="relative md:grid md:grid-cols-2 md:gap-10 items-start">
+          <div class="md:text-right md:pr-10">
+            <div class="chip bg-emerald-500 text-white shadow-soft">✓ Phase 1 · Delivered</div>
+            <h4 class="font-display font-extrabold text-xl mt-2">Blueprint</h4>
+            <p class="text-sm text-slate-600 mt-1">Architecture · folder structure · schema.sql · openapi.yaml · this document.</p>
+          </div>
+          <div class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div>
+          <div></div>
+        </li>
+        <li class="relative md:grid md:grid-cols-2 md:gap-10 items-start">
+          <div></div>
+          <div class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-brand-500 ring-4 ring-brand-100"></div>
+          <div class="md:pl-10">
+            <div class="chip bg-brand-500 text-white">Phase 2</div>
+            <h4 class="font-display font-extrabold text-xl mt-2">FastAPI Backend</h4>
+            <p class="text-sm text-slate-600 mt-1">Alembic baseline · auth · users · colleges · internships · applications · saved · reviews · unit + integration tests.</p>
+          </div>
+        </li>
+        <li class="relative md:grid md:grid-cols-2 md:gap-10 items-start">
+          <div class="md:text-right md:pr-10">
+            <div class="chip bg-violet2 text-white">Phase 3</div>
+            <h4 class="font-display font-extrabold text-xl mt-2">Next.js Frontend</h4>
+            <p class="text-sm text-slate-600 mt-1">Design tokens · ShadCN theme · landing · college list/detail · internship list/detail · auth flows · dark mode.</p>
+          </div>
+          <div class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-violet2 ring-4 ring-violet-100"></div>
+          <div></div>
+        </li>
+        <li class="relative md:grid md:grid-cols-2 md:gap-10 items-start">
+          <div></div>
+          <div class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-pink-500 ring-4 ring-pink-100"></div>
+          <div class="md:pl-10">
+            <div class="chip bg-pink-500 text-white">Phase 4</div>
+            <h4 class="font-display font-extrabold text-xl mt-2">Student &amp; Admin Dashboards + AI</h4>
+            <p class="text-sm text-slate-600 mt-1">Student dashboard · AI College Finder · Compare · Admin CRUD + analytics.</p>
+          </div>
+        </li>
+        <li class="relative md:grid md:grid-cols-2 md:gap-10 items-start">
+          <div class="md:text-right md:pr-10">
+            <div class="chip bg-amber2 text-white">Phase 5</div>
+            <h4 class="font-display font-extrabold text-xl mt-2">Content + Ship</h4>
+            <p class="text-sm text-slate-600 mt-1">Workshops · Hackathons · Scholarships · Roadmaps · Alumni · PWA · load tests · CI/CD · Vercel + Railway + Neon.</p>
+          </div>
+          <div class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1 w-4 h-4 rounded-full bg-amber2 ring-4 ring-amber-100"></div>
+          <div></div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="mt-10 bg-ink text-slate-300">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 py-14 grid md:grid-cols-4 gap-8">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 via-violet2 to-pink-500"></span>
+        <span class="font-display font-extrabold text-white text-lg">EduConnect</span>
+      </div>
+      <p class="mt-3 text-sm text-slate-400 max-w-xs">A production-grade blueprint for building a modern student platform: colleges, internships, hackathons, scholarships, mentors and more.</p>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Blueprint</div>
+      <ul class="mt-3 space-y-1.5 text-sm">
+        <li><a href="#architecture" class="hover:text-white">Architecture</a></li>
+        <li><a href="#structure" class="hover:text-white">Folder Structure</a></li>
+        <li><a href="#database" class="hover:text-white">Database</a></li>
+        <li><a href="#api" class="hover:text-white">REST API</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Downloads</div>
+      <ul class="mt-3 space-y-1.5 text-sm">
+        <li><a href="schema.sql" class="hover:text-white">schema.sql</a></li>
+        <li><a href="openapi.yaml" class="hover:text-white">openapi.yaml</a></li>
+        <li><a href="architecture.md" class="hover:text-white">architecture.md</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Next</div>
+      <ul class="mt-3 space-y-1.5 text-sm">
+        <li>Phase 2 · Backend</li>
+        <li>Phase 3 · Frontend</li>
+        <li>Phase 4 · Dashboards + AI</li>
+        <li>Phase 5 · Ship</li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 py-5 text-xs text-slate-500 flex flex-wrap justify-between gap-2">
+      <span>© EduConnect Blueprint · Phase 1</span>
+      <span>Made with Next.js 15 · FastAPI · PostgreSQL</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // section tabs (Modules)
+  document.addEventListener('click', e=>{
+    const t=e.target.closest('[data-tab]');
+    if(!t) return;
+    const group=t.dataset.group;
+    document.querySelectorAll(`[data-group="${group}"][data-tab]`).forEach(b=>b.setAttribute('aria-selected', b===t?'true':'false'));
+    document.querySelectorAll(`[data-panel-group="${group}"]`).forEach(p=>p.classList.toggle('active', p.dataset.panel===t.dataset.tab));
+  });
+</script>
+</body>
+</html>

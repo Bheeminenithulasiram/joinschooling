@@ -1,0 +1,558 @@
+openapi: 3.1.0
+info:
+  title: EduConnect API
+  version: 1.0.0
+  description: |
+    REST API for the EduConnect platform. All responses are JSON.
+    Auth: JWT Bearer (short-lived access) + rotating refresh token.
+  contact: { name: EduConnect, url: https://educonnect.example.com }
+
+servers:
+  - url: https://api.educonnect.example.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+security: [{ bearerAuth: [] }]
+
+tags:
+  - { name: Auth,          description: Registration, login, OTP, OAuth }
+  - { name: Users,         description: Current user + profile }
+  - { name: Colleges,      description: College discovery + details }
+  - { name: Compare,       description: Compare multiple colleges }
+  - { name: AI Finder,     description: AI college recommendation }
+  - { name: Internships,   description: Internship listing + apply }
+  - { name: Workshops,     description: Workshops }
+  - { name: Hackathons,    description: Hackathons }
+  - { name: Scholarships,  description: Scholarships }
+  - { name: Roadmaps,      description: Career roadmaps }
+  - { name: Applications,  description: Student applications }
+  - { name: Saved,         description: Bookmarks / wishlist }
+  - { name: Reviews,       description: Reviews & ratings }
+  - { name: Alumni,        description: Alumni & mentorship }
+  - { name: Notifications, description: In-app notifications }
+  - { name: Admin,         description: Admin management endpoints }
+
+paths:
+  # ---------------- AUTH ----------------
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Register a student
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RegisterRequest' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/AuthTokens' } } } }
+        '409': { description: Email already exists }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Login with email + password
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AuthTokens' } } } }
+        '401': { description: Invalid credentials }
+
+  /auth/google:
+    post:
+      tags: [Auth]
+      security: []
+      summary: OAuth login with Google ID token
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { id_token: { type: string } }, required: [id_token] } } } }
+      responses: { '200': { description: OK } }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Rotate refresh token
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { refresh_token: { type: string } }, required: [refresh_token] } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AuthTokens' } } } } }
+
+  /auth/logout:
+    post: { tags: [Auth], summary: Revoke refresh token, responses: { '204': { description: No Content } } }
+
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Verify email with OTP
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { email: { type: string, format: email }, code: { type: string } }, required: [email, code] } } } }
+      responses: { '204': { description: Verified } }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Send password reset OTP
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { email: { type: string, format: email } }, required: [email] } } } }
+      responses: { '202': { description: Accepted } }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Reset password using OTP
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResetPasswordRequest' } } } }
+      responses: { '204': { description: Updated } }
+
+  # ---------------- ME ----------------
+  /me:
+    get: { tags: [Users], summary: Current user, responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } } } }
+    patch:
+      tags: [Users]
+      summary: Update profile
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/StudentProfileUpdate' } } } }
+      responses: { '200': { description: OK } }
+
+  /me/dashboard:
+    get:
+      tags: [Users]
+      summary: Aggregate dashboard payload
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/DashboardSnapshot' } } }
+
+  /me/analytics:
+    get:
+      tags: [Users]
+      summary: Student analytics (activity, application funnel, skill gap)
+      responses: { '200': { description: OK } }
+
+  # ---------------- COLLEGES ----------------
+  /colleges:
+    get:
+      tags: [Colleges]
+      security: []
+      summary: List colleges with filters
+      parameters:
+        - { in: query, name: q,          schema: { type: string } }
+        - { in: query, name: state,      schema: { type: string } }
+        - { in: query, name: city,       schema: { type: string } }
+        - { in: query, name: type,       schema: { type: string, enum: [government, private, deemed, autonomous] } }
+        - { in: query, name: min_fees,   schema: { type: number } }
+        - { in: query, name: max_fees,   schema: { type: number } }
+        - { in: query, name: hostel,     schema: { type: boolean } }
+        - { in: query, name: min_rating, schema: { type: number } }
+        - { in: query, name: sort,       schema: { type: string, enum: [rating, avg_package, nirf_rank, fees_asc, fees_desc] } }
+        - { in: query, name: page,       schema: { type: integer, default: 1 } }
+        - { in: query, name: page_size,  schema: { type: integer, default: 20, maximum: 100 } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/PagedColleges' } } }
+
+  /colleges/{slug}:
+    get:
+      tags: [Colleges]
+      security: []
+      summary: College details
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CollegeDetail' } } } } }
+
+  /colleges/compare:
+    get:
+      tags: [Compare]
+      security: []
+      summary: Compare 2-4 colleges side-by-side
+      parameters: [{ in: query, name: ids, required: true, schema: { type: array, items: { type: string, format: uuid }, minItems: 2, maxItems: 4 }, style: form, explode: false }]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CompareResult' } } } } }
+
+  # ---------------- AI FINDER ----------------
+  /ai/college-finder:
+    post:
+      tags: [AI Finder]
+      summary: Get AI-recommended colleges based on profile answers
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AiFinderRequest' } } } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/AiFinderResponse' } } }
+
+  /ai/college-finder/history:
+    get:
+      tags: [AI Finder]
+      summary: Past finder runs for the user
+      responses: { '200': { description: OK } }
+
+  # ---------------- INTERNSHIPS ----------------
+  /internships:
+    get:
+      tags: [Internships]
+      security: []
+      summary: List internships
+      parameters:
+        - { in: query, name: q,         schema: { type: string } }
+        - { in: query, name: domain,    schema: { type: string } }
+        - { in: query, name: work_mode, schema: { type: string, enum: [remote, hybrid, onsite] } }
+        - { in: query, name: min_stipend, schema: { type: integer } }
+        - { in: query, name: duration_months, schema: { type: integer } }
+        - { in: query, name: company_id,schema: { type: string, format: uuid } }
+        - { in: query, name: sort,      schema: { type: string, enum: [newest, stipend_desc, deadline] } }
+        - { in: query, name: page,      schema: { type: integer, default: 1 } }
+        - { in: query, name: page_size, schema: { type: integer, default: 20 } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PagedInternships' } } } } }
+
+  /internships/{slug}:
+    get:
+      tags: [Internships]
+      security: []
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/InternshipDetail' } } } } }
+
+  /internships/{id}/apply:
+    post:
+      tags: [Internships]
+      summary: Apply to internship
+      parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ApplyRequest' } } } }
+      responses: { '201': { description: Created } }
+
+  # ---------------- WORKSHOPS / HACKATHONS / SCHOLARSHIPS / ROADMAPS ----------------
+  /workshops:      { get: { tags: [Workshops],     security: [], summary: List workshops,    responses: { '200': { description: OK } } } }
+  /workshops/{slug}:
+    get: { tags: [Workshops], security: [], parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+  /hackathons:     { get: { tags: [Hackathons],    security: [], summary: List hackathons,   responses: { '200': { description: OK } } } }
+  /hackathons/{slug}:
+    get: { tags: [Hackathons], security: [], parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+  /scholarships:   { get: { tags: [Scholarships],  security: [], summary: List scholarships, responses: { '200': { description: OK } } } }
+  /scholarships/{slug}:
+    get: { tags: [Scholarships], security: [], parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+  /roadmaps:       { get: { tags: [Roadmaps],      security: [], summary: List roadmaps,     responses: { '200': { description: OK } } } }
+  /roadmaps/{slug}:
+    get: { tags: [Roadmaps], security: [], parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+
+  # ---------------- APPLICATIONS / SAVED / REVIEWS ----------------
+  /applications:
+    get:  { tags: [Applications], summary: My applications, responses: { '200': { description: OK } } }
+
+  /saved:
+    get:  { tags: [Saved], summary: Saved items, responses: { '200': { description: OK } } }
+    post:
+      tags: [Saved]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { kind: { type: string }, target_id: { type: string, format: uuid } }, required: [kind, target_id] } } } }
+      responses: { '201': { description: Saved } }
+  /saved/{id}:
+    delete: { tags: [Saved], parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], responses: { '204': { description: Removed } } }
+
+  /reviews:
+    post:
+      tags: [Reviews]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ReviewCreate' } } } }
+      responses: { '201': { description: Created } }
+
+  # ---------------- ALUMNI ----------------
+  /alumni:
+    get:
+      tags: [Alumni]
+      summary: Search alumni / mentors
+      parameters:
+        - { in: query, name: college_id, schema: { type: string, format: uuid } }
+        - { in: query, name: company,    schema: { type: string } }
+        - { in: query, name: mentor,     schema: { type: boolean } }
+      responses: { '200': { description: OK } }
+
+  # ---------------- NOTIFICATIONS ----------------
+  /notifications:
+    get: { tags: [Notifications], summary: List notifications, responses: { '200': { description: OK } } }
+  /notifications/{id}/read:
+    post: { tags: [Notifications], parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], responses: { '204': { description: Marked read } } }
+
+  # ---------------- ADMIN ----------------
+  /admin/stats:
+    get: { tags: [Admin], summary: Platform-wide KPIs, responses: { '200': { description: OK } } }
+  /admin/colleges:
+    post:
+      tags: [Admin]
+      summary: Create college
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CollegeCreate' } } } }
+      responses: { '201': { description: Created } }
+  /admin/colleges/{id}:
+    patch: { tags: [Admin], parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], responses: { '200': { description: OK } } }
+    delete:{ tags: [Admin], parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], responses: { '204': { description: Deleted } } }
+  /admin/users:
+    get: { tags: [Admin], summary: List users, responses: { '200': { description: OK } } }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+
+  schemas:
+    # ---- generic ----
+    Pagination:
+      type: object
+      properties:
+        page:       { type: integer }
+        page_size:  { type: integer }
+        total:      { type: integer }
+        has_next:   { type: boolean }
+
+    # ---- auth ----
+    RegisterRequest:
+      type: object
+      required: [email, password, first_name, last_name]
+      properties:
+        email:      { type: string, format: email }
+        password:   { type: string, minLength: 8 }
+        first_name: { type: string }
+        last_name:  { type: string }
+        phone:      { type: string }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email }
+        password: { type: string }
+
+    ResetPasswordRequest:
+      type: object
+      required: [email, code, new_password]
+      properties:
+        email:        { type: string, format: email }
+        code:         { type: string }
+        new_password: { type: string, minLength: 8 }
+
+    AuthTokens:
+      type: object
+      properties:
+        access_token:  { type: string }
+        refresh_token: { type: string }
+        token_type:    { type: string, default: bearer }
+        expires_in:    { type: integer }
+
+    User:
+      type: object
+      properties:
+        id:                { type: string, format: uuid }
+        email:             { type: string, format: email }
+        role:              { type: string, enum: [student, admin, recruiter, mentor] }
+        is_email_verified: { type: boolean }
+        profile:           { $ref: '#/components/schemas/StudentProfile' }
+
+    StudentProfile:
+      type: object
+      properties:
+        first_name:           { type: string }
+        last_name:            { type: string }
+        avatar_url:           { type: string }
+        headline:             { type: string }
+        tenth_percentage:     { type: number }
+        twelfth_percentage:   { type: number }
+        cgpa:                 { type: number }
+        preferred_course:     { type: string }
+        state:                { type: string }
+        city:                 { type: string }
+        hostel_required:      { type: boolean }
+        expected_package_lpa: { type: number }
+        skills:               { type: array, items: { type: string } }
+
+    StudentProfileUpdate:
+      allOf: [{ $ref: '#/components/schemas/StudentProfile' }]
+
+    DashboardSnapshot:
+      type: object
+      properties:
+        stats:
+          type: object
+          properties:
+            applications:      { type: integer }
+            saved_colleges:    { type: integer }
+            saved_internships: { type: integer }
+            unread_notifs:     { type: integer }
+        recent_applications: { type: array, items: { $ref: '#/components/schemas/ApplicationRow' } }
+        recommended_colleges:{ type: array, items: { $ref: '#/components/schemas/CollegeCard' } }
+        upcoming_deadlines:  { type: array, items: { type: object } }
+
+    ApplicationRow:
+      type: object
+      properties:
+        id:          { type: string, format: uuid }
+        target_kind: { type: string }
+        target_id:   { type: string, format: uuid }
+        title:       { type: string }
+        status:      { type: string }
+        submitted_at:{ type: string, format: date-time }
+
+    # ---- college ----
+    CollegeCard:
+      type: object
+      properties:
+        id:               { type: string, format: uuid }
+        slug:             { type: string }
+        name:             { type: string }
+        short_name:       { type: string }
+        logo_url:         { type: string }
+        banner_url:       { type: string }
+        city:             { type: string }
+        state:            { type: string }
+        type:             { type: string }
+        naac_grade:       { type: string }
+        nirf_rank:        { type: integer }
+        avg_package_lpa:  { type: number }
+        highest_package_lpa: { type: number }
+        placement_percent:{ type: number }
+        avg_fees_lpa:     { type: number }
+        rating:           { type: number }
+        reviews_count:    { type: integer }
+
+    CollegeDetail:
+      allOf:
+        - { $ref: '#/components/schemas/CollegeCard' }
+        - type: object
+          properties:
+            about:             { type: string }
+            infrastructure:    { type: object }
+            facilities:        { type: array, items: { type: string } }
+            hostel_available:  { type: boolean }
+            hostel_fee_lpa:    { type: number }
+            courses:           { type: array, items: { $ref: '#/components/schemas/Course' } }
+            placements:        { type: array, items: { $ref: '#/components/schemas/PlacementYear' } }
+            gallery:           { type: array, items: { type: object, properties: { image_url: { type: string }, caption: { type: string } } } }
+            top_recruiters:    { type: array, items: { $ref: '#/components/schemas/Company' } }
+            admission_process: { type: string }
+
+    Course:
+      type: object
+      properties:
+        id:              { type: string, format: uuid }
+        name:            { type: string }
+        degree_level:    { type: string }
+        duration_years:  { type: number }
+        total_seats:     { type: integer }
+        fees_per_year_lpa: { type: number }
+        entrance_exams:  { type: array, items: { type: string } }
+
+    PlacementYear:
+      type: object
+      properties:
+        year:                 { type: integer }
+        students_placed:      { type: integer }
+        total_eligible:       { type: integer }
+        highest_package_lpa:  { type: number }
+        avg_package_lpa:      { type: number }
+        top_recruiters:       { type: array, items: { type: string } }
+
+    Company:
+      type: object
+      properties:
+        id:       { type: string, format: uuid }
+        name:     { type: string }
+        logo_url: { type: string }
+        industry: { type: string }
+
+    PagedColleges:
+      type: object
+      properties:
+        items:      { type: array, items: { $ref: '#/components/schemas/CollegeCard' } }
+        pagination: { $ref: '#/components/schemas/Pagination' }
+
+    CompareResult:
+      type: object
+      properties:
+        colleges: { type: array, items: { $ref: '#/components/schemas/CollegeDetail' } }
+        matrix:
+          type: array
+          items:
+            type: object
+            properties:
+              attribute: { type: string, example: 'Highest Package' }
+              values:    { type: array, items: { type: string } }
+              winner_index: { type: integer }
+
+    CollegeCreate:
+      type: object
+      required: [name, city, state, type]
+      properties:
+        name:   { type: string }
+        city:   { type: string }
+        state:  { type: string }
+        type:   { type: string }
+        naac_grade: { type: string }
+        nirf_rank:  { type: integer }
+
+    # ---- ai finder ----
+    AiFinderRequest:
+      type: object
+      required: [tenth_percentage, twelfth_percentage, preferred_course, budget_max_lpa]
+      properties:
+        tenth_percentage:     { type: number }
+        twelfth_percentage:   { type: number }
+        cgpa:                 { type: number }
+        preferred_course:     { type: string, example: Computer Science Engineering }
+        budget_min_lpa:       { type: number }
+        budget_max_lpa:       { type: number }
+        state:                { type: string }
+        city:                 { type: string }
+        hostel_required:      { type: boolean }
+        expected_package_lpa: { type: number }
+        preferred_companies:  { type: array, items: { type: string } }
+
+    AiFinderResponse:
+      type: object
+      properties:
+        run_id: { type: string, format: uuid }
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              college:            { $ref: '#/components/schemas/CollegeCard' }
+              match_score:        { type: number, example: 0.92 }
+              pros:               { type: array, items: { type: string } }
+              cons:               { type: array, items: { type: string } }
+              predicted_package_lpa: { type: number }
+              admission_probability: { type: number, example: 0.78 }
+
+    # ---- internships ----
+    InternshipCard:
+      type: object
+      properties:
+        id:              { type: string, format: uuid }
+        slug:            { type: string }
+        title:           { type: string }
+        company:         { $ref: '#/components/schemas/Company' }
+        domain:          { type: string }
+        work_mode:       { type: string }
+        duration_months: { type: integer }
+        stipend_min:     { type: integer }
+        stipend_max:     { type: integer }
+        location_city:   { type: string }
+        posted_at:       { type: string, format: date-time }
+        apply_deadline:  { type: string, format: date-time }
+
+    InternshipDetail:
+      allOf:
+        - { $ref: '#/components/schemas/InternshipCard' }
+        - type: object
+          properties:
+            description:     { type: string }
+            responsibilities:{ type: array, items: { type: string } }
+            requirements:    { type: array, items: { type: string } }
+            skills:          { type: array, items: { type: string } }
+            benefits:        { type: array, items: { type: string } }
+            eligibility_batches: { type: array, items: { type: string } }
+
+    PagedInternships:
+      type: object
+      properties:
+        items:      { type: array, items: { $ref: '#/components/schemas/InternshipCard' } }
+        pagination: { $ref: '#/components/schemas/Pagination' }
+
+    ApplyRequest:
+      type: object
+      properties:
+        cover_letter: { type: string }
+        resume_url:   { type: string }
+        answers:      { type: object, additionalProperties: true }
+
+    ReviewCreate:
+      type: object
+      required: [kind, target_id, rating]
+      properties:
+        kind:      { type: string }
+        target_id: { type: string, format: uuid }
+        rating:    { type: integer, minimum: 1, maximum: 5 }
+        title:     { type: string }
+        body:      { type: string }
