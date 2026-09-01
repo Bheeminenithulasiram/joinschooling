@@ -2,22 +2,23 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const DEFAULT_CAMPUS_IMAGES = [
+// Curated full wide-angle college campus landscape photography
+const LOCAL_CAMPUS_IMAGES = [
+  "/images/colleges/campus_1.jpg",
+  "/images/colleges/campus_2.jpg",
+  "/images/colleges/campus_3.jpg",
   "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?q=80&w=1600&auto=format&fit=crop",
 ];
 
 export default function AuthShowcase() {
-  const [images, setImages] = useState<string[]>(DEFAULT_CAMPUS_IMAGES);
+  const [images, setImages] = useState<string[]>(LOCAL_CAMPUS_IMAGES);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch dynamic college and campus images from PostgreSQL database
+  // Fetch dynamic college images from PostgreSQL database
   useEffect(() => {
     async function loadImages() {
       try {
@@ -28,10 +29,14 @@ export default function AuthShowcase() {
         });
         if (res.ok) {
           const json = await res.json();
-          const cleanImages: string[] = [];
+          const cleanImages: string[] = [...LOCAL_CAMPUS_IMAGES];
           if (json.images && json.images.length > 0) {
             json.images.forEach((img: string) => {
-              if (img && !img.includes("1503676260728") && !cleanImages.includes(img)) {
+              if (
+                img &&
+                !img.includes("1503676260728") &&
+                !cleanImages.includes(img)
+              ) {
                 cleanImages.push(img);
               }
             });
@@ -41,7 +46,7 @@ export default function AuthShowcase() {
           }
         }
       } catch (err) {
-        console.warn("Auth showcase loaded with curated campus images:", err);
+        console.warn("Auth showcase loaded with local wide-angle campus photos:", err);
       }
     }
     loadImages();
@@ -76,9 +81,9 @@ export default function AuthShowcase() {
     <div
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="group relative mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-slate-900 shadow-2xl border border-slate-200/80 transition-all duration-300 aspect-[4/3] sm:aspect-[16/11] lg:h-[500px]"
+      className="group relative mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-slate-900 shadow-2xl border border-slate-200/80 transition-all duration-300 aspect-[16/10] sm:aspect-[16/10] lg:h-[480px]"
     >
-      {/* Sliding Track for Smooth Horizontal Slide Transition */}
+      {/* Horizontal Sliding Track: Slides out the active image & slides in the incoming image */}
       <div
         className="flex h-full w-full transition-transform duration-600 ease-out will-change-transform"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -86,11 +91,11 @@ export default function AuthShowcase() {
         {images.map((src, index) => (
           <div
             key={src + index}
-            className="relative h-full w-full min-w-full shrink-0 overflow-hidden bg-slate-950"
+            className="relative h-full w-full min-w-full shrink-0 overflow-hidden bg-slate-950 flex items-center justify-center"
           >
             <img
               src={src}
-              alt={`College campus architecture ${index + 1}`}
+              alt={`Full view college campus ${index + 1}`}
               className="h-full w-full object-cover object-center select-none"
               loading={index === 0 ? "eager" : "lazy"}
               onError={() => handleImageError(src)}
@@ -99,14 +104,14 @@ export default function AuthShowcase() {
         ))}
       </div>
 
-      {/* Subtle bottom gradient to ensure navigation indicators remain clearly visible */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent z-20" />
+      {/* Subtle vignette gradient at bottom so indicator dots stand out */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent z-20" />
 
-      {/* Navigation Arrows with smooth hover transitions */}
+      {/* Navigation Arrows with smooth hover and active physics */}
       <button
         type="button"
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md opacity-75 sm:opacity-0 transition-all duration-200 hover:bg-black/70 hover:scale-110 group-hover:opacity-100 active:scale-95 shadow-lg"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md opacity-80 sm:opacity-0 transition-all duration-200 hover:bg-black/70 hover:scale-110 group-hover:opacity-100 active:scale-95 shadow-lg"
         aria-label="Previous image"
       >
         <ChevronLeft size={22} />
@@ -115,13 +120,13 @@ export default function AuthShowcase() {
       <button
         type="button"
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md opacity-75 sm:opacity-0 transition-all duration-200 hover:bg-black/70 hover:scale-110 group-hover:opacity-100 active:scale-95 shadow-lg"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md opacity-80 sm:opacity-0 transition-all duration-200 hover:bg-black/70 hover:scale-110 group-hover:opacity-100 active:scale-95 shadow-lg"
         aria-label="Next image"
       >
         <ChevronRight size={22} />
       </button>
 
-      {/* Navigation Dots Indicator */}
+      {/* Navigation Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
         {images.map((_, idx) => (
           <button
