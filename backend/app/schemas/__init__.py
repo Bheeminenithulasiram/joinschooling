@@ -80,9 +80,11 @@ class AuthShowcaseStats(BaseModel):
 
 
 class AuthShowcaseResponse(BaseModel):
-    colleges: List[AuthShowcaseCollege]
-    companies: List[AuthShowcaseCompany]
+    images: List[str] = Field(default_factory=list)
+    colleges: List[AuthShowcaseCollege] = Field(default_factory=list)
+    companies: List[AuthShowcaseCompany] = Field(default_factory=list)
     stats: AuthShowcaseStats
+
 
 
 
