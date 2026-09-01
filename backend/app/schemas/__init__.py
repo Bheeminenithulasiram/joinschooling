@@ -17,6 +17,7 @@ class Pagination(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
+    confirm_password: Optional[str] = Field(default=None, min_length=8, max_length=128)
     first_name: str = Field(min_length=1, max_length=80)
     last_name: str = Field(min_length=1, max_length=80)
     role: Literal["student", "college_rep", "recruiter"] = "student"
@@ -33,6 +34,56 @@ class RegisterRequest(BaseModel):
     # Recruiter specifics:
     company_name: Optional[str] = None
     industry: Optional[str] = None
+
+    @model_validator(mode="after")
+    def verify_password_match(self) -> "RegisterRequest":
+        if self.confirm_password is not None and self.password != self.confirm_password:
+            raise ValueError("Passwords do not match.")
+        return self
+
+
+class AuthShowcaseCollege(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    slug: str
+    name: str
+    short_name: Optional[str] = None
+    city: str
+    state: str
+    type: str
+    nirf_rank: Optional[int] = None
+    naac_grade: Optional[str] = None
+    avg_package_lpa: Optional[float] = None
+    highest_package_lpa: Optional[float] = None
+    placement_percent: Optional[float] = None
+    rating: float
+    reviews_count: int
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+
+
+class AuthShowcaseCompany(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    name: str
+    industry: Optional[str] = None
+    logo_url: Optional[str] = None
+    website: Optional[str] = None
+
+
+class AuthShowcaseStats(BaseModel):
+    total_colleges: int
+    total_companies: int
+    total_internships: int
+    highest_package_lpa: float
+    avg_placement_percent: float
+
+
+class AuthShowcaseResponse(BaseModel):
+    colleges: List[AuthShowcaseCollege]
+    companies: List[AuthShowcaseCompany]
+    stats: AuthShowcaseStats
+
 
 
 class GoogleAuthRequest(BaseModel):

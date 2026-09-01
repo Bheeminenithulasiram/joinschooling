@@ -1,11 +1,12 @@
-"""Comprehensive test suite for Multi-Role Auth, Email Verification, and Permissions."""
+"""Comprehensive test suite for Multi-Role Auth, Email Verification, Showcase, and Atomic Rollbacks."""
 import uuid
 import pytest
 from fastapi.testclient import TestClient
 
-from app.database.session import Base, engine
+from app.database.session import Base, SessionLocal, engine
 from app.main import create_app
 from app.middlewares.ratelimit import limiter
+from app.models import User
 
 app = create_app()
 limiter.enabled = False
@@ -26,6 +27,7 @@ def test_student_registration_and_login():
         json={
             "email": email,
             "password": "Password123!",
+            "confirm_password": "Password123!",
             "first_name": "Karthik",
             "last_name": "Rao",
             "role": "student",
@@ -45,6 +47,31 @@ def test_student_registration_and_login():
     assert me_data["student"]["first_name"] == "Karthik"
 
 
+def test_password_mismatch_leaves_zero_db_records():
+    uid = uuid.uuid4().hex[:8]
+    email = f"mismatch_{uid}@example.com"
+    reg_resp = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": email,
+            "password": "Password123!",
+            "confirm_password": "CompletelyDifferentPassword456!",
+            "first_name": "Failed",
+            "last_name": "User",
+            "role": "student",
+        },
+    )
+    assert reg_resp.status_code == 422
+
+    # Verify zero records in DB
+    db = SessionLocal()
+    try:
+        user_in_db = db.query(User).filter(User.email == email).first()
+        assert user_in_db is None, "Failed registration must NOT persist any record in DB!"
+    finally:
+        db.close()
+
+
 def test_college_rep_registration():
     uid = uuid.uuid4().hex[:8]
     email = f"dean_{uid}@example.com"
@@ -53,6 +80,7 @@ def test_college_rep_registration():
         json={
             "email": email,
             "password": "Password123!",
+            "confirm_password": "Password123!",
             "first_name": "Dr. Ramesh",
             "last_name": "Reddy",
             "role": "college_rep",
@@ -81,6 +109,7 @@ def test_recruiter_registration():
         json={
             "email": email,
             "password": "Password123!",
+            "confirm_password": "Password123!",
             "first_name": "Sarah",
             "last_name": "Jenkins",
             "role": "recruiter",
@@ -109,6 +138,7 @@ def test_block_admin_public_registration():
         json={
             "email": email,
             "password": "Password123!",
+            "confirm_password": "Password123!",
             "first_name": "Bad",
             "last_name": "Actor",
             "role": "admin",
@@ -135,3 +165,13 @@ def test_google_auth_flow():
     data = auth_resp.json()
     assert "access_token" in data
     assert data["email"] == email
+
+
+def test_auth_showcase_endpoint():
+    resp = client.get("/api/v1/auth/showcase")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "colleges" in data
+    assert "companies" in data
+    assert "stats" in data
+    assert data["stats"]["total_colleges"] >= 1

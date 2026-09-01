@@ -1,10 +1,11 @@
-"""Auth endpoints: register, login, refresh, logout, google oauth, email verification."""
+"""Auth endpoints: register, login, refresh, logout, google oauth, email verification, showcase."""
 from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.middlewares.ratelimit import limiter
 from app.schemas import (
+    AuthShowcaseResponse,
     AuthTokens,
     EmailVerifyRequest,
     GoogleAuthRequest,
@@ -16,6 +17,12 @@ from app.schemas import (
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+@router.get("/showcase", response_model=AuthShowcaseResponse)
+def get_showcase(db: Session = Depends(get_db)) -> AuthShowcaseResponse:
+    """Fetch top colleges and companies for dynamic auth page slideshow."""
+    return auth_service.get_auth_showcase(db)
 
 
 @router.post("/register", response_model=AuthTokens, status_code=status.HTTP_201_CREATED)

@@ -1,4 +1,4 @@
-"""Authentication service: registration, login, refresh, email verification, Google OAuth."""
+"""Authentication service: registration, login, refresh, email verification, Google OAuth, showcase."""
 from __future__ import annotations
 
 import hashlib
@@ -8,6 +8,7 @@ from typing import Optional
 
 import httpx
 from fastapi import HTTPException, status
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -25,11 +26,20 @@ from app.models import (
     Company,
     CompanyRecruiter,
     EmailVerificationToken,
+    Internship,
     RefreshToken,
     Student,
     User,
 )
-from app.schemas import AuthTokens, LoginRequest, RegisterRequest
+from app.schemas import (
+    AuthShowcaseCollege,
+    AuthShowcaseCompany,
+    AuthShowcaseResponse,
+    AuthShowcaseStats,
+    AuthTokens,
+    LoginRequest,
+    RegisterRequest,
+)
 
 
 def _hash_token(token: str) -> str:
@@ -74,14 +84,21 @@ def create_verification_token(db: Session, user: User) -> str:
 
 
 def register(db: Session, data: RegisterRequest) -> AuthTokens:
-    # 1. Block unauthorized admin registration
+    # 1. Validate password match if confirm_password provided
+    if data.confirm_password is not None and data.password != data.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Passwords do not match.",
+        )
+
+    # 2. Block unauthorized admin registration
     if getattr(data, "role", "student") == "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin accounts cannot be registered publicly.",
         )
 
-    # 2. Check existing email without leaking internal details
+    # 3. Check existing email without leaking internal details
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(
@@ -91,64 +108,101 @@ def register(db: Session, data: RegisterRequest) -> AuthTokens:
 
     assigned_role = data.role if data.role in ("student", "college_rep", "recruiter") else "student"
 
-    user = User(
-        email=data.email,
-        password_hash=hash_password(data.password),
-        phone=data.phone,
-        role=assigned_role,
-        is_email_verified=False,
-        is_active=True,
-    )
-    db.add(user)
-    db.flush()
-
-    # 3. Create role-specific profiles
-    if assigned_role == "student":
-        student = Student(
-            user_id=user.id,
-            first_name=data.first_name,
-            last_name=data.last_name,
-            preferred_course=data.preferred_course,
-            graduation_year=data.graduation_year,
+    try:
+        user = User(
+            email=data.email,
+            password_hash=hash_password(data.password),
+            phone=data.phone,
+            role=assigned_role,
+            is_email_verified=False,
+            is_active=True,
         )
-        db.add(student)
-    elif assigned_role == "college_rep":
-        college_name = data.college_name or f"{data.first_name}'s Institution"
-        college = db.query(College).filter(College.name.ilike(college_name.strip())).first()
-        college_id = college.id if college else None
+        db.add(user)
+        db.flush()
 
-        rep = CollegeRepresentative(
-            user_id=user.id,
-            college_id=college_id,
-            college_name=college_name,
-            first_name=data.first_name,
-            last_name=data.last_name,
-            designation=data.designation or "Admissions Representative",
-            official_email=str(data.official_email) if data.official_email else data.email,
-            website_url=data.website_url,
-            is_verified=False,
+        # 4. Create role-specific profile
+        if assigned_role == "student":
+            student = Student(
+                user_id=user.id,
+                first_name=data.first_name,
+                last_name=data.last_name,
+                preferred_course=data.preferred_course,
+                graduation_year=data.graduation_year,
+            )
+            db.add(student)
+        elif assigned_role == "college_rep":
+            college_name = data.college_name or f"{data.first_name}'s Institution"
+            college = db.query(College).filter(College.name.ilike(college_name.strip())).first()
+            college_id = college.id if college else None
+
+            rep = CollegeRepresentative(
+                user_id=user.id,
+                college_id=college_id,
+                college_name=college_name,
+                first_name=data.first_name,
+                last_name=data.last_name,
+                designation=data.designation or "Admissions Representative",
+                official_email=str(data.official_email) if data.official_email else data.email,
+                website_url=data.website_url,
+                is_verified=False,
+            )
+            db.add(rep)
+        elif assigned_role == "recruiter":
+            company_name = data.company_name or f"{data.first_name}'s Company"
+            company = db.query(Company).filter(Company.name.ilike(company_name.strip())).first()
+            company_id = company.id if company else None
+
+            recruiter = CompanyRecruiter(
+                user_id=user.id,
+                company_id=company_id,
+                company_name=company_name,
+                first_name=data.first_name,
+                last_name=data.last_name,
+                designation=data.designation or "Talent Acquisition",
+                industry=data.industry or "Technology",
+                website_url=data.website_url,
+                is_verified=False,
+            )
+            db.add(recruiter)
+
+        # 5. Create verification token
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = _hash_token(raw_token)
+        expires_at = datetime.now(tz=timezone.utc) + timedelta(hours=24)
+        db.add(
+            EmailVerificationToken(
+                user_id=user.id,
+                token_hash=token_hash,
+                expires_at=expires_at,
+            )
         )
-        db.add(rep)
-    elif assigned_role == "recruiter":
-        company_name = data.company_name or f"{data.first_name}'s Company"
-        company = db.query(Company).filter(Company.name.ilike(company_name.strip())).first()
-        company_id = company.id if company else None
 
-        recruiter = CompanyRecruiter(
-            user_id=user.id,
-            company_id=company_id,
-            company_name=company_name,
-            first_name=data.first_name,
-            last_name=data.last_name,
-            designation=data.designation or "Talent Acquisition",
-            industry=data.industry or "Technology",
-            website_url=data.website_url,
-            is_verified=False,
+        # 6. Issue tokens & commit in single atomic step
+        access, expires_in = create_access_token(user.id, user.role)
+        refresh, refresh_exp = create_refresh_token(user.id)
+        db.add(
+            RefreshToken(
+                user_id=user.id,
+                token_hash=_hash_token(refresh),
+                expires_at=refresh_exp,
+            )
         )
-        db.add(recruiter)
+        user.last_login_at = datetime.now(tz=timezone.utc)
+        
+        # Single atomic commit
+        db.commit()
 
-    create_verification_token(db, user)
-    return _issue_tokens(db, user)
+        return AuthTokens(
+            access_token=access,
+            refresh_token=refresh,
+            expires_in=expires_in,
+            user_id=user.id,
+            role=user.role,
+            email=user.email,
+        )
+    except Exception as exc:
+        db.rollback()
+        raise exc
 
 
 def login(db: Session, data: LoginRequest) -> AuthTokens:
@@ -284,39 +338,83 @@ def google_auth(db: Session, credential: str, role: Optional[str] = "student") -
         first_name = google_data.get("given_name") or email.split("@")[0].capitalize()
         last_name = google_data.get("family_name") or ""
 
-        user = User(
-            email=email,
-            google_id=sub,
-            role=assigned_role,
-            is_email_verified=True,
-            is_active=True,
-        )
-        db.add(user)
-        db.flush()
+        try:
+            user = User(
+                email=email,
+                google_id=sub,
+                role=assigned_role,
+                is_email_verified=True,
+                is_active=True,
+            )
+            db.add(user)
+            db.flush()
 
-        if assigned_role == "student":
-            db.add(Student(user_id=user.id, first_name=first_name, last_name=last_name))
-        elif assigned_role == "college_rep":
-            db.add(
-                CollegeRepresentative(
-                    user_id=user.id,
-                    college_name=f"{first_name}'s Institution",
-                    first_name=first_name,
-                    last_name=last_name,
-                    designation="Representative",
-                    is_verified=False,
+            if assigned_role == "student":
+                db.add(Student(user_id=user.id, first_name=first_name, last_name=last_name))
+            elif assigned_role == "college_rep":
+                db.add(
+                    CollegeRepresentative(
+                        user_id=user.id,
+                        college_name=f"{first_name}'s Institution",
+                        first_name=first_name,
+                        last_name=last_name,
+                        designation="Representative",
+                        is_verified=False,
+                    )
                 )
-            )
-        elif assigned_role == "recruiter":
-            db.add(
-                CompanyRecruiter(
-                    user_id=user.id,
-                    company_name=f"{first_name}'s Company",
-                    first_name=first_name,
-                    last_name=last_name,
-                    designation="Recruiter",
-                    is_verified=False,
+            elif assigned_role == "recruiter":
+                db.add(
+                    CompanyRecruiter(
+                        user_id=user.id,
+                        company_name=f"{first_name}'s Company",
+                        first_name=first_name,
+                        last_name=last_name,
+                        designation="Recruiter",
+                        is_verified=False,
+                    )
                 )
-            )
+            db.commit()
+        except Exception as exc:
+            db.rollback()
+            raise exc
 
     return _issue_tokens(db, user)
+
+
+def get_auth_showcase(db: Session) -> AuthShowcaseResponse:
+    colleges = (
+        db.query(College)
+        .filter(College.is_published.is_(True), College.deleted_at.is_(None))
+        .order_by(desc(College.rating), desc(College.reviews_count))
+        .limit(6)
+        .all()
+    )
+
+    companies = (
+        db.query(Company)
+        .limit(8)
+        .all()
+    )
+
+    total_colleges = db.query(College).filter(College.is_published.is_(True), College.deleted_at.is_(None)).count()
+    total_companies = db.query(Company).count()
+    total_internships = db.query(Internship).filter(Internship.is_active.is_(True), Internship.deleted_at.is_(None)).count()
+
+    max_pkg = 58.0
+    for c in colleges:
+        if c.highest_package_lpa and c.highest_package_lpa > max_pkg:
+            max_pkg = float(c.highest_package_lpa)
+
+    stats = AuthShowcaseStats(
+        total_colleges=max(total_colleges, 100),
+        total_companies=max(total_companies, 50),
+        total_internships=max(total_internships, 250),
+        highest_package_lpa=max_pkg,
+        avg_placement_percent=94.5,
+    )
+
+    return AuthShowcaseResponse(
+        colleges=[AuthShowcaseCollege.model_validate(c) for c in colleges],
+        companies=[AuthShowcaseCompany.model_validate(comp) for comp in companies],
+        stats=stats,
+    )

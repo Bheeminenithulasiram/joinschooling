@@ -54,10 +54,13 @@ function SubmitBtn() {
 export default function RegisterForm() {
   const [state, action] = useActionState(registerAction, null as any);
   const [selectedRole, setSelectedRole] = useState<RoleType>("student");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!document.getElementById("google-gsi-client")) {
@@ -389,6 +392,11 @@ export default function RegisterForm() {
               name="password"
               required
               minLength={8}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setClientError(null);
+              }}
               type={showPassword ? "text" : "password"}
               className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
               placeholder="At least 8 characters"
@@ -406,9 +414,20 @@ export default function RegisterForm() {
 
         {/* Confirm Password */}
         <div className="flex flex-col gap-1.5">
-          <label className="block text-xs font-semibold text-slate-600">
-            Confirm Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-semibold text-slate-600">
+              Confirm Password
+            </label>
+            {confirmPassword.length > 0 && (
+              <span
+                className={`text-[11px] font-semibold ${
+                  password === confirmPassword ? "text-emerald-600" : "text-rose-500"
+                }`}
+              >
+                {password === confirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+              </span>
+            )}
+          </div>
           <div className="relative flex items-center">
             <div className="pointer-events-none absolute left-3.5 flex items-center justify-center text-slate-400">
               <Lock size={15} />
@@ -417,8 +436,19 @@ export default function RegisterForm() {
               name="confirm_password"
               required
               minLength={8}
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setClientError(null);
+              }}
               type={showConfirmPassword ? "text" : "password"}
-              className="input input-icon-pad input-icon-right w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+              className={`input input-icon-pad input-icon-right w-full rounded-xl border bg-white py-2.5 text-sm text-ink-900 outline-none transition placeholder:text-slate-400 focus:ring-4 ${
+                confirmPassword.length > 0
+                  ? password === confirmPassword
+                    ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-100"
+                    : "border-rose-300 focus:border-rose-500 focus:ring-rose-100"
+                  : "border-slate-200 focus:border-brand-500 focus:ring-brand-100"
+              }`}
               placeholder="Re-enter your password"
             />
             <button
@@ -432,10 +462,10 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        {state && state.ok === false && (
+        {(clientError || (state && state.ok === false)) && (
           <div className="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700 animate-fadeIn">
             <AlertTriangle size={15} className="text-rose-500 shrink-0" />
-            <span className="font-medium">{state.error}</span>
+            <span className="font-medium">{clientError || state.error}</span>
           </div>
         )}
 

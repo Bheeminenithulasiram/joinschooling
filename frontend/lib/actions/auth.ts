@@ -64,6 +64,7 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
   const payload: Record<string, any> = {
     email,
     password,
+    confirm_password,
     first_name,
     last_name,
     role,
