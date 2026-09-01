@@ -68,8 +68,8 @@ DEMO_COLLEGES = [
         "facilities": ["Library", "Sports", "Wi-Fi", "Hostel", "Innovation Lab"],
         "rating": 4.2,
         "reviews_count": 421,
-        "logo_url": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&h=400&fit=crop",
+        "logo_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&h=200&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&h=600&fit=crop",
     },
     {
         "name": "BVRIT Hyderabad",

@@ -402,18 +402,21 @@ def get_auth_showcase(db: Session) -> AuthShowcaseResponse:
         if c.banner_url and c.banner_url not in images:
             images.append(c.banner_url)
 
-    # Curated high-res educational & corporate campus photography fallbacks
+    # Curated high-res authentic university campus architecture
     fallbacks = [
         "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1200&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=1200&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=1200&h=800&fit=crop",
         "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=1200&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=1200&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?q=80&w=1200&h=800&fit=crop",
     ]
     for fb in fallbacks:
-        if fb not in images:
+        if fb not in images and "1503676260728" not in fb:
             images.append(fb)
+
+    # Clean out any accidental apple images from old DB rows
+    images = [img for img in images if "1503676260728" not in img]
 
     total_colleges = db.query(College).filter(College.is_published.is_(True), College.deleted_at.is_(None)).count()
     total_companies = db.query(Company).count()
