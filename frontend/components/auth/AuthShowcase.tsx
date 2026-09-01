@@ -22,9 +22,18 @@ export default function AuthShowcase() {
           const data = await res.json();
           const dbImages: string[] = [];
 
+          const sanitizeUrl = (url: string) => {
+            if (!url) return null;
+            if (url.includes("1503676260728")) {
+              return "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop";
+            }
+            return url;
+          };
+
           // 1. Extract from images array returned by backend database query
           if (data.images && Array.isArray(data.images)) {
-            data.images.forEach((img: string) => {
+            data.images.forEach((rawImg: string) => {
+              const img = sanitizeUrl(rawImg);
               if (img && typeof img === "string" && !dbImages.includes(img)) {
                 dbImages.push(img);
               }
@@ -34,8 +43,9 @@ export default function AuthShowcase() {
           // 2. Extract from college database entities
           if (data.colleges && Array.isArray(data.colleges)) {
             data.colleges.forEach((college: any) => {
-              if (college.banner_url && !dbImages.includes(college.banner_url)) {
-                dbImages.push(college.banner_url);
+              const img = sanitizeUrl(college.banner_url);
+              if (img && !dbImages.includes(img)) {
+                dbImages.push(img);
               }
             });
           }
