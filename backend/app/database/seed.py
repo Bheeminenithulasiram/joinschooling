@@ -31,7 +31,7 @@ DEMO_COLLEGES = [
         "about": "Autonomous engineering institute affiliated with JNTUH known for strong CS placements.",
         "is_featured": True,
         "logo_url": "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1200&h=400&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1600&auto=format&fit=crop",
     },
     {
         "name": "GITAM University",
@@ -50,7 +50,7 @@ DEMO_COLLEGES = [
         "rating": 4.3,
         "reviews_count": 510,
         "logo_url": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&h=400&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop",
     },
     {
         "name": "KL University",
@@ -69,7 +69,7 @@ DEMO_COLLEGES = [
         "rating": 4.2,
         "reviews_count": 421,
         "logo_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&h=600&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
     },
     {
         "name": "BVRIT Hyderabad",
@@ -87,7 +87,7 @@ DEMO_COLLEGES = [
         "rating": 4.1,
         "reviews_count": 298,
         "logo_url": "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=1200&h=400&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1589161410160-3f43408514b8?q=80&w=1600&auto=format&fit=crop",
     },
     {
         "name": "IIT Bombay",
@@ -107,7 +107,7 @@ DEMO_COLLEGES = [
         "reviews_count": 3211,
         "is_featured": True,
         "logo_url": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=200&h=200&fit=crop",
-        "banner_url": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=1200&h=400&fit=crop",
+        "banner_url": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=1600&auto=format&fit=crop",
     },
 ]
 

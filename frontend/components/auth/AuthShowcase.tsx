@@ -1,58 +1,59 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-// Curated full wide-angle college campus landscape photography
-const LOCAL_CAMPUS_IMAGES = [
-  "/images/colleges/campus_1.jpg",
-  "/images/colleges/campus_2.jpg",
-  "/images/colleges/campus_3.jpg",
-  "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop",
-];
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export default function AuthShowcase() {
-  const [images, setImages] = useState<string[]>(LOCAL_CAMPUS_IMAGES);
+  const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch dynamic college images from PostgreSQL database
+  // Fetch dynamic college and campus images directly from the PostgreSQL database via API
   useEffect(() => {
-    async function loadImages() {
+    async function loadDatabaseShowcase() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "https://joinschooling-api-heot.onrender.com";
         const res = await fetch(`${apiUrl}/api/v1/auth/showcase`, {
-          next: { revalidate: 300 },
+          next: { revalidate: 120 },
         });
         if (res.ok) {
-          const json = await res.json();
-          const cleanImages: string[] = [...LOCAL_CAMPUS_IMAGES];
-          if (json.images && json.images.length > 0) {
-            json.images.forEach((img: string) => {
-              if (
-                img &&
-                !img.includes("1503676260728") &&
-                !cleanImages.includes(img)
-              ) {
-                cleanImages.push(img);
+          const data = await res.json();
+          const dbImages: string[] = [];
+
+          // 1. Extract from images array returned by backend database query
+          if (data.images && Array.isArray(data.images)) {
+            data.images.forEach((img: string) => {
+              if (img && typeof img === "string" && !dbImages.includes(img)) {
+                dbImages.push(img);
               }
             });
           }
-          if (cleanImages.length > 0) {
-            setImages(cleanImages);
+
+          // 2. Extract from college database entities
+          if (data.colleges && Array.isArray(data.colleges)) {
+            data.colleges.forEach((college: any) => {
+              if (college.banner_url && !dbImages.includes(college.banner_url)) {
+                dbImages.push(college.banner_url);
+              }
+            });
+          }
+
+          if (dbImages.length > 0) {
+            setImages(dbImages);
           }
         }
       } catch (err) {
-        console.warn("Auth showcase loaded with local wide-angle campus photos:", err);
+        console.warn("Could not fetch showcase from database:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
-    loadImages();
+    loadDatabaseShowcase();
   }, []);
 
-  // Auto-play slideshow with smooth horizontal sliding
+  // Auto-play horizontal sliding animation (4.5s)
   useEffect(() => {
     if (isPaused || images.length <= 1) return;
     timerRef.current = setInterval(() => {
@@ -77,13 +78,28 @@ export default function AuthShowcase() {
     setImages((prev) => prev.filter((src) => src !== failedSrc));
   };
 
+  if (isLoading && images.length === 0) {
+    return (
+      <div className="mx-auto flex w-full max-w-xl items-center justify-center overflow-hidden rounded-3xl bg-slate-100 shadow-xl border border-slate-200/80 aspect-[16/10] sm:aspect-[16/10] lg:h-[480px]">
+        <div className="flex flex-col items-center gap-2 text-slate-400">
+          <Loader2 size={24} className="animate-spin text-brand-600" />
+          <span className="text-xs font-medium">Loading campus gallery from database…</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (images.length === 0) {
+    return null;
+  }
+
   return (
     <div
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       className="group relative mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-slate-900 shadow-2xl border border-slate-200/80 transition-all duration-300 aspect-[16/10] sm:aspect-[16/10] lg:h-[480px]"
     >
-      {/* Horizontal Sliding Track: Slides out the active image & slides in the incoming image */}
+      {/* Dynamic Sliding Track: Animated horizontal transitions */}
       <div
         className="flex h-full w-full transition-transform duration-600 ease-out will-change-transform"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -95,7 +111,7 @@ export default function AuthShowcase() {
           >
             <img
               src={src}
-              alt={`Full view college campus ${index + 1}`}
+              alt={`Campus showcase ${index + 1}`}
               className="h-full w-full object-cover object-center select-none"
               loading={index === 0 ? "eager" : "lazy"}
               onError={() => handleImageError(src)}
@@ -107,7 +123,7 @@ export default function AuthShowcase() {
       {/* Subtle vignette gradient at bottom so indicator dots stand out */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent z-20" />
 
-      {/* Navigation Arrows with smooth hover and active physics */}
+      {/* Navigation Arrows (Translucent with hover effects) */}
       <button
         type="button"
         onClick={handlePrev}
@@ -126,7 +142,7 @@ export default function AuthShowcase() {
         <ChevronRight size={22} />
       </button>
 
-      {/* Navigation Dots */}
+      {/* Navigation Indicator Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
         {images.map((_, idx) => (
           <button
