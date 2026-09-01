@@ -12,6 +12,7 @@ export type StudentProfile = {
   tenth_percentage?: number | null;
   twelfth_percentage?: number | null;
   cgpa?: number | null;
+  graduation_year?: number | null;
   preferred_course?: string | null;
   budget_min_lpa?: number | null;
   budget_max_lpa?: number | null;
@@ -23,12 +24,35 @@ export type StudentProfile = {
   preferred_companies: string[];
 };
 
+export type CollegeRepProfile = {
+  college_name: string;
+  first_name: string;
+  last_name: string;
+  designation: string;
+  official_email?: string | null;
+  website_url?: string | null;
+  is_verified: boolean;
+};
+
+export type RecruiterProfile = {
+  company_name: string;
+  first_name: string;
+  last_name: string;
+  designation: string;
+  industry?: string | null;
+  website_url?: string | null;
+  is_verified: boolean;
+};
+
 export type UserOut = {
   id: string;
   email: string;
   role: string;
   is_email_verified: boolean;
-  profile?: StudentProfile | null;
+  profile?: any | null;
+  student?: StudentProfile | null;
+  college_rep?: CollegeRepProfile | null;
+  recruiter_profile?: RecruiterProfile | null;
 };
 
 export type CollegeCard = {

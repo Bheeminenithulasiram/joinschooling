@@ -1,27 +1,31 @@
 import Link from "next/link";
-import { Building2, Users, Eye, PlusCircle, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Building2, Users, Eye, CheckCircle2, ShieldCheck, ArrowRight, BookOpen, Award } from "lucide-react";
 import { api } from "@/lib/api";
+import type { UserOut } from "@/lib/types";
+import { logoutAction } from "@/lib/actions/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function CollegeDashboardPage() {
+  let user: UserOut | null = null;
   let data: any = null;
+
   try {
-    data = await api("/api/v1/me/college-dashboard");
+    const [u, d] = await Promise.all([
+      api<UserOut>("/api/v1/me"),
+      api<any>("/api/v1/me/college-dashboard"),
+    ]);
+    user = u;
+    data = d;
   } catch {
-    data = {
-      representative: {
-        name: "Admissions Office",
-        designation: "Dean of Admissions",
-        college_name: "Institute Portal",
-        is_verified: true,
-      },
-      stats: {
-        student_inquiries: 38,
-        profile_views: 1240,
-        is_published: true,
-      },
-    };
+    redirect("/auth/login?redirect=/dashboard/college");
+  }
+
+  // Authoritative Role Check: only college_rep and admin allowed
+  if (user.role !== "college_rep" && user.role !== "admin") {
+    if (user.role === "student") redirect("/dashboard");
+    if (user.role === "recruiter") redirect("/dashboard/recruiter");
   }
 
   return (
@@ -41,29 +45,36 @@ export default async function CollegeDashboardPage() {
               {data?.representative?.designation} • <span className="font-semibold text-white">{data?.representative?.college_name}</span>
             </p>
           </div>
-          <Link
-            href="/colleges"
-            className="btn bg-white text-indigo-950 hover:bg-indigo-50 shadow-md font-semibold text-sm rounded-xl px-5 py-3 transition"
-          >
-            View Public College Profile <ArrowRight size={16} />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/colleges"
+              className="btn bg-white text-indigo-950 hover:bg-indigo-50 shadow-md font-semibold text-sm rounded-xl px-5 py-3 transition inline-flex items-center gap-2"
+            >
+              Public Directory <ArrowRight size={16} />
+            </Link>
+            <form action={logoutAction}>
+              <button className="btn bg-white/10 hover:bg-white/20 text-white text-sm rounded-xl px-4 py-3 transition">
+                Log out
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="card p-6 border-slate-200/80 shadow-xs">
+        <div className="card p-6 border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Student Inquiries</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Student Inquiries & Saves</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
               <Users size={20} />
             </div>
           </div>
           <p className="mt-4 text-3xl font-extrabold text-ink-900">{data?.stats?.student_inquiries ?? 0}</p>
-          <p className="mt-1 text-xs text-emerald-600 font-medium">↑ 14% new interested students this week</p>
+          <p className="mt-1 text-xs text-emerald-600 font-medium">Interested prospective applicants</p>
         </div>
 
-        <div className="card p-6 border-slate-200/80 shadow-xs">
+        <div className="card p-6 border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Profile Impressions</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
@@ -71,32 +82,42 @@ export default async function CollegeDashboardPage() {
             </div>
           </div>
           <p className="mt-4 text-3xl font-extrabold text-ink-900">{data?.stats?.profile_views ?? 0}</p>
-          <p className="mt-1 text-xs text-slate-500">Total views on Search & Compare lists</p>
+          <p className="mt-1 text-xs text-slate-500">Search & comparison directory views</p>
         </div>
 
-        <div className="card p-6 border-slate-200/80 shadow-xs">
+        <div className="card p-6 border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Listing Status</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <CheckCircle2 size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-extrabold text-emerald-600">Active</p>
-          <p className="mt-1 text-xs text-slate-500">Published on JoinSchooling discovery directory</p>
+          <p className="mt-4 text-3xl font-extrabold text-emerald-600">
+            {data?.stats?.is_published ? "Published" : "Active"}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">Verified institution on JoinSchooling</p>
         </div>
       </div>
 
-      {/* Quick Actions Panel */}
-      <div className="card p-6 border-slate-200 space-y-4">
+      {/* Institution Management Modules */}
+      <div className="card p-6 border border-slate-200 space-y-4">
         <h2 className="text-lg font-bold text-ink-900">Institution Management</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition space-y-2">
-            <h3 className="font-semibold text-sm text-ink-900">Cutoff & Admission Criteria</h3>
-            <p className="text-xs text-slate-500">Update required entrance exam ranks, JEE/EAMCET score percentiles.</p>
+          <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition space-y-2">
+            <div className="flex items-center gap-2 text-brand-700 font-semibold text-sm">
+              <BookOpen size={16} /> Cutoff & Admission Criteria
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Manage required entrance exam ranks, JEE Main/Advanced and State EAMCET score percentiles for engineering branches.
+            </p>
           </div>
-          <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition space-y-2">
-            <h3 className="font-semibold text-sm text-ink-900">Placement Statistics</h3>
-            <p className="text-xs text-slate-500">Upload verified campus recruitment packages and top company logos.</p>
+          <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition space-y-2">
+            <div className="flex items-center gap-2 text-brand-700 font-semibold text-sm">
+              <Award size={16} /> Placement & Recruiter Statistics
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Verify campus recruitment packages, highest CTC numbers, and top hiring partner companies for prospective students.
+            </p>
           </div>
         </div>
       </div>

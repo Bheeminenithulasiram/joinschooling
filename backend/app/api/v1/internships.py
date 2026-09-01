@@ -79,5 +79,20 @@ def create_internship(
     current: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> InternshipCard:
+    if current.role == "recruiter":
+        recruiter = current.recruiter_profile
+        if not recruiter or not recruiter.company_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Recruiter is not associated with any registered company profile.",
+            )
+        # Resource ownership verification: cannot post on behalf of another company
+        if payload.company_id and payload.company_id != recruiter.company_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to post opportunities for another company.",
+            )
+        payload.company_id = recruiter.company_id
+
     row = internship_service.create_internship(db, payload, posted_by=current.id)
     return InternshipCard.model_validate(row)

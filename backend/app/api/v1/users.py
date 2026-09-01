@@ -77,6 +77,12 @@ def update_me(
 
 @router.get("/me/dashboard", response_model=DashboardSnapshot)
 def dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> DashboardSnapshot:
+    if current.role not in ("student", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Student access only. Authenticated role: {current.role}",
+        )
+
     apps_q = db.query(Application).filter(Application.student_id == current.id)
     saved_q = db.query(SavedItem).filter(SavedItem.user_id == current.id)
 
@@ -107,7 +113,10 @@ def dashboard(current: User = Depends(get_current_user), db: Session = Depends(g
 @router.get("/me/college-dashboard")
 def college_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
     if current.role not in ("college_rep", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="College representative access only")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"College representative access only. Authenticated role: {current.role}",
+        )
 
     college_id = current.college_rep.college_id if current.college_rep else None
     college = db.query(College).get(college_id) if college_id else None
@@ -119,7 +128,7 @@ def college_dashboard(current: User = Depends(get_current_user), db: Session = D
         "representative": {
             "name": f"{current.college_rep.first_name} {current.college_rep.last_name}" if current.college_rep else current.email,
             "designation": current.college_rep.designation if current.college_rep else "Representative",
-            "college_name": current.college_rep.college_name if current.college_rep else "Institution",
+            "college_name": current.college_rep.college_name if current.college_rep else (college.name if college else "Institution"),
             "is_verified": current.college_rep.is_verified if current.college_rep else False,
         },
         "college": CollegeCard.model_validate(college) if college else None,
@@ -134,7 +143,10 @@ def college_dashboard(current: User = Depends(get_current_user), db: Session = D
 @router.get("/me/recruiter-dashboard")
 def recruiter_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
     if current.role not in ("recruiter", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Recruiter access only")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Recruiter access only. Authenticated role: {current.role}",
+        )
 
     company_id = current.recruiter_profile.company_id if current.recruiter_profile else None
     company = db.query(Company).get(company_id) if company_id else None
@@ -153,7 +165,7 @@ def recruiter_dashboard(current: User = Depends(get_current_user), db: Session =
         "recruiter": {
             "name": f"{current.recruiter_profile.first_name} {current.recruiter_profile.last_name}" if current.recruiter_profile else current.email,
             "designation": current.recruiter_profile.designation if current.recruiter_profile else "Recruiter",
-            "company_name": current.recruiter_profile.company_name if current.recruiter_profile else "Company",
+            "company_name": current.recruiter_profile.company_name if current.recruiter_profile else (company.name if company else "Company"),
             "is_verified": current.recruiter_profile.is_verified if current.recruiter_profile else False,
         },
         "stats": {
@@ -169,6 +181,55 @@ def recruiter_dashboard(current: User = Depends(get_current_user), db: Session =
                 "posted_at": i.posted_at,
             }
             for i in posted_internships[:5]
+        ],
+    }
+
+
+@router.get("/me/admin-dashboard")
+def admin_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
+    if current.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Admin access only. Authenticated role: {current.role}",
+        )
+
+    total_users = db.query(User).filter(User.deleted_at.is_(None)).count()
+    total_colleges = db.query(College).filter(College.deleted_at.is_(None)).count()
+    total_companies = db.query(Company).count()
+    total_internships = db.query(Internship).filter(Internship.deleted_at.is_(None)).count()
+    total_applications = db.query(Application).count()
+
+    recent_colleges = db.query(College).filter(College.deleted_at.is_(None)).order_by(desc(College.created_at)).limit(5).all()
+    recent_internships = db.query(Internship).filter(Internship.deleted_at.is_(None)).order_by(desc(Internship.created_at)).limit(5).all()
+    recent_users = db.query(User).filter(User.deleted_at.is_(None)).order_by(desc(User.created_at)).limit(5).all()
+
+    return {
+        "stats": {
+            "users": total_users,
+            "colleges": total_colleges,
+            "companies": total_companies,
+            "internships": total_internships,
+            "applications": total_applications,
+        },
+        "recent_colleges": [CollegeCard.model_validate(c) for c in recent_colleges],
+        "recent_internships": [
+            {
+                "id": i.id,
+                "title": i.title,
+                "company_id": i.company_id,
+                "work_mode": i.work_mode,
+                "domain": i.domain,
+            }
+            for i in recent_internships
+        ],
+        "recent_users": [
+            {
+                "id": u.id,
+                "email": u.email,
+                "role": u.role,
+                "is_verified": u.is_email_verified,
+            }
+            for u in recent_users
         ],
     }
 

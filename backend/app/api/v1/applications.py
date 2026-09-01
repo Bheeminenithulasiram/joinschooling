@@ -1,7 +1,7 @@
 """Applications: list mine + status updates."""
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,11 @@ router = APIRouter(prefix="/applications", tags=["Applications"])
 
 @router.get("", response_model=List[ApplicationOut])
 def my_applications(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> List[ApplicationOut]:
+    if current.role not in ("student", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Student access only. Authenticated role: {current.role}",
+        )
     rows = (
         db.query(Application)
         .filter(Application.student_id == current.id)
