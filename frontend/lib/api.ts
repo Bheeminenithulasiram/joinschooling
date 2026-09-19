@@ -466,11 +466,17 @@ export async function persistTokens(t: Tokens & { user?: { role?: string; email?
     path: "/",
     maxAge: REFRESH_MAX_AGE,
   });
-  if (t.user?.role) {
-    jar.set(USER_ROLE_COOKIE, t.user.role, { path: "/", maxAge: REFRESH_MAX_AGE });
+  const role = t.role || t.user?.role;
+  if (role) {
+    jar.set(USER_ROLE_COOKIE, role, { path: "/", maxAge: REFRESH_MAX_AGE });
   }
-  if (t.user?.email) {
-    jar.set(USER_EMAIL_COOKIE, t.user.email, { path: "/", maxAge: REFRESH_MAX_AGE });
+  const email = t.email || t.user?.email;
+  if (email) {
+    jar.set(USER_EMAIL_COOKIE, email, { path: "/", maxAge: REFRESH_MAX_AGE });
+  }
+  const name = t.first_name ? `${t.first_name} ${t.last_name || ""}`.trim() : (t.user?.first_name || (email ? email.split("@")[0] : undefined));
+  if (name) {
+    jar.set(USER_NAME_COOKIE, name, { path: "/", maxAge: REFRESH_MAX_AGE });
   }
 }
 

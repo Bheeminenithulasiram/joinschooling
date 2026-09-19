@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const name = jar.get(USER_NAME_COOKIE)?.value;
 
   if (!access && !role) {
-    return NextResponse.json({ user: null }, { status: 401 });
+    return NextResponse.json({ user: null }, { status: 200 });
   }
 
   // If backend is running, try to fetch fresh user profile
@@ -59,5 +59,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ user });
   }
 
-  return NextResponse.json({ user: null }, { status: 401 });
+  return NextResponse.json({ user: null }, { status: 200 });
 }

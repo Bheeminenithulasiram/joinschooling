@@ -2,7 +2,17 @@
 
 export type Pagination = { page: number; page_size: number; total: number; has_next: boolean };
 
-export type Tokens = { access_token: string; refresh_token: string; token_type: string; expires_in: number };
+export type Tokens = {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  user_id?: string;
+  role?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+};
 
 export type StudentProfile = {
   first_name: string;
