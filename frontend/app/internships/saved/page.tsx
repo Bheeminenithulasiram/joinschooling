@@ -42,7 +42,7 @@ export default async function SavedInternshipsPage() {
         ) : (
           <div className="grid gap-4">
             {items.map((i) => (
-              <Link key={i.id} href={`/internships/${i.slug}`} className="card p-5 transition hover:shadow-glow">
+              <Link key={i.id} href={`/internships/${i.slug}`} className="card p-5 transition hover:shadow-md hover:border-brand-300">
                 <div className="flex items-start gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-2xl">💼</div>
                   <div className="flex-1">

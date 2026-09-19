@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { domains, internships as mockInternships } from "@/lib/mock";
-import { Search, MapPin, Clock, Filter, Briefcase, Sparkles, Building2, CheckCircle2 } from "lucide-react";
+import { Search, MapPin, Clock, Filter, Briefcase, Building2, CheckCircle2 } from "lucide-react";
 import { apiPublic } from "@/lib/api";
 import type { PagedInternships } from "@/lib/types";
 
@@ -75,9 +75,9 @@ export default async function InternshipsPage({
   return (
     <>
       <PageHeader
-        eyebrow={`${data.pagination.total.toLocaleString()}+ live openings`}
-        title="Explore Verified Tech Internships"
-        subtitle="Apply with 1-click to top engineering, AI/ML, and product roles offering verified stipends up to ₹1,40,000/mo."
+        eyebrow={`${data.pagination.total.toLocaleString()}+ Verified Openings`}
+        title="Internships & Campus Hiring Drives"
+        subtitle="Explore verified tech, data science, and product internships from verified enterprise and high-growth employers."
       />
 
       <div className="container-page py-10 space-y-6">
@@ -89,7 +89,7 @@ export default async function InternshipsPage({
               <Link
                 key={d}
                 href={`/internships?domain=${d}`}
-                className="chip text-xs hover:border-brand-500 hover:text-brand-700"
+                className="chip text-xs hover:border-blue-500 hover:text-blue-700"
               >
                 {d}
               </Link>
@@ -98,33 +98,33 @@ export default async function InternshipsPage({
 
           <Link
             href="/dashboard/recruiter"
-            className="btn-outline text-xs inline-flex items-center gap-1.5 shadow-xs"
+            className="btn-outline text-xs inline-flex items-center gap-1.5"
           >
-            <Building2 size={14} className="text-sky-600" /> Are you a Recruiter? Post a Job
+            <Building2 size={14} className="text-blue-600" /> Are you an Employer? Post a Drive
           </Link>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+        <div className="grid gap-8 lg:grid-cols-[270px_1fr]">
           {/* Filters Form */}
-          <form className="card h-fit p-6 space-y-5">
+          <form className="card h-fit p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
-                <Filter size={16} className="text-brand-600" /> Filter Roles
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
+                <Filter size={14} className="text-blue-600" /> Filter Roles
               </div>
-              <Link href="/internships" className="text-xs text-brand-600 hover:underline">
+              <Link href="/internships" className="text-xs text-blue-600 hover:underline">
                 Reset
               </Link>
             </div>
 
             <div>
-              <label className="label">Search Roles / Skills</label>
+              <label className="label">Search Role / Skill</label>
               <div className="relative">
-                <Search size={15} className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400" />
+                <Search size={14} className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400" />
                 <input
                   name="q"
                   defaultValue={sp.q ?? ""}
-                  className="input pl-10 text-xs"
-                  placeholder="e.g. SDE, React, AI..."
+                  className="input pl-9 text-xs"
+                  placeholder="e.g. SDE, Python, React..."
                 />
               </div>
             </div>
@@ -164,15 +164,15 @@ export default async function InternshipsPage({
             </div>
 
             <div>
-              <label className="label">Sort Order</label>
+              <label className="label">Sort By</label>
               <select name="sort" defaultValue={sp.sort ?? ""} className="input text-xs">
                 <option value="">Recently Posted</option>
                 <option value="stipend_desc">Highest Stipend</option>
-                <option value="deadline">Application Deadline Soon</option>
+                <option value="deadline">Application Deadline</option>
               </select>
             </div>
 
-            <button type="submit" className="btn-primary w-full text-xs py-2.5 font-bold shadow-md">
+            <button type="submit" className="btn-primary w-full text-xs py-2 font-semibold">
               Apply Filters
             </button>
           </form>
@@ -183,39 +183,39 @@ export default async function InternshipsPage({
               <div>
                 Showing <b className="text-slate-900">{data.items.length}</b> verified opportunities
               </div>
-              <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                <CheckCircle2 size={13} /> 100% PPO Eligible Opportunities
+              <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                <CheckCircle2 size={13} /> PPO Conversion Opportunities
               </span>
             </div>
 
             {data.items.length === 0 ? (
-              <div className="card grid place-items-center p-16 text-center space-y-3">
-                <Briefcase className="text-slate-300 mx-auto" size={48} />
-                <h3 className="font-display text-lg font-bold text-slate-900">No internships matched</h3>
+              <div className="card grid place-items-center p-14 text-center space-y-3">
+                <Briefcase className="text-slate-300 mx-auto" size={44} />
+                <h3 className="font-display text-base font-bold text-slate-900">No internships matched</h3>
                 <p className="text-xs text-slate-500 max-w-sm">
-                  Try adjusting your minimum stipend or search query to find more open roles.
+                  Try adjusting your search criteria or clearing filters.
                 </p>
                 <Link href="/internships" className="btn-primary text-xs mt-2">
-                  Clear All Filters
+                  Clear Filters
                 </Link>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {data.items.map((i) => (
                   <Link
                     key={i.id}
                     href={`/internships/${i.slug}`}
-                    className="card p-6 hover:border-brand-400 hover:shadow-lg transition duration-200 block group"
+                    className="card p-5 hover:border-blue-400 hover:shadow-sm transition duration-150 block group"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 border border-slate-200 text-2xl shadow-2xs">
-                          {i.company?.name === "Amazon" ? "🟠" : i.company?.name === "Google" ? "🟢" : i.company?.name === "Microsoft" ? "🟦" : i.company?.name === "Flipkart" ? "🟡" : "💼"}
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 font-bold text-slate-800 text-sm">
+                          {i.company?.name ? i.company.name.substring(0, 2).toUpperCase() : "CO"}
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="font-display text-lg font-bold text-slate-900 group-hover:text-brand-700 transition">
+                            <h3 className="font-display text-base font-bold text-slate-900 group-hover:text-blue-600 transition">
                               {i.title}
                             </h3>
                             <Badge variant={i.work_mode === "remote" ? "green" : i.work_mode === "hybrid" ? "amber" : "blue"}>
@@ -223,14 +223,16 @@ export default async function InternshipsPage({
                             </Badge>
                           </div>
 
-                          <p className="text-xs font-semibold text-slate-600">
-                            {i.company?.name || "Tech Company"} · <span className="text-slate-400">{i.location_city || "Pan India / Remote"}</span>
+                          <p className="text-xs font-semibold text-slate-700">
+                            {i.company?.name || "Tech Employer"} · <span className="text-slate-500">{i.location_city || "Pan India"}</span>
                           </p>
 
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-1">
                             <span className="flex items-center gap-1"><MapPin size={12} /> {i.location_city || "Remote"}</span>
+                            <span>•</span>
                             <span className="flex items-center gap-1"><Clock size={12} /> {i.duration_months} Months</span>
-                            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">{i.domain}</span>
+                            <span>•</span>
+                            <span className="text-slate-700 font-medium">{i.domain}</span>
                           </div>
                         </div>
                       </div>
@@ -238,14 +240,14 @@ export default async function InternshipsPage({
                       <div className="sm:text-right border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 flex sm:flex-col justify-between sm:justify-center items-center sm:items-end">
                         {i.stipend_max && (
                           <div>
-                            <div className="font-display text-xl font-extrabold text-brand-700">
+                            <div className="font-display text-base font-bold text-blue-700">
                               ₹{i.stipend_min?.toLocaleString()}–{i.stipend_max?.toLocaleString()}
                             </div>
                             <div className="text-[10px] text-slate-400 uppercase font-semibold">per month stipend</div>
                           </div>
                         )}
-                        <span className="btn-primary text-xs py-2 px-4 mt-2 shadow-xs group-hover:shadow-md">
-                          Apply Now →
+                        <span className="btn-primary text-xs py-1.5 px-3.5 mt-2 font-semibold">
+                          View Details →
                         </span>
                       </div>
                     </div>

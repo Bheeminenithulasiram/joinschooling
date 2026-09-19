@@ -164,7 +164,7 @@ export function InquiryModal({ isOpen, onClose, college }: InquiryModalProps) {
             <button
               type="submit"
               disabled={pending}
-              className="btn-primary w-full py-3 text-sm font-bold shadow-glow"
+              className="btn-primary w-full py-3 text-sm font-bold shadow-sm"
             >
               {pending ? (
                 <>

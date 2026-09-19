@@ -84,7 +84,7 @@ export default function ScholarshipsPage() {
                   success("Application portal link opened in new tab!");
                   setSelectedScholarship(null);
                 }}
-                className="btn-primary w-full py-3 text-xs font-bold shadow-glow"
+                className="btn-primary w-full py-3 text-xs font-bold shadow-sm"
               >
                 Proceed to Official Application Portal →
               </button>

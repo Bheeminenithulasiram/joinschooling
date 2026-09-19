@@ -228,7 +228,7 @@ export function RecruiterDashboardClient({ data }: { data: any }) {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full py-3 text-xs font-bold shadow-glow">
+              <button type="submit" className="btn-primary w-full py-3 text-xs font-bold shadow-sm">
                 Publish Opportunity Live
               </button>
             </form>
@@ -236,31 +236,30 @@ export function RecruiterDashboardClient({ data }: { data: any }) {
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="rounded-3xl border border-sky-200/80 bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 rounded-full bg-sky-500/20 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-sky-200 text-xs font-bold backdrop-blur-md">
-              <Building size={14} className="text-sky-400" /> Corporate Recruitment & ATS Portal
+      {/* Classic Dark Navy Header Banner */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">
+              <Building size={13} /> Corporate Recruitment & ATS Portal
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Welcome, {recruiter.name}
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
+              {recruiter.company_name} Talent & ATS Desk
             </h1>
-            <p className="text-xs sm:text-sm text-sky-200">
-              {recruiter.designation} • <span className="font-bold text-white">{recruiter.company_name}</span>
+            <p className="text-xs text-slate-400">
+              Welcome, {recruiter.name} ({recruiter.designation}). Track applicants across hiring stages and post internship drives.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setPostModalOpen(true)}
-              className="btn bg-white text-slate-950 hover:bg-slate-50 text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-2"
+              className="btn bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3.5 rounded-lg transition flex items-center gap-1.5"
             >
-              <PlusCircle size={15} className="text-brand-600" /> Post New Opportunity
+              <PlusCircle size={14} /> Post New Opportunity
             </button>
             <form action={logoutAction}>
-              <button className="btn bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 px-4 rounded-xl transition font-semibold">
+              <button className="btn bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 px-3.5 rounded-lg transition font-semibold">
                 Sign Out
               </button>
             </form>

@@ -85,7 +85,7 @@ export default function HackathonsPage() {
                   </select>
                 </div>
 
-                <button type="submit" className="btn-primary w-full py-3 text-xs font-bold shadow-glow">
+                <button type="submit" className="btn-primary w-full py-3 text-xs font-bold shadow-sm">
                   Confirm Team Registration
                 </button>
               </form>

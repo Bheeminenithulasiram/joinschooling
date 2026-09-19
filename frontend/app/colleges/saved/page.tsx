@@ -48,7 +48,7 @@ export default async function SavedCollegesPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((c, i) => (
-              <Link key={c.id} href={`/colleges/${c.slug}`} className="card overflow-hidden transition hover:shadow-glow">
+              <Link key={c.id} href={`/colleges/${c.slug}`} className="card overflow-hidden transition hover:shadow-md hover:border-brand-300">
                 <div className="h-20" style={{ background: BANNERS[i % BANNERS.length] }} />
                 <div className="p-5">
                   <div className="flex items-center gap-2">
