@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Briefcase, GraduationCap, Bookmark, TrendingUp, Users, ArrowRight, CheckCircle2, Award, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
@@ -20,7 +21,22 @@ export default async function DashboardPage() {
     dash = d;
   } catch {}
 
-  const displayName = user?.student?.first_name || user?.profile?.first_name || "Kiran Kumar";
+  if (!user) {
+    redirect("/auth/login?redirect=/dashboard");
+  }
+
+  // Role routing guard
+  if (user.role === "college_rep") {
+    redirect("/dashboard/college");
+  } else if (user.role === "recruiter") {
+    redirect("/dashboard/recruiter");
+  } else if (user.role === "admin") {
+    redirect("/admin");
+  }
+
+  const displayName = user.student?.first_name
+    ? `${user.student.first_name} ${user.student.last_name || ""}`.trim()
+    : user.profile?.first_name || "Student";
 
   return (
     <div className="container-page py-10 space-y-8">
@@ -158,7 +174,7 @@ export default async function DashboardPage() {
             <dl className="text-xs space-y-2.5 divide-y divide-slate-100">
               <div className="flex justify-between pt-1">
                 <dt className="text-slate-500 font-medium">Student Name</dt>
-                <dd className="font-bold text-slate-900">Kiran Kumar</dd>
+                <dd className="font-bold text-slate-900">{displayName}</dd>
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">10th / 12th Board</dt>
@@ -170,7 +186,7 @@ export default async function DashboardPage() {
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">Graduation Year</dt>
-                <dd className="font-bold text-slate-900">2026 Batch</dd>
+                <dd className="font-bold text-slate-900">{user?.student?.graduation_year ? `${user.student.graduation_year} Batch` : "2026 Batch"}</dd>
               </div>
             </dl>
           </div>
