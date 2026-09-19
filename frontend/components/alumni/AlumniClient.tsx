@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Briefcase, GraduationCap, MessageSquare, Search, Star, Calendar, CheckCircle2, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { AuthGateModal } from "@/components/auth/AuthGateModal";
 import { useToast } from "@/components/ui/Toast";
 
 interface AlumniMentor {
@@ -25,12 +26,31 @@ export function AlumniClient({ mentors }: AlumniClientProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMentor, setSelectedMentor] = useState<AlumniMentor | null>(null);
+  const [authGateMentor, setAuthGateMentor] = useState<AlumniMentor | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [bookingTopic, setBookingTopic] = useState("Resume Review & Referrals");
   const [selectedSlot, setSelectedSlot] = useState("Tomorrow at 6:00 PM IST");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
   const { addToast } = useToast();
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => setCurrentUser(null));
+  }, []);
+
+  const handleBookClick = (mentor: AlumniMentor) => {
+    if (!currentUser) {
+      setAuthGateMentor(mentor);
+      return;
+    }
+    setSelectedMentor(mentor);
+  };
 
   const categories = ["All", "SDE", "Data Science", "Product", "Design", "Consulting"];
 
@@ -148,7 +168,7 @@ export function AlumniClient({ mentors }: AlumniClientProps) {
 
               <button
                 disabled={!a.open_to_mentor}
-                onClick={() => setSelectedMentor(a)}
+                onClick={() => handleBookClick(a)}
                 className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1 font-semibold disabled:opacity-50"
               >
                 <MessageSquare size={12} /> Book 1:1 Call
@@ -165,6 +185,14 @@ export function AlumniClient({ mentors }: AlumniClientProps) {
           <p className="text-xs text-slate-500 mt-0.5">Try tweaking your search term or category filters.</p>
         </div>
       )}
+
+      {/* Guest Auth Gate Modal */}
+      <AuthGateModal
+        isOpen={!!authGateMentor}
+        onClose={() => setAuthGateMentor(null)}
+        actionType="mentorship"
+        targetName={authGateMentor?.name}
+      />
 
       {/* 1:1 Mentorship Booking Modal */}
       {selectedMentor && (

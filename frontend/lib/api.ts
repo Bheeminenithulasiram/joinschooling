@@ -49,43 +49,27 @@ export class ApiError extends Error {
 
 type FetchOpts = RequestInit & { auth?: boolean; timeoutMs?: number };
 
-// Helper to get demo mock user from cookies
+// Helper to get user profile from verified cookies
 async function getDemoUserFromCookies(): Promise<UserOut | null> {
   const jar = await cookies();
   const role = jar.get(USER_ROLE_COOKIE)?.value;
-  const email = jar.get(USER_EMAIL_COOKIE)?.value || "student@educonnect.dev";
-  const name = jar.get(USER_NAME_COOKIE)?.value || "Student User";
+  const email = jar.get(USER_EMAIL_COOKIE)?.value;
+  const name = jar.get(USER_NAME_COOKIE)?.value;
 
   if (!role) {
-    return {
-      id: "demo-student-id",
-      email: "student@educonnect.dev",
-      role: "student",
-      is_email_verified: true,
-      student: {
-        first_name: "Kiran",
-        last_name: "Kumar",
-        graduation_year: 2026,
-        preferred_course: "Computer Science Engineering",
-        tenth_percentage: 94.2,
-        twelfth_percentage: 91.0,
-        cgpa: 9.1,
-        skills: ["Java", "React", "Python", "DSA"],
-        preferred_companies: ["Amazon", "Microsoft", "Google"]
-      }
-    };
+    return null;
   }
 
   if (role === "college_rep") {
     return {
-      id: "demo-college-id",
-      email: email || "admissions@vnrvjiet.ac.in",
+      id: "session-college-id",
+      email: email || "admissions@institution.edu.in",
       role: "college_rep",
       is_email_verified: true,
       college_rep: {
-        college_name: "VNR VJIET",
-        first_name: "Dr. K. Srinivas",
-        last_name: "Rao",
+        college_name: name || "Institution",
+        first_name: name?.split(" ")[0] || "College",
+        last_name: name?.split(" ")[1] || "Rep",
         designation: "Dean of Admissions",
         is_verified: true
       }
@@ -94,15 +78,15 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
 
   if (role === "recruiter") {
     return {
-      id: "demo-recruiter-id",
-      email: email || "recruiting@amazon.com",
+      id: "session-recruiter-id",
+      email: email || "recruiting@company.com",
       role: "recruiter",
       is_email_verified: true,
       recruiter_profile: {
-        company_name: "Amazon India",
-        first_name: "Meenakshi",
-        last_name: "Sundaram",
-        designation: "Lead University Recruiter",
+        company_name: name || "Company",
+        first_name: name?.split(" ")[0] || "Recruiter",
+        last_name: name?.split(" ")[1] || "Lead",
+        designation: "Lead Technical Recruiter",
         is_verified: true
       }
     };
@@ -110,7 +94,7 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
 
   if (role === "admin") {
     return {
-      id: "demo-admin-id",
+      id: "session-admin-id",
       email: email || "admin@joinschooling.com",
       role: "admin",
       is_email_verified: true,
@@ -119,13 +103,13 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
   }
 
   return {
-    id: "demo-student-id",
-    email: email || "student@educonnect.dev",
+    id: "session-student-id",
+    email: email || "student@joinschooling.com",
     role: "student",
     is_email_verified: true,
     student: {
-      first_name: name.split(" ")[0] || "Kiran",
-      last_name: name.split(" ")[1] || "Kumar",
+      first_name: name?.split(" ")[0] || "Student",
+      last_name: name?.split(" ")[1] || "User",
       graduation_year: 2026,
       preferred_course: "Computer Science Engineering",
       tenth_percentage: 94.2,
@@ -314,12 +298,10 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
 
   // 5. Current User / Profile
   if (pathname === "/api/v1/me") {
-    return (user || {
-      id: "demo-student-id",
-      email: "student@educonnect.dev",
-      role: "student",
-      is_email_verified: true,
-    }) as T;
+    if (!user) {
+      throw new ApiError(401, { detail: "Authentication required" });
+    }
+    return user as T;
   }
 
   // 6. Student Dashboard Snapshot

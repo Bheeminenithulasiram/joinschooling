@@ -1,6 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import LoginForm from "./LoginForm";
 import AuthShowcase from "@/components/auth/AuthShowcase";
+import { Loader2 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   return (
@@ -18,7 +22,9 @@ export default function LoginPage() {
             Welcome back! Please enter your details below.
           </p>
 
-          <LoginForm />
+          <Suspense fallback={<div className="py-12 flex justify-center"><Loader2 className="animate-spin text-blue-600" size={24} /></div>}>
+            <LoginForm />
+          </Suspense>
 
           <p className="mt-8 text-center text-sm text-ink-500">
             New here?{" "}

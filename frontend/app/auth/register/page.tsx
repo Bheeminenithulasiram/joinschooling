@@ -1,6 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import RegisterForm from "./RegisterForm";
 import AuthShowcase from "@/components/auth/AuthShowcase";
+import { Loader2 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default function RegisterPage() {
   return (
@@ -18,7 +22,9 @@ export default function RegisterPage() {
             Free forever. Choose your role below to get started.
           </p>
 
-          <RegisterForm />
+          <Suspense fallback={<div className="py-12 flex justify-center"><Loader2 className="animate-spin text-blue-600" size={24} /></div>}>
+            <RegisterForm />
+          </Suspense>
 
           <p className="mt-8 text-center text-sm text-ink-500">
             Already have an account?{" "}

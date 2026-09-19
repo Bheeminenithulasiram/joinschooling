@@ -1,15 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Send, MapPin, Clock, Briefcase, CheckCircle2, ShieldCheck, Share2, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import SaveButton from "@/components/ui/SaveButton";
 import { ApplyModal } from "@/components/ui/ApplyModal";
+import { AuthGateModal } from "@/components/auth/AuthGateModal";
 import { useToast } from "@/components/ui/Toast";
 
 export function InternshipDetailClient({ internship, initiallySaved = false }: { internship: any; initiallySaved?: boolean }) {
   const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { success } = useToast();
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => setCurrentUser(null));
+  }, []);
+
+  const handleApplyClick = () => {
+    if (!currentUser) {
+      setAuthGateOpen(true);
+      return;
+    }
+    setApplyModalOpen(true);
+  };
 
   const handleShare = () => {
     if (typeof window !== "undefined") {
@@ -20,6 +40,12 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
 
   return (
     <>
+      <AuthGateModal
+        isOpen={authGateOpen}
+        onClose={() => setAuthGateOpen(false)}
+        actionType="apply"
+        targetName={internship.title}
+      />
       <ApplyModal isOpen={applyModalOpen} onClose={() => setApplyModalOpen(false)} internship={internship} />
 
       {/* Classic Dark Navy Header */}
@@ -51,7 +77,7 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
                 <Share2 size={14} /> Share
               </button>
               <button
-                onClick={() => setApplyModalOpen(true)}
+                onClick={handleApplyClick}
                 className="btn-primary text-xs py-2 px-4 font-semibold"
               >
                 <Send size={14} /> Apply Now
@@ -149,7 +175,7 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
                 Direct submission to the {internship.company?.name || internship.company} campus hiring team.
               </p>
               <button
-                onClick={() => setApplyModalOpen(true)}
+                onClick={handleApplyClick}
                 className="btn-primary w-full py-2.5 text-xs font-semibold"
               >
                 <Send size={13} /> Submit 1-Click Application

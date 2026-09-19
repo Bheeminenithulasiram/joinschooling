@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import {
   Mail,
   Lock,
@@ -50,6 +51,8 @@ function SubmitBtn() {
 }
 
 export default function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect") || "";
   const [state, action] = useActionState(loginAction, null as any);
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -85,7 +88,7 @@ export default function LoginForm() {
                 });
                 const userinfo = await userinfoRes.json();
                 const credentialPayload = btoa(JSON.stringify(userinfo));
-                await googleLoginAction(credentialPayload, "student");
+                await googleLoginAction(credentialPayload, "student", redirectParam);
               } catch (err) {
                 setGoogleError("Failed to retrieve Google profile. Please try again.");
                 setIsGoogleLoading(false);
@@ -115,7 +118,7 @@ export default function LoginForm() {
   const handleDemoLogin = (role: "student" | "college_rep" | "recruiter" | "admin") => {
     setActiveDemoRole(role);
     startDemoTransition(async () => {
-      await quickDemoLoginAction(role);
+      await quickDemoLoginAction(role, redirectParam);
     });
   };
 
@@ -216,6 +219,7 @@ export default function LoginForm() {
       </div>
 
       <form action={action} className="flex flex-col gap-3.5">
+        <input type="hidden" name="redirect" value={redirectParam} />
         <div>
           <label className="label">Email Address</label>
           <div className="relative">

@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./educonnect.db"
 
     # Security
-    JWT_SECRET: str = "change-me"
+    JWT_SECRET: str = "joinschooling-super-secure-production-ready-jwt-secret-key-32-chars-min-2026-x99"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30

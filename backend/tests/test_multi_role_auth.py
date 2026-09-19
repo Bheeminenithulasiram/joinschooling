@@ -153,7 +153,7 @@ def test_google_auth_flow():
     email = f"google_{uid}@gmail.com"
     mock_token = jwt.encode(
         {"sub": f"google-uid-{uid}", "email": email, "given_name": "Google", "family_name": "User"},
-        "key",
+        "a-very-secret-test-key-32-chars-long",
         algorithm="HS256",
     )
     

@@ -1,16 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Send, Share2, Globe, CheckCircle2, Star, Building2, BookOpen, ShieldCheck, MapPin, Award } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import SaveButton from "@/components/ui/SaveButton";
 import { InquiryModal } from "@/components/ui/InquiryModal";
+import { AuthGateModal } from "@/components/auth/AuthGateModal";
 import { useToast } from "@/components/ui/Toast";
 
 export function CollegeDetailClient({ college, initiallySaved = false }: { college: any; initiallySaved?: boolean }) {
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "courses" | "placements" | "facilities">("overview");
   const { success } = useToast();
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => setCurrentUser(null));
+  }, []);
+
+  const handleInquiryClick = () => {
+    if (!currentUser) {
+      setAuthGateOpen(true);
+      return;
+    }
+    setInquiryOpen(true);
+  };
 
   const handleShare = () => {
     if (typeof window !== "undefined") {
@@ -21,6 +41,12 @@ export function CollegeDetailClient({ college, initiallySaved = false }: { colle
 
   return (
     <>
+      <AuthGateModal
+        isOpen={authGateOpen}
+        onClose={() => setAuthGateOpen(false)}
+        actionType="inquiry"
+        targetName={college.short_name || college.name}
+      />
       <InquiryModal isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} college={college} />
 
       {/* Classic Dark Navy Institutional Banner */}
@@ -94,7 +120,7 @@ export function CollegeDetailClient({ college, initiallySaved = false }: { colle
             <button onClick={handleShare} className="btn-outline text-xs py-2 px-3">
               <Share2 size={14} /> Share
             </button>
-            <button onClick={() => setInquiryOpen(true)} className="btn-primary text-xs py-2 px-4 font-semibold">
+            <button onClick={handleInquiryClick} className="btn-primary text-xs py-2 px-4 font-semibold">
               <Send size={14} /> Direct Admissions Inquiry
             </button>
           </div>

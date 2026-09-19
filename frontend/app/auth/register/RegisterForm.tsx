@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import {
   Mail,
   Lock,
@@ -52,6 +53,8 @@ function SubmitBtn() {
 }
 
 export default function RegisterForm() {
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect") || "";
   const [state, action] = useActionState(registerAction, null as any);
   const [selectedRole, setSelectedRole] = useState<RoleType>("student");
   const [password, setPassword] = useState("");
@@ -90,7 +93,7 @@ export default function RegisterForm() {
                 });
                 const userinfo = await userinfoRes.json();
                 const credentialPayload = btoa(JSON.stringify(userinfo));
-                await googleLoginAction(credentialPayload, selectedRole);
+                await googleLoginAction(credentialPayload, selectedRole, redirectParam);
               } catch (err) {
                 setGoogleError("Failed to retrieve Google profile. Please try again.");
                 setIsGoogleLoading(false);
@@ -215,6 +218,7 @@ export default function RegisterForm() {
       {/* Registration Form with Explicit Field Spacing */}
       <form action={action} className="flex flex-col gap-4">
         <input type="hidden" name="role" value={selectedRole} />
+        <input type="hidden" name="redirect" value={redirectParam} />
 
         {/* First & Last Name */}
         <div className="grid grid-cols-2 gap-3">

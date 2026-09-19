@@ -19,7 +19,7 @@ function getDashboardRouteForRole(role?: string): string {
   }
 }
 
-export async function quickDemoLoginAction(role: "student" | "college_rep" | "recruiter" | "admin"): Promise<void> {
+export async function quickDemoLoginAction(role: "student" | "college_rep" | "recruiter" | "admin", redirectPath?: string): Promise<void> {
   const jar = await cookies();
   const demoProfiles = {
     student: { email: "kiran.student@educonnect.dev", name: "Kiran Kumar", role: "student" },
@@ -41,15 +41,21 @@ export async function quickDemoLoginAction(role: "student" | "college_rep" | "re
   jar.set(USER_EMAIL_COOKIE, profile.email, { path: "/", maxAge: 86400 * 7 });
   jar.set(USER_NAME_COOKIE, profile.name, { path: "/", maxAge: 86400 * 7 });
 
-  redirect(getDashboardRouteForRole(role));
+  const finalDestination = redirectPath && redirectPath.startsWith("/") && !redirectPath.startsWith("//") && !redirectPath.startsWith("/auth/")
+    ? redirectPath
+    : getDashboardRouteForRole(role);
+
+  redirect(finalDestination);
 }
 
 export async function loginAction(_prev: any, form: FormData): Promise<ActionResult> {
   const email = String(form.get("email") ?? "").trim();
   const password = String(form.get("password") ?? "");
+  const redirectTarget = String(form.get("redirect") ?? "").trim();
+
   if (!email || !password) return { ok: false, error: "Email and password are required." };
 
-  let targetUrl = "/dashboard";
+  let targetUrl = getDashboardRouteForRole("student");
   try {
     const tokens = await apiPublic("/api/v1/auth/login", {
       method: "POST",
@@ -57,9 +63,10 @@ export async function loginAction(_prev: any, form: FormData): Promise<ActionRes
     });
     if (tokens && tokens.access_token) {
       await persistTokens(tokens);
-      targetUrl = getDashboardRouteForRole(tokens.role);
+      targetUrl = redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && !redirectTarget.startsWith("/auth/")
+        ? redirectTarget
+        : getDashboardRouteForRole(tokens.role);
     } else {
-      // Fallback demo auth based on email
       const inferredRole = email.includes("college") || email.includes("admission") ? "college_rep"
         : email.includes("recruit") || email.includes("hr") ? "recruiter"
         : email.includes("admin") ? "admin"
@@ -69,10 +76,11 @@ export async function loginAction(_prev: any, form: FormData): Promise<ActionRes
       jar.set(USER_ROLE_COOKIE, inferredRole, { path: "/", maxAge: 86400 * 7 });
       jar.set(USER_EMAIL_COOKIE, email, { path: "/", maxAge: 86400 * 7 });
       jar.set(USER_NAME_COOKIE, email.split("@")[0], { path: "/", maxAge: 86400 * 7 });
-      targetUrl = getDashboardRouteForRole(inferredRole);
+      targetUrl = redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && !redirectTarget.startsWith("/auth/")
+        ? redirectTarget
+        : getDashboardRouteForRole(inferredRole);
     }
   } catch (e: any) {
-    // If backend is offline, enable graceful demo entry
     const inferredRole = email.includes("college") ? "college_rep"
       : email.includes("recruit") ? "recruiter"
       : email.includes("admin") ? "admin"
@@ -82,7 +90,9 @@ export async function loginAction(_prev: any, form: FormData): Promise<ActionRes
     jar.set(USER_ROLE_COOKIE, inferredRole, { path: "/", maxAge: 86400 * 7 });
     jar.set(USER_EMAIL_COOKIE, email, { path: "/", maxAge: 86400 * 7 });
     jar.set(USER_NAME_COOKIE, email.split("@")[0], { path: "/", maxAge: 86400 * 7 });
-    targetUrl = getDashboardRouteForRole(inferredRole);
+    targetUrl = redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && !redirectTarget.startsWith("/auth/")
+      ? redirectTarget
+      : getDashboardRouteForRole(inferredRole);
   }
   redirect(targetUrl);
 }
@@ -94,6 +104,7 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
   const first_name = String(form.get("first_name") ?? "").trim();
   const last_name = String(form.get("last_name") ?? "").trim();
   const role = String(form.get("role") ?? "student");
+  const redirectTarget = String(form.get("redirect") ?? "").trim();
 
   if (!email || !first_name || !last_name || !password) {
     return { ok: false, error: "All required fields must be filled." };
@@ -137,7 +148,10 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
     }
   }
 
-  let targetUrl = getDashboardRouteForRole(role);
+  let targetUrl = redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && !redirectTarget.startsWith("/auth/")
+    ? redirectTarget
+    : getDashboardRouteForRole(role);
+
   try {
     const tokens = await apiPublic("/api/v1/auth/register", {
       method: "POST",
@@ -145,7 +159,9 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
     });
     if (tokens && tokens.access_token) {
       await persistTokens(tokens);
-      targetUrl = getDashboardRouteForRole(tokens.role);
+      targetUrl = redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && !redirectTarget.startsWith("/auth/")
+        ? redirectTarget
+        : getDashboardRouteForRole(tokens.role);
     } else {
       const jar = await cookies();
       jar.set(USER_ROLE_COOKIE, role, { path: "/", maxAge: 86400 * 7 });
@@ -161,8 +177,11 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
   redirect(targetUrl);
 }
 
-export async function googleLoginAction(credential: string, role: string = "student"): Promise<ActionResult> {
-  let targetUrl = getDashboardRouteForRole(role);
+export async function googleLoginAction(credential: string, role: string = "student", redirectPath?: string): Promise<ActionResult> {
+  let targetUrl = redirectPath && redirectPath.startsWith("/") && !redirectPath.startsWith("//") && !redirectPath.startsWith("/auth/")
+    ? redirectPath
+    : getDashboardRouteForRole(role);
+
   try {
     const tokens = await apiPublic("/api/v1/auth/google", {
       method: "POST",
@@ -170,7 +189,9 @@ export async function googleLoginAction(credential: string, role: string = "stud
     });
     if (tokens && tokens.access_token) {
       await persistTokens(tokens);
-      targetUrl = getDashboardRouteForRole(tokens.role);
+      targetUrl = redirectPath && redirectPath.startsWith("/") && !redirectPath.startsWith("//") && !redirectPath.startsWith("/auth/")
+        ? redirectPath
+        : getDashboardRouteForRole(tokens.role);
     } else {
       const jar = await cookies();
       jar.set(USER_ROLE_COOKIE, role, { path: "/", maxAge: 86400 * 7 });

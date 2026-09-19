@@ -25,25 +25,14 @@ export function Navbar() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string; role: string; name?: string } | null>(null);
 
   useEffect(() => {
-    // Check client session cookie or fallback API
-    fetch("/api/v1/me")
+    // Check client session via Next.js Route Handler
+    fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && data.id) {
-          setCurrentUser(data);
+        if (data && data.user) {
+          setCurrentUser(data.user);
         } else {
-          const cookies = document.cookie.split("; ");
-          const roleCookie = cookies.find((c) => c.startsWith("ec_role="));
-          const nameCookie = cookies.find((c) => c.startsWith("ec_name="));
-          const emailCookie = cookies.find((c) => c.startsWith("ec_email="));
-          if (roleCookie) {
-            const role = roleCookie.split("=")[1];
-            const name = nameCookie ? decodeURIComponent(nameCookie.split("=")[1]) : undefined;
-            const email = emailCookie ? decodeURIComponent(emailCookie.split("=")[1]) : undefined;
-            setCurrentUser({ id: "client-user", email: email || "student@educonnect.dev", role, name });
-          } else {
-            setCurrentUser(null);
-          }
+          setCurrentUser(null);
         }
       })
       .catch(() => setCurrentUser(null));
@@ -54,6 +43,23 @@ export function Navbar() {
     if (role === "recruiter") return "/dashboard/recruiter";
     if (role === "admin") return "/admin";
     return "/dashboard";
+  };
+
+  const getRoleBadgeLabel = (role?: string) => {
+    if (role === "college_rep") return "College Rep";
+    if (role === "recruiter") return "Recruiter";
+    if (role === "admin") return "Admin";
+    return "Student";
+  };
+
+  const getInitials = (name?: string, email?: string) => {
+    if (name && name.trim().length > 0) {
+      const parts = name.trim().split(" ");
+      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      return name.slice(0, 2).toUpperCase();
+    }
+    if (email) return email.slice(0, 2).toUpperCase();
+    return "JS";
   };
 
   const navLinks = [
@@ -69,7 +75,7 @@ export function Navbar() {
       <div className="container-page flex h-16 items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold shadow-xs">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold shadow-sm">
             <GraduationCap size={20} />
           </div>
           <div className="flex flex-col">
@@ -122,12 +128,22 @@ export function Navbar() {
 
           {/* User Auth Buttons */}
           {currentUser ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link
                 href={getDashboardUrl(currentUser.role)}
-                className="btn-primary text-xs py-2 px-3.5"
+                className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition border border-slate-200"
               >
-                My Dashboard
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs shadow-xs">
+                  {getInitials(currentUser.name, currentUser.email)}
+                </div>
+                <div className="hidden md:flex flex-col text-left pr-2">
+                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                    {currentUser.name || currentUser.email?.split("@")[0]}
+                  </span>
+                  <span className="text-[10px] text-blue-700 font-semibold leading-tight">
+                    {getRoleBadgeLabel(currentUser.role)} Desk →
+                  </span>
+                </div>
               </Link>
               <button
                 onClick={async () => await logoutAction()}
@@ -142,7 +158,7 @@ export function Navbar() {
               <Link href="/auth/login" className="btn-ghost text-xs py-2 px-3">
                 Log in
               </Link>
-              <Link href="/auth/register" className="btn-primary text-xs py-2 px-3.5">
+              <Link href="/auth/register" className="btn-primary text-xs py-2 px-3.5 shadow-sm">
                 Register Free
               </Link>
             </div>
