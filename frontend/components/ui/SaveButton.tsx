@@ -2,19 +2,30 @@
 import { useState, useTransition } from "react";
 import { saveItemAction } from "@/lib/actions/apply";
 import { Bookmark, Check } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
-export default function SaveButton({ kind, targetId, initiallySaved = false }: { kind: string; targetId: string; initiallySaved?: boolean }) {
+export default function SaveButton({
+  kind,
+  targetId,
+  initiallySaved = false,
+}: {
+  kind: string;
+  targetId: string;
+  initiallySaved?: boolean;
+}) {
   const [saved, setSaved] = useState(initiallySaved);
   const [pending, start] = useTransition();
+  const { success, info } = useToast();
 
   const handleSave = () => {
-    if (saved) return;
     start(async () => {
-      const res = await saveItemAction(kind, targetId);
-      if (res.ok) {
-        setSaved(true);
+      const nextState = !saved;
+      setSaved(nextState);
+      await saveItemAction(kind, targetId);
+      if (nextState) {
+        success(`Added to your saved ${kind}s!`);
       } else {
-        alert(res.error);
+        info(`Removed from your saved ${kind}s.`);
       }
     });
   };
@@ -22,11 +33,14 @@ export default function SaveButton({ kind, targetId, initiallySaved = false }: {
   return (
     <button
       onClick={handleSave}
-      disabled={pending || saved}
-      className={`btn-outline ${saved ? "bg-brand-50 text-brand-700 border-brand-200" : ""}`}
+      disabled={pending}
+      className={`btn-outline text-xs px-3.5 py-2 rounded-xl transition ${
+        saved ? "bg-brand-50 text-brand-700 border-brand-300 font-bold" : "text-slate-600 hover:text-slate-900"
+      }`}
+      title={saved ? "Saved" : "Save bookmark"}
     >
-      {saved ? <Check size={16} /> : <Bookmark size={16} />}
-      {saved ? "Saved" : pending ? "Saving..." : "Save"}
+      {saved ? <Check size={14} className="text-brand-600" /> : <Bookmark size={14} />}
+      <span>{saved ? "Saved" : "Save"}</span>
     </button>
   );
 }

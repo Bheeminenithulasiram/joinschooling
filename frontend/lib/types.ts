@@ -70,6 +70,7 @@ export type CollegeCard = {
   avg_package_lpa?: number | null;
   highest_package_lpa?: number | null;
   placement_percent?: number | null;
+  fees_per_year_lpa?: number | null;
   rating: number;
   reviews_count: number;
 };

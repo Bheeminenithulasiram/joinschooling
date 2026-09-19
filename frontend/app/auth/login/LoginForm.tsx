@@ -1,9 +1,23 @@
 "use client";
+
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
-import { Mail, Lock, ArrowRight, AlertTriangle, Loader2, Eye, EyeOff } from "lucide-react";
-import { loginAction, googleLoginAction } from "@/lib/actions/auth";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  AlertTriangle,
+  Loader2,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Building2,
+  Briefcase,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import { loginAction, googleLoginAction, quickDemoLoginAction } from "@/lib/actions/auth";
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -41,6 +55,8 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const [demoPending, startDemoTransition] = useTransition();
+  const [activeDemoRole, setActiveDemoRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!document.getElementById("google-gsi-client")) {
@@ -97,14 +113,100 @@ export default function LoginForm() {
     window.location.href = authUrl;
   };
 
+  const handleDemoLogin = (role: "student" | "college_rep" | "recruiter" | "admin") => {
+    setActiveDemoRole(role);
+    startDemoTransition(async () => {
+      await quickDemoLoginAction(role);
+    });
+  };
+
   return (
-    <div className="mt-5 flex flex-col gap-5">
-      {/* Single Clean Google Sign-In Button */}
+    <div className="mt-5 flex flex-col gap-6">
+      {/* 1-Click Instant Demo Experience */}
+      <div className="p-4 rounded-2xl bg-gradient-to-br from-brand-50/80 via-slate-50 to-indigo-50/80 border border-brand-200/70 shadow-xs">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-brand-900 mb-2.5">
+          <Sparkles size={14} className="text-brand-600" />
+          <span>Quick 1-Click Demo Profiles</span>
+        </div>
+        <p className="text-[11px] text-slate-500 mb-3">
+          Experience the platform from any of the 3 ecosystem perspectives:
+        </p>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            disabled={demoPending}
+            onClick={() => handleDemoLogin("student")}
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-500 text-slate-800 text-xs font-bold shadow-xs hover:shadow-sm transition active:scale-[0.98] disabled:opacity-60 text-left"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+              <GraduationCap size={15} />
+            </div>
+            <div className="truncate">
+              <div>Student</div>
+              <div className="text-[10px] text-slate-400 font-normal">Kiran Kumar</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            disabled={demoPending}
+            onClick={() => handleDemoLogin("college_rep")}
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-500 text-slate-800 text-xs font-bold shadow-xs hover:shadow-sm transition active:scale-[0.98] disabled:opacity-60 text-left"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
+              <Building2 size={15} />
+            </div>
+            <div className="truncate">
+              <div>College Rep</div>
+              <div className="text-[10px] text-slate-400 font-normal">VNR VJIET</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            disabled={demoPending}
+            onClick={() => handleDemoLogin("recruiter")}
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-500 text-slate-800 text-xs font-bold shadow-xs hover:shadow-sm transition active:scale-[0.98] disabled:opacity-60 text-left"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+              <Briefcase size={15} />
+            </div>
+            <div className="truncate">
+              <div>Recruiter</div>
+              <div className="text-[10px] text-slate-400 font-normal">Amazon / Tech</div>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            disabled={demoPending}
+            onClick={() => handleDemoLogin("admin")}
+            className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-500 text-slate-800 text-xs font-bold shadow-xs hover:shadow-sm transition active:scale-[0.98] disabled:opacity-60 text-left"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+              <ShieldCheck size={15} />
+            </div>
+            <div className="truncate">
+              <div>Platform Admin</div>
+              <div className="text-[10px] text-slate-400 font-normal">Super Admin</div>
+            </div>
+          </button>
+        </div>
+
+        {demoPending && (
+          <div className="mt-2.5 flex items-center justify-center gap-2 text-xs font-semibold text-brand-700 animate-pulse">
+            <Loader2 size={14} className="animate-spin" /> Logging in as {activeDemoRole}…
+          </div>
+        )}
+      </div>
+
+      {/* Google Sign-In Button */}
       <div className="flex flex-col gap-1.5">
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          disabled={isGoogleLoading}
+          disabled={isGoogleLoading || demoPending}
           className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition active:scale-[0.99] disabled:opacity-60"
         >
           {isGoogleLoading ? (
@@ -137,7 +239,7 @@ export default function LoginForm() {
       </div>
 
       {/* Divider */}
-      <div className="relative flex items-center justify-center my-1">
+      <div className="relative flex items-center justify-center my-0.5">
         <div className="w-full border-t border-slate-200" />
         <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-slate-400 font-semibold absolute">
           or log in with email

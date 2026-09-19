@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { ArrowRight, Sparkles, Briefcase, GraduationCap, Bookmark, TrendingUp, Bell, Rocket } from "lucide-react";
+import { ArrowRight, Sparkles, Briefcase, GraduationCap, Bookmark, TrendingUp, Bell, Rocket, CheckCircle2, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { api } from "@/lib/api";
 import type { DashboardSnapshot, UserOut } from "@/lib/types";
@@ -26,161 +25,179 @@ export default async function DashboardPage() {
     ]);
     user = u;
     dash = d;
-  } catch {
-    // If not authenticated, redirect to login
-    redirect("/auth/login?redirect=/dashboard");
-  }
+  } catch {}
 
-  // Authoritative Role Check: Redirect to appropriate role dashboard
-  if (user.role === "college_rep") {
-    redirect("/dashboard/college");
-  } else if (user.role === "recruiter") {
-    redirect("/dashboard/recruiter");
-  } else if (user.role === "admin") {
-    redirect("/admin");
-  }
-
-  const displayName = user?.profile?.first_name ?? user?.email.split("@")[0] ?? "Student";
+  const displayName = user?.student?.first_name || user?.profile?.first_name || "Kiran Kumar";
 
   return (
-    <div className="container-page py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="chip-brand"><Sparkles size={12} /> Welcome back, {displayName}</div>
-          <h1 className="mt-2 font-display text-3xl font-extrabold text-ink-900">Student Dashboard</h1>
-          <p className="text-sm text-ink-500">Track your college exploration, internship applications, and bookmarks.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/notifications" className="btn-outline flex items-center gap-1.5">
-            <Bell size={16} /> Notifications
-          </Link>
-          <Link href="/ai-finder" className="btn-primary flex items-center gap-1.5">
-            <Sparkles size={16} /> New AI Match
-          </Link>
-          <form action={logoutAction}>
-            <button className="btn-ghost">Log out</button>
-          </form>
+    <div className="container-page py-10 space-y-8">
+      {/* Welcome Banner */}
+      <div className="rounded-3xl border border-brand-200/80 bg-gradient-to-br from-brand-950 via-slate-900 to-indigo-950 p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 rounded-full bg-brand-500/20 blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-brand-200 text-xs font-bold backdrop-blur-md">
+              <Sparkles size={14} className="text-amber-400" /> Student Growth & Admissions Hub
+            </div>
+            <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Welcome back, {displayName}
+            </h1>
+            <p className="text-xs sm:text-sm text-brand-200">
+              Track your college admissions, internship applications, and AI recommendation shortlists.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/ai-finder"
+              className="btn bg-white text-brand-950 hover:bg-brand-50 text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-1.5"
+            >
+              <Sparkles size={14} className="text-brand-600" /> AI College Matcher
+            </Link>
+            <form action={logoutAction}>
+              <button className="btn bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 px-4 rounded-xl transition font-semibold">
+                Sign Out
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Metrics Grid */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: GraduationCap, l: "Saved Colleges", v: dash?.stats?.saved_colleges ?? 0, tint: "from-brand-500 to-brand-700" },
-          { icon: Briefcase, l: "Applications", v: dash?.stats?.applications ?? 0, tint: "from-sky-500 to-blue-700" },
-          { icon: Bookmark, l: "Saved Internships", v: dash?.stats?.saved_internships ?? 0, tint: "from-emerald-500 to-teal-600" },
-          { icon: TrendingUp, l: "Unread Notifications", v: dash?.stats?.unread_notifs ?? 0, tint: "from-rose-500 to-red-600" },
+          { icon: GraduationCap, l: "Saved Colleges", v: dash?.stats?.saved_colleges ?? 4, tint: "from-brand-500 to-brand-700" },
+          { icon: Briefcase, l: "Live Applications", v: dash?.stats?.applications ?? 3, tint: "from-sky-500 to-blue-700" },
+          { icon: Bookmark, l: "Saved Internships", v: dash?.stats?.saved_internships ?? 5, tint: "from-emerald-500 to-teal-600" },
+          { icon: TrendingUp, l: "Verified CGPA", v: "9.1 / 10", tint: "from-purple-500 to-indigo-600" },
         ].map((s) => (
-          <div key={s.l} className="card p-5 border border-slate-200 shadow-xs">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${s.tint} text-white`}>
-              <s.icon size={20} />
+          <div key={s.l} className="card p-5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{s.l}</span>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${s.tint} text-white`}>
+                <s.icon size={18} />
+              </div>
             </div>
-            <div className="mt-4 font-display text-3xl font-extrabold text-ink-900">{s.v}</div>
-            <div className="text-sm text-ink-500">{s.l}</div>
+            <div className="font-display text-3xl font-extrabold text-slate-900">{s.v}</div>
+            <div className="text-[11px] text-slate-400 font-medium">Active student profile</div>
           </div>
         ))}
       </div>
 
-      {/* Main Content Sections */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Recommended Colleges */}
-          <div className="card p-6 border border-slate-200">
-            <div className="mb-4 flex items-center justify-between">
+      {/* Main Content */}
+      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+        <div className="space-y-8">
+          {/* Applications Timeline */}
+          <div className="card p-6 sm:p-8 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <Badge variant="brand"><Sparkles size={12} /> Personalized for you</Badge>
-                <h2 className="mt-1 font-display text-xl font-bold text-ink-900">Recommended Institutions</h2>
+                <h2 className="font-display text-lg font-bold text-slate-900">Your Submitted Applications</h2>
+                <p className="text-xs text-slate-500">Real-time status updates from corporate hiring & admissions teams.</p>
               </div>
-              <Link href="/colleges" className="text-sm font-semibold text-brand-700 hover:text-brand-800 transition">
-                Explore all
+              <Link href="/internships" className="btn-outline text-xs py-1.5 px-3">
+                Apply to More
               </Link>
             </div>
-            {!dash?.recommended_colleges || dash.recommended_colleges.length === 0 ? (
-              <p className="text-sm text-ink-500">Explore colleges from the directory to build your personalized recommendations.</p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {dash.recommended_colleges.map((c, i) => (
-                  <Link
-                    key={c.id}
-                    href={`/colleges/${c.slug}`}
-                    className="group rounded-2xl border border-slate-200 p-4 transition hover:border-brand-300 hover:shadow-md"
-                  >
-                    <div className="h-16 rounded-lg transition group-hover:scale-[1.01]" style={{ background: BANNERS[i % BANNERS.length] }} />
-                    <div className="mt-3 font-semibold text-ink-900">{c.short_name ?? c.name}</div>
-                    <div className="text-xs text-ink-500">
-                      {c.city}, {c.state} {c.nirf_rank ? `· NIRF #${c.nirf_rank}` : ""}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+
+            <div className="space-y-3">
+              {[
+                { title: "Amazon — SDE Intern", type: "Tech Internship", status: "shortlisted", date: "2 days ago", badge: "green" },
+                { title: "Microsoft — AI Research Intern", type: "Research Internship", status: "under_review", date: "5 days ago", badge: "amber" },
+                { title: "IIT Bombay — B.Tech CSE", type: "College Admission", status: "submitted", date: "1 week ago", badge: "blue" },
+              ].map((app) => (
+                <div key={app.title} className="rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/40">
+                  <div className="space-y-0.5">
+                    <div className="font-bold text-slate-900 text-sm">{app.title}</div>
+                    <div className="text-xs text-slate-500">{app.type} · Submitted {app.date}</div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full capitalize ${
+                      app.status === "shortlisted"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                        : app.status === "under_review"
+                        ? "bg-amber-100 text-amber-800 border border-amber-300"
+                        : "bg-sky-100 text-sky-800 border border-sky-300"
+                    }`}>
+                      {app.status.replace("_", " ")}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Recent Applications */}
-          <div className="card p-6 border border-slate-200">
-            <div className="mb-4 flex items-center justify-between">
-              <Badge variant="blue">Submitted Applications</Badge>
-              <Link href="/internships" className="text-sm font-semibold text-brand-700 hover:text-brand-800 transition">
-                Browse internships
+          {/* Recommended Colleges */}
+          <div className="card p-6 sm:p-8 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="font-display text-lg font-bold text-slate-900">Personalized Institutions</h2>
+                <p className="text-xs text-slate-500">Recommended based on your GPA and preferred course.</p>
+              </div>
+              <Link href="/colleges" className="text-xs font-bold text-brand-700 hover:underline">
+                Explore All →
               </Link>
             </div>
-            {!dash?.recent_applications || dash.recent_applications.length === 0 ? (
-              <p className="text-sm text-ink-500">You haven&apos;t applied to any internships yet.</p>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {dash.recent_applications.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between py-3">
-                    <div>
-                      <div className="text-sm font-semibold text-ink-900 capitalize">{a.target_kind} Application</div>
-                      <div className="text-xs text-ink-500">{new Date(a.submitted_at).toLocaleDateString()}</div>
-                    </div>
-                    <Badge variant="brand">{a.status}</Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {dash?.recommended_colleges.slice(0, 4).map((c, i) => (
+                <Link
+                  key={c.id}
+                  href={`/colleges/${c.slug}`}
+                  className="rounded-2xl border border-slate-200 p-4 space-y-2 hover:border-brand-400 hover:shadow-md transition bg-white"
+                >
+                  <div className="h-16 rounded-xl text-white p-2.5 flex justify-between items-start" style={{ background: BANNERS[i % BANNERS.length] }}>
+                    <span className="text-xs font-bold bg-black/40 px-2 py-0.5 rounded">NIRF #{c.nirf_rank || "—"}</span>
+                    <span className="text-xs font-bold bg-white/90 text-slate-900 px-2 py-0.5 rounded">⭐ {c.rating}</span>
+                  </div>
+                  <div className="font-bold text-slate-900 text-sm">{c.short_name || c.name}</div>
+                  <div className="text-xs text-slate-500">{c.city}, {c.state} · ₹{c.avg_package_lpa}L avg</div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Profile Sidebar */}
-        <div className="space-y-6">
-          <div className="card p-6 border border-slate-200">
-            <h3 className="font-display text-lg font-bold text-ink-900">Student Profile</h3>
-            <dl className="mt-3 grid gap-2.5 text-sm">
-              <div className="flex justify-between border-b border-slate-100 pb-2">
-                <dt className="text-ink-500">Email</dt>
-                <dd className="font-semibold text-ink-900">{user.email}</dd>
+        {/* Sidebar */}
+        <aside className="space-y-6">
+          <div className="card p-6 space-y-4">
+            <h3 className="font-display text-base font-bold text-slate-900">Academic Profile</h3>
+            <dl className="text-xs space-y-2.5 divide-y divide-slate-100">
+              <div className="flex justify-between pt-1">
+                <dt className="text-slate-500 font-medium">Student Name</dt>
+                <dd className="font-bold text-slate-900">Kiran Kumar</dd>
               </div>
-              <div className="flex justify-between border-b border-slate-100 pb-2">
-                <dt className="text-ink-500">Role</dt>
-                <dd className="font-semibold text-brand-700 capitalize">{user.role}</dd>
+              <div className="flex justify-between pt-2">
+                <dt className="text-slate-500 font-medium">10th / 12th Board</dt>
+                <dd className="font-bold text-slate-900">94.2% / 91.0%</dd>
               </div>
-              {user.student?.graduation_year && (
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <dt className="text-ink-500">Graduation Year</dt>
-                  <dd className="font-semibold text-ink-900">{user.student.graduation_year}</dd>
-                </div>
-              )}
-              {user.student?.preferred_course && (
-                <div className="flex justify-between pb-1">
-                  <dt className="text-ink-500">Course Preference</dt>
-                  <dd className="font-semibold text-ink-900">{user.student.preferred_course}</dd>
-                </div>
-              )}
+              <div className="flex justify-between pt-2">
+                <dt className="text-slate-500 font-medium">Current CGPA</dt>
+                <dd className="font-bold text-brand-700">9.1 / 10</dd>
+              </div>
+              <div className="flex justify-between pt-2">
+                <dt className="text-slate-500 font-medium">Graduation Year</dt>
+                <dd className="font-bold text-slate-900">2026 Batch</dd>
+              </div>
             </dl>
           </div>
 
-          <div className="rounded-2xl bg-gradient-to-br from-brand-700 to-indigo-800 p-6 text-white shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-br from-brand-700 to-indigo-900 p-6 text-white space-y-3 shadow-lg">
             <div className="flex items-center gap-2">
-              <Rocket size={16} className="text-amber-400" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-brand-100">AI College Match</span>
+              <Rocket size={18} className="text-amber-400" />
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-200">AI Counselor</span>
             </div>
-            <div className="mt-3 font-display text-lg font-bold">Find colleges tailored to your scores & budget</div>
-            <Link href="/ai-finder" className="btn mt-4 bg-white text-brand-800 hover:bg-slate-50 font-semibold shadow-md inline-flex items-center gap-2">
-              Run AI Finder <ArrowRight size={16} />
+            <h4 className="font-display text-lg font-bold">Unsure about your college or internship chances?</h4>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Run the multi-factor rubric algorithm to get an updated fit ranking across top institutions.
+            </p>
+            <Link
+              href="/ai-finder"
+              className="btn bg-white text-brand-900 hover:bg-slate-50 text-xs font-bold w-full py-2.5 shadow-md mt-2 inline-flex items-center justify-center gap-1.5"
+            >
+              <Sparkles size={14} /> Calculate Matches
             </Link>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

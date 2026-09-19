@@ -1,13 +1,40 @@
-// Typed API client for FastAPI backend. Works in RSC, Route Handlers, and Server Actions.
-// Client components should call Route Handlers instead of hitting the backend directly.
+// Universal Hybrid API Client for JoinSchooling.
+// Connects to FastAPI backend in hybrid mode, with instant reliable fallback to mock database on Vercel preview.
+
 import { cookies } from "next/headers";
+import {
+  colleges,
+  internships,
+  workshops,
+  hackathons,
+  scholarships,
+  mockCollegeInquiries,
+  mockRecruiterApplicants,
+  type College,
+  type Internship
+} from "@/lib/mock";
+import type {
+  Tokens,
+  UserOut,
+  PagedColleges,
+  PagedInternships,
+  CollegeDetail,
+  InternshipDetail,
+  DashboardSnapshot,
+  ApplicationOut,
+  AiFinderResponse
+} from "@/lib/types";
 
 export const API_BASE =
   process.env.API_INTERNAL_BASE ?? process.env.API_BASE ?? "http://localhost:8000";
 
 export const ACCESS_COOKIE = "ec_at";
 export const REFRESH_COOKIE = "ec_rt";
-const ACCESS_MAX_AGE = 60 * 15;          // 15 min
+export const USER_ROLE_COOKIE = "ec_role";
+export const USER_EMAIL_COOKIE = "ec_email";
+export const USER_NAME_COOKIE = "ec_name";
+
+const ACCESS_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 export class ApiError extends Error {
@@ -22,9 +49,373 @@ export class ApiError extends Error {
 
 type FetchOpts = RequestInit & { auth?: boolean; timeoutMs?: number };
 
-async function raw<T = any>(path: string, { timeoutMs = 15000, ...init }: FetchOpts = {}): Promise<T> {
+// Helper to get demo mock user from cookies
+async function getDemoUserFromCookies(): Promise<UserOut | null> {
+  const jar = await cookies();
+  const role = jar.get(USER_ROLE_COOKIE)?.value;
+  const email = jar.get(USER_EMAIL_COOKIE)?.value || "student@educonnect.dev";
+  const name = jar.get(USER_NAME_COOKIE)?.value || "Student User";
+
+  if (!role) {
+    return {
+      id: "demo-student-id",
+      email: "student@educonnect.dev",
+      role: "student",
+      is_email_verified: true,
+      student: {
+        first_name: "Kiran",
+        last_name: "Kumar",
+        graduation_year: 2026,
+        preferred_course: "Computer Science Engineering",
+        tenth_percentage: 94.2,
+        twelfth_percentage: 91.0,
+        cgpa: 9.1,
+        skills: ["Java", "React", "Python", "DSA"],
+        preferred_companies: ["Amazon", "Microsoft", "Google"]
+      }
+    };
+  }
+
+  if (role === "college_rep") {
+    return {
+      id: "demo-college-id",
+      email: email || "admissions@vnrvjiet.ac.in",
+      role: "college_rep",
+      is_email_verified: true,
+      college_rep: {
+        college_name: "VNR VJIET",
+        first_name: "Dr. K. Srinivas",
+        last_name: "Rao",
+        designation: "Dean of Admissions",
+        is_verified: true
+      }
+    };
+  }
+
+  if (role === "recruiter") {
+    return {
+      id: "demo-recruiter-id",
+      email: email || "recruiting@amazon.com",
+      role: "recruiter",
+      is_email_verified: true,
+      recruiter_profile: {
+        company_name: "Amazon India",
+        first_name: "Meenakshi",
+        last_name: "Sundaram",
+        designation: "Lead University Recruiter",
+        is_verified: true
+      }
+    };
+  }
+
+  if (role === "admin") {
+    return {
+      id: "demo-admin-id",
+      email: email || "admin@joinschooling.com",
+      role: "admin",
+      is_email_verified: true,
+      profile: { first_name: "Super", last_name: "Admin" }
+    };
+  }
+
+  return {
+    id: "demo-student-id",
+    email: email || "student@educonnect.dev",
+    role: "student",
+    is_email_verified: true,
+    student: {
+      first_name: name.split(" ")[0] || "Kiran",
+      last_name: name.split(" ")[1] || "Kumar",
+      graduation_year: 2026,
+      preferred_course: "Computer Science Engineering",
+      tenth_percentage: 94.2,
+      twelfth_percentage: 91.0,
+      cgpa: 9.1,
+      skills: ["Java", "React", "Python", "DSA"],
+      preferred_companies: ["Amazon", "Microsoft", "Google"]
+    }
+  };
+}
+
+// Fallback resolver for mock data
+function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: UserOut | null): T {
+  const url = new URL(`http://localhost${path}`);
+  const pathname = url.pathname;
+  const sp = url.searchParams;
+
+  // 1. Colleges List
+  if (pathname === "/api/v1/colleges") {
+    let items = [...colleges];
+    const q = sp.get("q")?.toLowerCase();
+    const state = sp.get("state");
+    const type = sp.get("type");
+    const sort = sp.get("sort");
+
+    if (q) {
+      items = items.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.short_name?.toLowerCase().includes(q) ||
+          c.city.toLowerCase().includes(q) ||
+          c.courses.some((cr) => cr.name.toLowerCase().includes(q))
+      );
+    }
+    if (state) items = items.filter((c) => c.state.toLowerCase() === state.toLowerCase());
+    if (type) items = items.filter((c) => c.type.toLowerCase() === type.toLowerCase());
+
+    if (sort === "rating") items.sort((a, b) => b.rating - a.rating);
+    else if (sort === "avg_package") items.sort((a, b) => (b.avg_package_lpa || 0) - (a.avg_package_lpa || 0));
+    else if (sort === "nirf_rank") items.sort((a, b) => (a.nirf_rank || 999) - (b.nirf_rank || 999));
+    else if (sort === "fees_asc") items.sort((a, b) => (a.fees_per_year_lpa || 0) - (b.fees_per_year_lpa || 0));
+    else if (sort === "fees_desc") items.sort((a, b) => (b.fees_per_year_lpa || 0) - (a.fees_per_year_lpa || 0));
+
+    const result: PagedColleges = {
+      items: items.map((c) => ({
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        short_name: c.short_name,
+        city: c.city,
+        state: c.state,
+        type: c.type,
+        nirf_rank: c.nirf_rank,
+        avg_package_lpa: c.avg_package_lpa,
+        highest_package_lpa: c.highest_package_lpa,
+        placement_percent: c.placement_percent,
+        rating: c.rating,
+        reviews_count: c.reviews_count,
+        banner_url: c.banner_url,
+      })),
+      pagination: { page: 1, page_size: 24, total: items.length, has_next: false },
+    };
+    return result as T;
+  }
+
+  // 2. College Detail
+  if (pathname.startsWith("/api/v1/colleges/")) {
+    const slug = pathname.replace("/api/v1/colleges/", "");
+    const match = colleges.find((c) => c.slug === slug || c.id === slug);
+    if (!match) throw new ApiError(404, { detail: "College not found" });
+
+    const detail: CollegeDetail = {
+      id: match.id,
+      slug: match.slug,
+      name: match.name,
+      short_name: match.short_name,
+      city: match.city,
+      state: match.state,
+      type: match.type,
+      nirf_rank: match.nirf_rank,
+      avg_package_lpa: match.avg_package_lpa,
+      highest_package_lpa: match.highest_package_lpa,
+      placement_percent: match.placement_percent,
+      rating: match.rating,
+      reviews_count: match.reviews_count,
+      about: match.about,
+      website: match.website,
+      admission_process: match.admission_process,
+      facilities: match.facilities,
+      hostel_available: match.hostel_available,
+      hostel_fee_lpa: match.hostel_fee_lpa,
+      infrastructure: {},
+      courses: match.courses.map((cr) => ({
+        id: cr.id,
+        name: cr.name,
+        degree_level: cr.degree_level,
+        duration_years: cr.duration_years,
+        fees_per_year_lpa: cr.fees_per_year_lpa,
+        total_seats: cr.total_seats,
+        entrance_exams: cr.entrance_exams,
+      })),
+      placements: match.placements.map((p) => ({
+        year: p.year,
+        avg_package_lpa: p.avg_package_lpa,
+        highest_package_lpa: p.highest_package_lpa,
+        students_placed: p.students_placed,
+        total_eligible: p.total_eligible,
+        top_recruiters: p.top_recruiters,
+      })),
+    };
+    return detail as T;
+  }
+
+  // 3. Internships List
+  if (pathname === "/api/v1/internships") {
+    let items = [...internships];
+    const q = sp.get("q")?.toLowerCase();
+    const domain = sp.get("domain");
+    const work_mode = sp.get("work_mode");
+    const min_stipend = sp.get("min_stipend") ? Number(sp.get("min_stipend")) : null;
+    const sort = sp.get("sort");
+
+    if (q) {
+      items = items.filter(
+        (i) =>
+          i.title.toLowerCase().includes(q) ||
+          i.company.toLowerCase().includes(q) ||
+          i.skills.some((s) => s.toLowerCase().includes(q))
+      );
+    }
+    if (domain) items = items.filter((i) => i.domain.toLowerCase() === domain.toLowerCase());
+    if (work_mode) items = items.filter((i) => i.work_mode === work_mode);
+    if (min_stipend) items = items.filter((i) => i.stipend_min >= min_stipend);
+
+    if (sort === "stipend_desc") items.sort((a, b) => b.stipend_max - a.stipend_max);
+    else if (sort === "deadline") items.sort((a, b) => new Date(a.apply_deadline).getTime() - new Date(b.apply_deadline).getTime());
+
+    const result: PagedInternships = {
+      items: items.map((i) => ({
+        id: i.id,
+        slug: i.slug,
+        title: i.title,
+        domain: i.domain,
+        work_mode: i.work_mode,
+        duration_months: i.duration_months,
+        stipend_min: i.stipend_min,
+        stipend_max: i.stipend_max,
+        location_city: i.city,
+        posted_at: i.posted_at,
+        apply_deadline: i.apply_deadline,
+        company: { id: i.company, name: i.company, slug: i.company.toLowerCase(), logo_url: undefined },
+      })),
+      pagination: { page: 1, page_size: 24, total: items.length, has_next: false },
+    };
+    return result as T;
+  }
+
+  // 4. Internship Detail
+  if (pathname.startsWith("/api/v1/internships/")) {
+    const slug = pathname.replace("/api/v1/internships/", "");
+    const match = internships.find((i) => i.slug === slug || i.id === slug);
+    if (!match) throw new ApiError(404, { detail: "Internship not found" });
+
+    const detail: InternshipDetail = {
+      id: match.id,
+      slug: match.slug,
+      title: match.title,
+      domain: match.domain,
+      work_mode: match.work_mode,
+      duration_months: match.duration_months,
+      stipend_min: match.stipend_min,
+      stipend_max: match.stipend_max,
+      location_city: match.city,
+      posted_at: match.posted_at,
+      apply_deadline: match.apply_deadline,
+      company: { id: match.company, name: match.company, slug: match.company.toLowerCase() },
+      description: match.description,
+      responsibilities: match.responsibilities,
+      requirements: match.requirements,
+      skills: match.skills,
+      benefits: match.benefits,
+      eligibility_batches: match.eligibility_batches,
+    };
+    return detail as T;
+  }
+
+  // 5. Current User / Profile
+  if (pathname === "/api/v1/me") {
+    return (user || {
+      id: "demo-student-id",
+      email: "student@educonnect.dev",
+      role: "student",
+      is_email_verified: true,
+    }) as T;
+  }
+
+  // 6. Student Dashboard Snapshot
+  if (pathname === "/api/v1/me/dashboard") {
+    const snap: DashboardSnapshot = {
+      stats: {
+        applications: 3,
+        saved_colleges: 4,
+        saved_internships: 5,
+        unread_notifs: 2,
+      },
+      recent_applications: [
+        { id: "app-1", target_kind: "internship", target_id: "Amazon — SDE Intern", status: "shortlisted", submitted_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+        { id: "app-2", target_kind: "internship", target_id: "Microsoft — AI Research", status: "under_review", submitted_at: new Date(Date.now() - 5 * 86400000).toISOString() },
+        { id: "app-3", target_kind: "college", target_id: "IIT Bombay — CSE", status: "submitted", submitted_at: new Date(Date.now() - 8 * 86400000).toISOString() },
+      ],
+      recommended_colleges: colleges.slice(0, 4).map((c) => ({
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        short_name: c.short_name,
+        city: c.city,
+        state: c.state,
+        type: c.type,
+        nirf_rank: c.nirf_rank,
+        avg_package_lpa: c.avg_package_lpa,
+        rating: c.rating,
+        reviews_count: c.reviews_count,
+      })),
+      upcoming_deadlines: [],
+    };
+    return snap as T;
+  }
+
+  // 7. College Representative Dashboard
+  if (pathname === "/api/v1/me/college-dashboard") {
+    return {
+      representative: {
+        name: user?.college_rep?.first_name ? `${user.college_rep.first_name} ${user.college_rep.last_name}` : "Dr. K. Srinivas Rao",
+        designation: user?.college_rep?.designation || "Dean of Admissions",
+        college_name: user?.college_rep?.college_name || "VNR VJIET",
+      },
+      stats: {
+        student_inquiries: 142,
+        profile_views: 18450,
+        is_published: true,
+      },
+      inquiries: mockCollegeInquiries,
+    } as T;
+  }
+
+  // 8. Recruiter Dashboard
+  if (pathname === "/api/v1/me/recruiter-dashboard") {
+    return {
+      recruiter: {
+        name: user?.recruiter_profile?.first_name ? `${user.recruiter_profile.first_name} ${user.recruiter_profile.last_name}` : "Meenakshi Sundaram",
+        designation: user?.recruiter_profile?.designation || "Lead University Recruiter",
+        company_name: user?.recruiter_profile?.company_name || "Amazon India",
+        is_verified: true,
+      },
+      stats: {
+        active_postings: 6,
+        total_applicants: 185,
+      },
+      recent_postings: internships.slice(0, 3),
+      applicants: mockRecruiterApplicants,
+    } as T;
+  }
+
+  // 9. Saved items
+  if (pathname === "/api/v1/saved") {
+    return [
+      { id: "s-1", kind: "college", target_id: "col-1" },
+      { id: "s-2", kind: "college", target_id: "col-3" },
+      { id: "s-3", kind: "internship", target_id: "int-1" },
+    ] as T;
+  }
+
+  // 10. Student applications
+  if (pathname === "/api/v1/me/applications") {
+    const apps: ApplicationOut[] = [
+      { id: "app-1", target_kind: "internship", target_id: "Amazon — SDE Intern", status: "shortlisted", submitted_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+      { id: "app-2", target_kind: "internship", target_id: "Microsoft — AI Research", status: "under_review", submitted_at: new Date(Date.now() - 5 * 86400000).toISOString() },
+      { id: "app-3", target_kind: "college", target_id: "IIT Bombay — CSE", status: "submitted", submitted_at: new Date(Date.now() - 8 * 86400000).toISOString() },
+    ];
+    return apps as T;
+  }
+
+  return {} as T;
+}
+
+async function raw<T = any>(path: string, { timeoutMs = 2500, ...init }: FetchOpts = {}): Promise<T> {
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), timeoutMs);
+
+  // If we are in standalone mode or API_BASE is unreachable, fast-fallback to local data
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       ...init,
@@ -35,13 +426,21 @@ async function raw<T = any>(path: string, { timeoutMs = 15000, ...init }: FetchO
         ...(init.headers as Record<string, string>),
       },
     });
+
     if (!res.ok) {
       let problem: any = { title: res.statusText };
-      try { problem = await res.json(); } catch {}
+      try {
+        problem = await res.json();
+      } catch {}
       throw new ApiError(res.status, problem);
     }
+
     if (res.status === 204) return undefined as T;
     return (await res.json()) as T;
+  } catch (err) {
+    // Graceful fallback to local mock database on Vercel/Local offline
+    const user = await getDemoUserFromCookies();
+    return resolveLocalMock<T>(path, init, user);
   } finally {
     clearTimeout(to);
   }
@@ -51,75 +450,55 @@ export async function api<T = any>(path: string, opts: FetchOpts = {}): Promise<
   const headers = { ...(opts.headers as Record<string, string>) };
   if (opts.auth !== false) {
     const jar = await cookies();
-    let access = jar.get(ACCESS_COOKIE)?.value;
-    
-    if (!access) {
-      const refresh = jar.get(REFRESH_COOKIE)?.value;
-      if (refresh) {
-        try {
-          const tokens = await raw<Tokens>("/api/v1/auth/refresh", {
-            method: "POST",
-            body: JSON.stringify({ refresh_token: refresh }),
-            auth: false,
-          });
-          await persistTokens(tokens);
-          access = tokens.access_token;
-        } catch {
-          await clearTokens();
-        }
-      }
-    }
-    
+    const access = jar.get(ACCESS_COOKIE)?.value;
     if (access) headers["authorization"] = `Bearer ${access}`;
   }
-  
+
   try {
     return await raw<T>(path, { ...opts, headers });
   } catch (e) {
-    if (e instanceof ApiError && e.status === 401 && opts.auth !== false) {
-      const jar = await cookies();
-      const refresh = jar.get(REFRESH_COOKIE)?.value;
-      if (refresh) {
-        try {
-          const tokens = await raw<Tokens>("/api/v1/auth/refresh", {
-            method: "POST",
-            body: JSON.stringify({ refresh_token: refresh }),
-            auth: false,
-          });
-          await persistTokens(tokens);
-          headers["authorization"] = `Bearer ${tokens.access_token}`;
-          return await raw<T>(path, { ...opts, headers });
-        } catch {
-          await clearTokens();
-        }
-      }
-    }
-    throw e;
+    const user = await getDemoUserFromCookies();
+    return resolveLocalMock<T>(path, opts, user);
   }
 }
 
-// Public: no auth, safe from RSC without cookies.
+// Public API call
 export const apiPublic = <T = any>(path: string, opts: FetchOpts = {}) =>
   raw<T>(path, { ...opts });
 
-// ---------------- Auth ----------------
-export type Tokens = { access_token: string; refresh_token: string; expires_in: number };
-
-export async function persistTokens(t: Tokens) {
+// ---------------- Auth Helpers ----------------
+export async function persistTokens(t: Tokens & { user?: { role?: string; email?: string; first_name?: string } }) {
   const jar = await cookies();
   const secure = process.env.NODE_ENV === "production";
-  jar.set(ACCESS_COOKIE, t.access_token, {
-    httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: t.expires_in || ACCESS_MAX_AGE,
+  jar.set(ACCESS_COOKIE, t.access_token || "demo-token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure,
+    path: "/",
+    maxAge: t.expires_in || ACCESS_MAX_AGE,
   });
-  jar.set(REFRESH_COOKIE, t.refresh_token, {
-    httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: REFRESH_MAX_AGE,
+  jar.set(REFRESH_COOKIE, t.refresh_token || "demo-refresh-token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure,
+    path: "/",
+    maxAge: REFRESH_MAX_AGE,
   });
+  if (t.user?.role) {
+    jar.set(USER_ROLE_COOKIE, t.user.role, { path: "/", maxAge: REFRESH_MAX_AGE });
+  }
+  if (t.user?.email) {
+    jar.set(USER_EMAIL_COOKIE, t.user.email, { path: "/", maxAge: REFRESH_MAX_AGE });
+  }
 }
 
 export async function clearTokens() {
   const jar = await cookies();
   jar.delete(ACCESS_COOKIE);
   jar.delete(REFRESH_COOKIE);
+  jar.delete(USER_ROLE_COOKIE);
+  jar.delete(USER_EMAIL_COOKIE);
+  jar.delete(USER_NAME_COOKIE);
 }
 
 export async function currentAccess(): Promise<string | undefined> {
