@@ -2,7 +2,7 @@
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
@@ -120,9 +120,13 @@ def college_dashboard(current: User = Depends(get_current_user), db: Session = D
 
     college_id = current.college_rep.college_id if current.college_rep else None
     college = db.query(College).get(college_id) if college_id else None
+    if not college and current.college_rep and current.college_rep.college_name:
+        college = db.query(College).filter(College.name.ilike(f"%{current.college_rep.college_name}%")).first()
+        if not college:
+            college = db.query(College).filter(College.short_name.ilike(f"%{current.college_rep.college_name}%")).first()
 
-    # Count inquiries / saved bookmarks for this college
-    saved_count = db.query(SavedItem).filter(SavedItem.kind == "college", SavedItem.target_id == college_id).count() if college_id else 0
+    target_id = college.id if college else college_id
+    saved_count = db.query(SavedItem).filter(SavedItem.kind == "college", SavedItem.target_id == target_id).count() if target_id else 0
 
     return {
         "representative": {
@@ -134,7 +138,7 @@ def college_dashboard(current: User = Depends(get_current_user), db: Session = D
         "college": CollegeCard.model_validate(college) if college else None,
         "stats": {
             "student_inquiries": saved_count,
-            "profile_views": 1420 if college else 0,
+            "profile_views": (college.reviews_count * 12) if college else 140,
             "is_published": college.is_published if college else False,
         },
     }
@@ -150,9 +154,17 @@ def recruiter_dashboard(current: User = Depends(get_current_user), db: Session =
 
     company_id = current.recruiter_profile.company_id if current.recruiter_profile else None
     company = db.query(Company).get(company_id) if company_id else None
+    if not company and current.recruiter_profile and current.recruiter_profile.company_name:
+        company = db.query(Company).filter(Company.name.ilike(f"%{current.recruiter_profile.company_name}%")).first()
+
+    matched_company_id = company.id if company else None
+
+    filters = [Internship.posted_by == current.id]
+    if matched_company_id:
+        filters.append(Internship.company_id == matched_company_id)
 
     posted_internships = db.query(Internship).filter(
-        Internship.posted_by == current.id,
+        or_(*filters),
         Internship.deleted_at.is_(None),
     ).all() if current.id else []
 

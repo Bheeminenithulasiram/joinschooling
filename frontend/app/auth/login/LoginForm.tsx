@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import {
@@ -12,12 +12,8 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  GraduationCap,
-  Building2,
-  Briefcase,
-  ShieldCheck,
 } from "lucide-react";
-import { loginAction, googleLoginAction, quickDemoLoginAction } from "@/lib/actions/auth";
+import { loginAction, googleLoginAction } from "@/lib/actions/auth";
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -35,7 +31,7 @@ function SubmitBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="btn-primary w-full flex items-center justify-center gap-2 py-2.5 rounded-lg transition font-semibold text-xs disabled:opacity-60"
+      className="btn-primary w-full flex items-center justify-center gap-2 py-3 rounded-xl transition font-bold text-xs disabled:opacity-60 shadow-sm"
     >
       {pending ? (
         <>
@@ -43,7 +39,7 @@ function SubmitBtn() {
         </>
       ) : (
         <>
-          Sign in to Account <ArrowRight size={14} />
+          Sign In to Account <ArrowRight size={14} />
         </>
       )}
     </button>
@@ -57,8 +53,6 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
-  const [demoPending, startDemoTransition] = useTransition();
-  const [activeDemoRole, setActiveDemoRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!document.getElementById("google-gsi-client")) {
@@ -115,87 +109,14 @@ export default function LoginForm() {
     window.location.href = authUrl;
   };
 
-  const handleDemoLogin = (role: "student" | "college_rep" | "recruiter" | "admin") => {
-    setActiveDemoRole(role);
-    startDemoTransition(async () => {
-      await quickDemoLoginAction(role, redirectParam);
-    });
-  };
-
   return (
     <div className="mt-4 flex flex-col gap-5">
-      {/* 1-Click Evaluation Profiles */}
-      <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-        <div className="text-[11px] font-bold text-slate-700 mb-1.5">
-          One-Click Test Profiles
-        </div>
-        <div className="grid grid-cols-2 gap-1.5">
-          <button
-            type="button"
-            disabled={demoPending}
-            onClick={() => handleDemoLogin("student")}
-            className="flex items-center gap-2 p-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 text-slate-800 text-xs font-semibold text-left transition"
-          >
-            <GraduationCap size={14} className="text-blue-600 shrink-0" />
-            <div className="truncate">
-              <div>Student</div>
-              <div className="text-[10px] text-slate-400 font-normal">Kiran Kumar</div>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            disabled={demoPending}
-            onClick={() => handleDemoLogin("college_rep")}
-            className="flex items-center gap-2 p-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 text-slate-800 text-xs font-semibold text-left transition"
-          >
-            <Building2 size={14} className="text-emerald-600 shrink-0" />
-            <div className="truncate">
-              <div>College Rep</div>
-              <div className="text-[10px] text-slate-400 font-normal">VNR VJIET</div>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            disabled={demoPending}
-            onClick={() => handleDemoLogin("recruiter")}
-            className="flex items-center gap-2 p-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 text-slate-800 text-xs font-semibold text-left transition"
-          >
-            <Briefcase size={14} className="text-slate-700 shrink-0" />
-            <div className="truncate">
-              <div>Recruiter</div>
-              <div className="text-[10px] text-slate-400 font-normal">Amazon / Tech</div>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            disabled={demoPending}
-            onClick={() => handleDemoLogin("admin")}
-            className="flex items-center gap-2 p-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 text-slate-800 text-xs font-semibold text-left transition"
-          >
-            <ShieldCheck size={14} className="text-amber-600 shrink-0" />
-            <div className="truncate">
-              <div>Admin</div>
-              <div className="text-[10px] text-slate-400 font-normal">Platform Lead</div>
-            </div>
-          </button>
-        </div>
-
-        {demoPending && (
-          <div className="mt-2 flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-700">
-            <Loader2 size={13} className="animate-spin" /> Signing in as {activeDemoRole}…
-          </div>
-        )}
-      </div>
-
       {/* Google Sign-In */}
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        disabled={isGoogleLoading || demoPending}
-        className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-slate-300 bg-white py-2 px-4 text-xs font-medium text-slate-700 hover:bg-slate-50 transition disabled:opacity-60"
+        disabled={isGoogleLoading}
+        className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white py-2.5 px-4 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm disabled:opacity-60"
       >
         {isGoogleLoading ? (
           <Loader2 size={16} className="animate-spin text-blue-600" />
@@ -210,27 +131,33 @@ export default function LoginForm() {
         <span>Continue with Google</span>
       </button>
 
+      {googleError && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800">
+          <AlertTriangle size={14} className="text-amber-600 shrink-0" />
+          <span>{googleError}</span>
+        </div>
+      )}
+
       {/* Divider */}
       <div className="relative flex items-center justify-center my-0.5">
         <div className="w-full border-t border-slate-200" />
-        <span className="bg-white px-2.5 text-[10px] uppercase tracking-wider text-slate-400 font-bold absolute">
+        <span className="bg-white px-3 text-[10px] uppercase tracking-wider text-slate-400 font-bold absolute">
           or sign in with email
         </span>
       </div>
 
-      <form action={action} className="flex flex-col gap-3.5">
+      <form action={action} className="flex flex-col gap-4">
         <input type="hidden" name="redirect" value={redirectParam} />
         <div>
           <label className="label">Email Address</label>
           <div className="relative">
-            <Mail size={14} className="pointer-events-none absolute left-3 top-3 text-slate-400" />
+            <Mail size={15} className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400" />
             <input
               name="email"
               required
               type="email"
-              className="input pl-8 text-xs"
+              className="input pl-9 text-xs"
               placeholder="name@example.com"
-              defaultValue="student@educonnect.dev"
             />
           </div>
         </div>
@@ -238,34 +165,33 @@ export default function LoginForm() {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="label mb-0">Password</label>
-            <Link href="#" className="text-xs text-blue-600 hover:underline">
-              Forgot?
+            <Link href="#" className="text-xs font-semibold text-brand-700 hover:underline">
+              Forgot password?
             </Link>
           </div>
           <div className="relative">
-            <Lock size={14} className="pointer-events-none absolute left-3 top-3 text-slate-400" />
+            <Lock size={15} className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400" />
             <input
               name="password"
               required
               type={showPassword ? "text" : "password"}
-              className="input pl-8 pr-8 text-xs"
+              className="input pl-9 pr-9 text-xs"
               placeholder="••••••••"
-              defaultValue="student1234"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+              className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
               tabIndex={-1}
             >
-              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
         </div>
 
         {state && state.ok === false && (
-          <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-700">
-            <AlertTriangle size={14} className="text-rose-500 shrink-0" />
+          <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 font-medium">
+            <AlertTriangle size={15} className="text-rose-500 shrink-0" />
             <span>{state.error}</span>
           </div>
         )}
