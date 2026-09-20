@@ -56,6 +56,18 @@ export type RecruiterProfile = {
   is_verified: boolean;
 };
 
+export type MentorProfile = {
+  first_name: string;
+  last_name: string;
+  company_or_institution: string;
+  designation: string;
+  domain_expertise?: string | null;
+  graduation_batch?: number | null;
+  bio?: string | null;
+  linkedin_url?: string | null;
+  is_verified: boolean;
+};
+
 export type UserOut = {
   id: string;
   email: string;
@@ -65,6 +77,7 @@ export type UserOut = {
   student?: StudentProfile | null;
   college_rep?: CollegeRepProfile | null;
   recruiter_profile?: RecruiterProfile | null;
+  mentor_profile?: MentorProfile | null;
 };
 
 export type CollegeCard = {

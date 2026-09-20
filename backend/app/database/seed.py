@@ -21,6 +21,7 @@ from app.models import (
     Course,
     Placement,
     Internship,
+    Mentor,
     User,
     Student,
     CollegeRepresentative,
@@ -530,85 +531,112 @@ def seed_database(reset: bool = False) -> None:
                 expected_package_lpa=12.0,
             ))
 
-        # Admin
-        if not db.query(User).filter(User.email == "admin@joinschooling.com").first():
-            admin_user = User(
-                email="admin@joinschooling.com",
-                password_hash=hash_password("AdminSecure2026!"),
-                role="admin",
-                is_email_verified=True,
-            )
-            db.add(admin_user)
-
-        # Student
-        if not db.query(User).filter(User.email == "student.demo@joinschooling.com").first():
-            student_user = User(
-                email="student.demo@joinschooling.com",
-                password_hash=hash_password("StudentPass2026!"),
+        # Canonical Accounts for All 5 Roles:
+        # 1. Student
+        if not db.query(User).filter(User.email == "student@joinschooling.in").first():
+            s_user = User(
+                email="student@joinschooling.in",
+                password_hash=hash_password("Student@123"),
                 role="student",
                 is_email_verified=True,
             )
-            db.add(student_user)
+            db.add(s_user)
             db.flush()
             db.add(Student(
-                user_id=student_user.id,
+                user_id=s_user.id,
                 first_name="Rohan",
                 last_name="Verma",
                 tenth_percentage=94.5,
                 twelfth_percentage=92.0,
-                cgpa=8.9,
+                cgpa=9.1,
                 graduation_year=2026,
                 preferred_course="Computer Science Engineering",
-                skills=["Java", "Python", "React", "DSA", "SQL"],
+                skills=["Java", "Python", "React", "DSA", "SQL", "System Design"],
                 state="Telangana",
                 city="Hyderabad",
                 hostel_required=True,
-                expected_package_lpa=16.0,
+                expected_package_lpa=18.5,
+                preferred_companies=["Google", "Microsoft", "Amazon", "Atlassian", "Goldman Sachs"],
             ))
 
-        # College Representative
-        vnr_college = db.query(College).filter(College.short_name == "VNR").first()
-        if not db.query(User).filter(User.email == "dean.admissions@vnrvjiet.ac.in").first():
-            rep_user = User(
-                email="dean.admissions@vnrvjiet.ac.in",
-                password_hash=hash_password("CollegePass2026!"),
+        # 2. College Representative
+        iitb_college = db.query(College).filter(College.short_name == "IITB").first()
+        if not db.query(User).filter(User.email == "collegerep@iitb.ac.in").first():
+            c_user = User(
+                email="collegerep@iitb.ac.in",
+                password_hash=hash_password("College@123"),
                 role="college_rep",
                 is_email_verified=True,
             )
-            db.add(rep_user)
+            db.add(c_user)
             db.flush()
             db.add(CollegeRepresentative(
-                user_id=rep_user.id,
-                college_id=vnr_college.id if vnr_college else None,
-                college_name="VNR VJIET",
-                first_name="Dr. K. Srinivas",
-                last_name="Rao",
+                user_id=c_user.id,
+                college_id=iitb_college.id if iitb_college else None,
+                college_name="IIT Bombay",
+                first_name="Prof. Rajesh",
+                last_name="Deshmukh",
                 designation="Dean of Academic Admissions",
-                official_email="admissions@vnrvjiet.ac.in",
+                official_email="admissions@iitb.ac.in",
+                website_url="https://www.iitb.ac.in",
                 is_verified=True,
             ))
 
-        # Corporate Recruiter
+        # 3. Corporate Recruiter
         amazon_comp = db.query(Company).filter(Company.name == "Amazon India").first()
-        if not db.query(User).filter(User.email == "recruiter.campus@amazon.com").first():
-            rec_user = User(
-                email="recruiter.campus@amazon.com",
-                password_hash=hash_password("RecruiterPass2026!"),
+        if not db.query(User).filter(User.email == "recruiter@amazon.com").first():
+            r_user = User(
+                email="recruiter@amazon.com",
+                password_hash=hash_password("Recruiter@123"),
                 role="recruiter",
                 is_email_verified=True,
             )
-            db.add(rec_user)
+            db.add(r_user)
             db.flush()
             db.add(CompanyRecruiter(
-                user_id=rec_user.id,
+                user_id=r_user.id,
                 company_id=amazon_comp.id if amazon_comp else None,
                 company_name="Amazon India",
                 first_name="Meenakshi",
                 last_name="Sundaram",
                 designation="Lead University Talent Acquisition",
-                industry="Technology",
+                industry="Technology & E-Commerce",
+                website_url="https://amazon.jobs",
                 is_verified=True,
             ))
+
+        # 4. Mentor
+        if not db.query(User).filter(User.email == "mentor@google.com").first():
+            m_user = User(
+                email="mentor@google.com",
+                password_hash=hash_password("Mentor@123"),
+                role="mentor",
+                is_email_verified=True,
+            )
+            db.add(m_user)
+            db.flush()
+            db.add(Mentor(
+                user_id=m_user.id,
+                first_name="Arjun",
+                last_name="Sundaram",
+                company_or_institution="Google",
+                designation="Staff Software Engineer & Alumni Mentor",
+                domain_expertise="Software Engineering & Distributed Systems",
+                graduation_batch=2018,
+                bio="IIT Delhi CSE alumnus. 8+ years leading distributed infrastructure at Google. Passionate about helping students crack Tier-1 tech interviews.",
+                linkedin_url="https://linkedin.com",
+                is_verified=True,
+            ))
+
+        # 5. Administrator
+        if not db.query(User).filter(User.email == "admin@joinschooling.in").first():
+            a_user = User(
+                email="admin@joinschooling.in",
+                password_hash=hash_password("Admin@123"),
+                role="admin",
+                is_email_verified=True,
+            )
+            db.add(a_user)
 
         db.commit()
         print("Database normalized and seeded successfully with real colleges, courses, placements, companies, internships, and role profiles.")

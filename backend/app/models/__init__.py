@@ -71,6 +71,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     student = relationship("Student", uselist=False, back_populates="user", cascade="all, delete-orphan")
     college_rep = relationship("CollegeRepresentative", uselist=False, back_populates="user", cascade="all, delete-orphan")
     recruiter_profile = relationship("CompanyRecruiter", uselist=False, back_populates="user", cascade="all, delete-orphan")
+    mentor_profile = relationship("Mentor", uselist=False, back_populates="user", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     email_verification_tokens = relationship("EmailVerificationToken", back_populates="user", cascade="all, delete-orphan")
 
@@ -167,6 +168,24 @@ class CompanyRecruiter(Base, TimestampMixin):
 
     user = relationship("User", back_populates="recruiter_profile")
     company = relationship("Company")
+
+
+class Mentor(Base, TimestampMixin):
+    __tablename__ = "mentors"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    first_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    company_or_institution: Mapped[str] = mapped_column(String(160), nullable=False)
+    designation: Mapped[str] = mapped_column(String(120), nullable=False)
+    domain_expertise: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    graduation_batch: Mapped[Optional[int]] = mapped_column(SmallInteger, nullable=True)
+    bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    linkedin_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    user = relationship("User", back_populates="mentor_profile")
 
 
 class Company(Base, TimestampMixin, SoftDeleteMixin):

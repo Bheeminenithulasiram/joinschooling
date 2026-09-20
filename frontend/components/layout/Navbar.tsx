@@ -41,6 +41,7 @@ export function Navbar() {
   const getDashboardUrl = (role?: string) => {
     if (role === "college_rep") return "/dashboard/college";
     if (role === "recruiter") return "/dashboard/recruiter";
+    if (role === "mentor") return "/dashboard/mentor";
     if (role === "admin") return "/admin";
     return "/dashboard";
   };
@@ -48,6 +49,7 @@ export function Navbar() {
   const getRoleBadgeLabel = (role?: string) => {
     if (role === "college_rep") return "College Admissions";
     if (role === "recruiter") return "Corporate Recruiter";
+    if (role === "mentor") return "Industry Mentor";
     if (role === "admin") return "Administrator";
     return "Student Career";
   };
@@ -90,6 +92,13 @@ export function Navbar() {
         { href: "/mentorship", label: "Campus Mentors" },
       ];
     }
+    if (role === "mentor") {
+      return [
+        { href: "/dashboard/mentor", label: "Mentor Desk" },
+        { href: "/mentorship", label: "1:1 Sessions" },
+        { href: "/colleges", label: "Accredited Colleges" },
+      ];
+    }
     if (role === "admin") {
       return [
         { href: "/admin", label: "Admin Console" },
@@ -98,6 +107,7 @@ export function Navbar() {
         { href: "/dashboard", label: "Student Desk" },
         { href: "/dashboard/college", label: "College Desk" },
         { href: "/dashboard/recruiter", label: "Recruiter Hub" },
+        { href: "/dashboard/mentor", label: "Mentor Desk" },
       ];
     }
     // Guest (unauthenticated)

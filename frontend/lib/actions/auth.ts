@@ -11,6 +11,8 @@ function getDashboardRouteForRole(role?: string): string {
       return "/dashboard/college";
     case "recruiter":
       return "/dashboard/recruiter";
+    case "mentor":
+      return "/dashboard/mentor";
     case "admin":
       return "/admin";
     case "student":
@@ -152,6 +154,14 @@ export async function registerAction(_prev: any, form: FormData): Promise<Action
     payload.website_url = form.get("website_url") ? String(form.get("website_url")).trim() : undefined;
     if (!payload.company_name || !payload.designation) {
       return { ok: false, error: "Company Name and Designation are required for Recruiters." };
+    }
+  } else if (role === "mentor") {
+    payload.company_or_institution = String(form.get("company_or_institution") ?? "").trim();
+    payload.designation = String(form.get("designation") ?? "").trim();
+    payload.domain_expertise = form.get("domain_expertise") ? String(form.get("domain_expertise")).trim() : undefined;
+    payload.graduation_batch = form.get("graduation_batch") ? Number(form.get("graduation_batch")) : undefined;
+    if (!payload.company_or_institution || !payload.designation) {
+      return { ok: false, error: "Company / Alma Mater and Designation are required for Mentors." };
     }
   }
 

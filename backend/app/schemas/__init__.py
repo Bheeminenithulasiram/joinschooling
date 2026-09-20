@@ -20,7 +20,7 @@ class RegisterRequest(BaseModel):
     confirm_password: Optional[str] = Field(default=None, min_length=8, max_length=128)
     first_name: str = Field(min_length=1, max_length=80)
     last_name: str = Field(min_length=1, max_length=80)
-    role: Literal["student", "college_rep", "recruiter"] = "student"
+    role: Literal["student", "college_rep", "recruiter", "mentor"] = "student"
     phone: Optional[str] = Field(default=None, max_length=20)
     
     # Student specifics:
@@ -34,6 +34,10 @@ class RegisterRequest(BaseModel):
     # Recruiter specifics:
     company_name: Optional[str] = None
     industry: Optional[str] = None
+    # Mentor specifics:
+    company_or_institution: Optional[str] = None
+    domain_expertise: Optional[str] = None
+    graduation_batch: Optional[int] = None
 
     @model_validator(mode="after")
     def verify_password_match(self) -> "RegisterRequest":
@@ -171,6 +175,30 @@ class RecruiterProfile(BaseModel):
     is_verified: bool = False
 
 
+class MentorProfile(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    first_name: str
+    last_name: str
+    company_or_institution: str
+    designation: str
+    domain_expertise: Optional[str] = None
+    graduation_batch: Optional[int] = None
+    bio: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    is_verified: bool = True
+
+
+class MentorProfileUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    company_or_institution: Optional[str] = None
+    designation: Optional[str] = None
+    domain_expertise: Optional[str] = None
+    graduation_batch: Optional[int] = None
+    bio: Optional[str] = None
+    linkedin_url: Optional[str] = None
+
+
 class StudentProfileUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -203,6 +231,7 @@ class UserOut(BaseModel):
     student: Optional[StudentProfile] = None
     college_rep: Optional[CollegeRepProfile] = None
     recruiter_profile: Optional[RecruiterProfile] = None
+    mentor_profile: Optional[MentorProfile] = None
 
 
 class CollegeCard(BaseModel):
@@ -350,8 +379,19 @@ class ApplicationOut(BaseModel):
     id: str
     target_kind: str
     target_id: str
+    student_id: Optional[str] = None
     status: str
     submitted_at: datetime
+    answers: Optional[Dict[str, Any]] = None
+    student_name: Optional[str] = None
+    student_email: Optional[str] = None
+    student_cgpa: Optional[float] = None
+    target_title: Optional[str] = None
+
+
+class ApplicationStatusUpdate(BaseModel):
+    status: Literal["submitted", "under_review", "shortlisted", "interview", "accepted", "offered", "rejected", "withdrawn"]
+    note: Optional[str] = None
 
 
 class SavedCreate(BaseModel):

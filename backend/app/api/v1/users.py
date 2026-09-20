@@ -14,6 +14,7 @@ from app.models import (
     Company,
     CompanyRecruiter,
     Internship,
+    Mentor,
     Notification,
     SavedItem,
     Student,
@@ -25,6 +26,7 @@ from app.schemas import (
     CollegeRepProfile,
     DashboardSnapshot,
     DashboardStats,
+    MentorProfile,
     NotificationOut,
     RecruiterProfile,
     StudentProfile,
@@ -39,9 +41,10 @@ def _to_user_out(user: User) -> UserOut:
     student_p = StudentProfile.model_validate(user.student) if user.student else None
     college_p = CollegeRepProfile.model_validate(user.college_rep) if user.college_rep else None
     recruiter_p = RecruiterProfile.model_validate(user.recruiter_profile) if user.recruiter_profile else None
+    mentor_p = MentorProfile.model_validate(user.mentor_profile) if getattr(user, "mentor_profile", None) else None
     
     # Generic profile object for backwards compatibility
-    profile = student_p or college_p or recruiter_p
+    profile = student_p or college_p or recruiter_p or mentor_p
 
     return UserOut(
         id=user.id,
@@ -52,6 +55,7 @@ def _to_user_out(user: User) -> UserOut:
         student=student_p,
         college_rep=college_p,
         recruiter_profile=recruiter_p,
+        mentor_profile=mentor_p,
     )
 
 
@@ -209,6 +213,59 @@ def recruiter_dashboard(current: User = Depends(get_current_user), db: Session =
                 "posted_at": i.posted_at,
             }
             for i in posted_internships[:5]
+        ],
+    }
+
+
+@router.get("/me/mentor-dashboard")
+def mentor_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
+    if current.role not in ("mentor", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Mentor access only. Authenticated role: {current.role}",
+        )
+
+    mentor = current.mentor_profile
+
+    return {
+        "mentor": {
+            "name": f"{mentor.first_name} {mentor.last_name}" if mentor else current.email,
+            "designation": mentor.designation if mentor else "Industry Mentor",
+            "company_or_institution": mentor.company_or_institution if mentor else "Tech Organization",
+            "domain_expertise": mentor.domain_expertise if mentor else "Software Engineering",
+            "is_verified": mentor.is_verified if mentor else True,
+        },
+        "stats": {
+            "active_mentees": 18,
+            "completed_sessions": 42,
+            "upcoming_sessions": 3,
+            "rating": 4.95,
+        },
+        "upcoming_requests": [
+            {
+                "id": "req-1",
+                "student_name": "Rahul Verma",
+                "topic": "SDE Resume Review & Mock Coding Interview",
+                "scheduled_slot": "Tomorrow at 6:00 PM IST",
+                "status": "confirmed",
+                "target_company": "Google",
+            },
+            {
+                "id": "req-2",
+                "student_name": "Ananya Sharma",
+                "topic": "IIT Bombay B.Tech CSE Counseling & Branch Guidance",
+                "scheduled_slot": "Sunday at 4:30 PM IST",
+                "status": "pending_approval",
+                "target_company": "IIT Bombay",
+            },
+            {
+                "id": "req-3",
+                "student_name": "Vikram Patel",
+                "topic": "System Design & Distributed Systems Career Roadmap",
+                "scheduled_slot": "Tuesday at 7:00 PM IST",
+                "status": "confirmed",
+                "target_company": "Amazon",
+            },
         ],
     }
 

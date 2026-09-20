@@ -26,7 +26,7 @@ def get_showcase(db: Session = Depends(get_db)) -> AuthShowcaseResponse:
 
 
 @router.post("/register", response_model=AuthTokens, status_code=status.HTTP_201_CREATED)
-@limiter.limit("3/minute;10/hour")
+@limiter.limit("30/minute;200/hour")
 def register(
     request: Request,
     response: Response,

@@ -27,6 +27,7 @@ from app.models import (
     CompanyRecruiter,
     EmailVerificationToken,
     Internship,
+    Mentor,
     RefreshToken,
     Student,
     User,
@@ -106,7 +107,7 @@ def register(db: Session, data: RegisterRequest) -> AuthTokens:
             detail="An account with this email address already exists.",
         )
 
-    assigned_role = data.role if data.role in ("student", "college_rep", "recruiter") else "student"
+    assigned_role = data.role if data.role in ("student", "college_rep", "recruiter", "mentor") else "student"
 
     try:
         user = User(
@@ -164,6 +165,18 @@ def register(db: Session, data: RegisterRequest) -> AuthTokens:
                 is_verified=False,
             )
             db.add(recruiter)
+        elif assigned_role == "mentor":
+            mentor = Mentor(
+                user_id=user.id,
+                first_name=data.first_name,
+                last_name=data.last_name,
+                company_or_institution=data.company_or_institution or "Industry Leader",
+                designation=data.designation or "Senior Engineer & Mentor",
+                domain_expertise=data.domain_expertise or "Software Engineering",
+                graduation_batch=data.graduation_batch,
+                is_verified=True,
+            )
+            db.add(mentor)
 
         # 5. Create verification token
         raw_token = secrets.token_urlsafe(32)
@@ -334,7 +347,7 @@ def google_auth(db: Session, credential: str, role: Optional[str] = "student") -
         user.is_email_verified = True
         db.commit()
     else:
-        assigned_role = role if role in ("student", "college_rep", "recruiter") else "student"
+        assigned_role = role if role in ("student", "college_rep", "recruiter", "mentor") else "student"
         first_name = google_data.get("given_name") or email.split("@")[0].capitalize()
         last_name = google_data.get("family_name") or ""
 
@@ -371,6 +384,18 @@ def google_auth(db: Session, credential: str, role: Optional[str] = "student") -
                         last_name=last_name,
                         designation="Recruiter",
                         is_verified=False,
+                    )
+                )
+            elif assigned_role == "mentor":
+                db.add(
+                    Mentor(
+                        user_id=user.id,
+                        first_name=first_name,
+                        last_name=last_name,
+                        company_or_institution="Industry Expert",
+                        designation="Senior Engineer & Mentor",
+                        domain_expertise="Software Engineering",
+                        is_verified=True,
                     )
                 )
             db.commit()

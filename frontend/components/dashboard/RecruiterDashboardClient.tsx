@@ -54,11 +54,19 @@ export function RecruiterDashboardClient({ data }: { data: any }) {
     company_name: "Amazon India",
   };
 
-  const handleStatusChange = (id: string, newStatus: any) => {
+  const handleStatusChange = async (id: string, newStatus: any) => {
     setApplicants((prev) =>
       prev.map((app) => (app.id === id ? { ...app, status: newStatus } : app))
     );
     success(`Candidate status moved to "${newStatus.toUpperCase()}"`);
+
+    try {
+      await fetch(`/api/v1/applications/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+    } catch {}
   };
 
   const handleCreatePosting = (e: React.FormEvent) => {
