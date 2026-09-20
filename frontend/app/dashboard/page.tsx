@@ -77,24 +77,60 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Metrics Grid */}
+      {/* Metrics Grid - 100% Clickable with Real Dynamic DB Counts */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: GraduationCap, l: "Saved Colleges", v: dash?.stats?.saved_colleges ?? 4, tint: "from-brand-700 to-navy-900" },
-          { icon: Briefcase, l: "Live Applications", v: dash?.stats?.applications ?? 3, tint: "from-blue-600 to-navy-800" },
-          { icon: Bookmark, l: "Saved Internships", v: dash?.stats?.saved_internships ?? 5, tint: "from-emerald-700 to-teal-900" },
-          { icon: TrendingUp, l: "Verified CGPA", v: "9.1 / 10", tint: "from-slate-700 to-slate-900" },
+          {
+            href: "/colleges/saved",
+            icon: GraduationCap,
+            l: "Saved Colleges",
+            v: dash?.stats?.saved_colleges ?? 0,
+            sub: "Click to view saved colleges →",
+            tint: "from-brand-700 to-navy-900",
+          },
+          {
+            href: "/applications",
+            icon: Briefcase,
+            l: "Live Applications",
+            v: dash?.stats?.applications ?? 0,
+            sub: "Click to track applications →",
+            tint: "from-blue-600 to-navy-800",
+          },
+          {
+            href: "/internships/saved",
+            icon: Bookmark,
+            l: "Saved Internships",
+            v: dash?.stats?.saved_internships ?? 0,
+            sub: "Click to view saved roles →",
+            tint: "from-emerald-700 to-teal-900",
+          },
+          {
+            href: "/profile",
+            icon: TrendingUp,
+            l: "Verified CGPA",
+            v: user?.student?.cgpa ? `${user.student.cgpa} / 10` : "—",
+            sub: user?.student?.cgpa ? "Click to edit academic profile →" : "Add CGPA in profile →",
+            tint: "from-slate-700 to-slate-900",
+          },
         ].map((s) => (
-          <div key={s.l} className="card p-5 space-y-2 border border-slate-200 shadow-sm">
+          <Link
+            key={s.l}
+            href={s.href}
+            className="card p-5 space-y-2 border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition cursor-pointer group bg-white"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{s.l}</span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${s.tint} text-white`}>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-blue-700 transition">
+                {s.l}
+              </span>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${s.tint} text-white shadow-xs group-hover:scale-105 transition`}>
                 <s.icon size={18} />
               </div>
             </div>
             <div className="font-display text-3xl font-extrabold text-slate-900">{s.v}</div>
-            <div className="text-[11px] text-slate-400 font-medium">Active student profile</div>
-          </div>
+            <div className="text-[11px] text-blue-600 font-medium group-hover:underline flex items-center gap-1">
+              {s.sub}
+            </div>
+          </Link>
         ))}
       </div>
 
@@ -108,36 +144,61 @@ export default async function DashboardPage() {
                 <h2 className="font-display text-lg font-bold text-slate-900">Your Submitted Applications</h2>
                 <p className="text-xs text-slate-500">Real-time status updates from corporate hiring & admissions desks.</p>
               </div>
-              <Link href="/internships" className="btn-outline text-xs py-1.5 px-3">
-                Apply to More
+              <Link href="/internships" className="btn-outline text-xs py-1.5 px-3 font-semibold">
+                Explore Drives →
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {[
-                { title: "Amazon — SDE Intern", type: "Tech Internship", status: "shortlisted", date: "2 days ago" },
-                { title: "Microsoft — Software Engineering Intern", type: "Tech Internship", status: "under_review", date: "5 days ago" },
-                { title: "IIT Bombay — B.Tech CSE Counseling", type: "College Admission", status: "submitted", date: "1 week ago" },
-              ].map((app) => (
-                <div key={app.title} className="rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-                  <div className="space-y-0.5">
-                    <div className="font-bold text-slate-900 text-sm">{app.title}</div>
-                    <div className="text-xs text-slate-500">{app.type} · Submitted {app.date}</div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full capitalize ${
-                      app.status === "shortlisted"
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                        : app.status === "under_review"
-                        ? "bg-amber-100 text-amber-800 border border-amber-300"
-                        : "bg-sky-100 text-sky-800 border border-sky-300"
-                    }`}>
-                      {app.status.replace("_", " ")}
-                    </span>
-                  </div>
+            {dash?.recent_applications && dash.recent_applications.length > 0 ? (
+              <div className="space-y-3">
+                {dash.recent_applications.map((app) => (
+                  <Link
+                    key={app.id}
+                    href="/applications"
+                    className="rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 hover:bg-slate-100/70 hover:border-blue-300 transition"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="font-bold text-slate-900 text-sm">
+                        {app.target_id || (app.target_kind === "internship" ? "Internship Application" : "College Admission")}
+                      </div>
+                      <div className="text-xs text-slate-500 capitalize">
+                        {app.target_kind} Application · Submitted {new Date(app.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full capitalize ${
+                        app.status === "selected" || app.status === "shortlisted"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          : app.status === "under_review" || app.status === "interview"
+                          ? "bg-amber-100 text-amber-800 border border-amber-300"
+                          : app.status === "rejected"
+                          ? "bg-rose-100 text-rose-800 border border-rose-300"
+                          : "bg-sky-100 text-sky-800 border border-sky-300"
+                      }`}>
+                        {app.status.replace("_", " ")}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center space-y-3 bg-slate-50/40">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                  <Briefcase size={22} />
                 </div>
-              ))}
-            </div>
+                <div className="space-y-1">
+                  <div className="font-bold text-slate-900 text-sm">No applications submitted yet</div>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Browse verified tech internships and campus drives with transparent stipends to start applying.
+                  </p>
+                </div>
+                <div className="pt-1">
+                  <Link href="/internships" className="btn-primary text-xs py-2 px-4 shadow-sm font-bold inline-flex items-center gap-1.5">
+                    Browse Internships & Jobs <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Recommended Colleges */}
@@ -189,15 +250,27 @@ export default async function DashboardPage() {
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">10th / 12th Board</dt>
-                <dd className="font-bold text-slate-900">94.2% / 91.0%</dd>
+                <dd className="font-bold text-slate-900">
+                  {user?.student?.tenth_percentage && user?.student?.twelfth_percentage
+                    ? `${user.student.tenth_percentage}% / ${user.student.twelfth_percentage}%`
+                    : "Not provided"}
+                </dd>
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">Current CGPA</dt>
-                <dd className="font-bold text-blue-600">9.1 / 10</dd>
+                <dd className="font-bold text-blue-600">
+                  {user?.student?.cgpa ? `${user.student.cgpa} / 10` : "Not provided"}
+                </dd>
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">Graduation Year</dt>
-                <dd className="font-bold text-slate-900">{user?.student?.graduation_year ? `${user.student.graduation_year} Batch` : "2026 Batch"}</dd>
+                <dd className="font-bold text-slate-900">
+                  {user?.student?.graduation_year
+                    ? `${user.student.graduation_year} Batch`
+                    : user?.student?.degree
+                    ? `${user.student.degree}`
+                    : "Not provided"}
+                </dd>
               </div>
             </dl>
             <div className="pt-2 border-t border-slate-100">

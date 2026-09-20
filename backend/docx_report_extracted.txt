@@ -1,0 +1,329 @@
+JoinSchooling
+
+Detailed Project Report
+
+Complete User Journey, System Flows & Architecture — Sign-Up to Logout
+
+A unified education & career discovery platform connecting students, colleges, recruiters, mentors and administrators.
+
+Tech Stack:  Next.js 15  •  FastAPI  •  PostgreSQL (Neon)  •  JWT Authentication
+
+Deployment:  Vercel (Frontend)  •  Render (Backend)  •  Neon (Database)
+
+Table of Contents
+
+1. Introduction & Purpose	3
+
+2. System Architecture Overview	3
+
+3. User Roles	4
+
+4. Sign-Up (Registration) Flow	4
+
+5. Login & Role-Based Redirect	6
+
+6. Authentication Architecture (JWT)	6
+
+7. Protected Routes & Authorization	7
+
+8. Student Dashboard	8
+
+9. College Discovery	9
+
+10. Internship Discovery	10
+
+11. Internship Detail — Save & Apply	10
+
+12. Saved Items	11
+
+13. Applications Dashboard & Status Lifecycle	11
+
+14. AI Finder	12
+
+15. Recruiter Dashboard & Flow	13
+
+16. College Dashboard	14
+
+17. Mentor Dashboard	14
+
+18. Admin Dashboard	15
+
+19. Database Design (Conceptual)	15
+
+20. Logout Flow	17
+
+21. Complete End-to-End Journey	17
+
+22. Security Architecture	18
+
+23. Known Implementation Gaps	18
+
+24. Technology Stack Summary	19
+
+25. Conclusion	19
+
+1. Introduction & Purpose
+
+JoinSchooling is a unified education and career platform designed to bring together college discovery, internship discovery, application tracking, AI-assisted opportunity matching, and role-specific dashboards into a single ecosystem. Instead of a student searching separately across multiple websites for colleges, internships, and application status, JoinSchooling centralizes the entire journey — from account creation through logout — inside one authenticated, role-aware application.
+
+This report documents that journey in complete detail: every step a user takes, every screen they land on, and every flow that connects sign-up to logout, for each role in the system (Student, Recruiter, College Representative, Mentor, and Admin).
+
+1.1 Core Concept
+
+Discover → Evaluate → Save → Apply → Track → Learn → Get Guidance
+
+A student discovers an opportunity, evaluates it, saves it for later, applies, tracks the outcome, and uses AI-assisted discovery to keep finding better-matched opportunities — while colleges, recruiters, mentors and admins manage their side of the ecosystem in parallel.
+
+2. System Architecture Overview
+
+The platform is built as a modern three-tier web application. The frontend is a Next.js 15 application responsible for rendering role-specific dashboards and pages. The backend is a FastAPI service that owns all business logic, authentication, and authorization. The database is PostgreSQL, hosted on Neon, storing users, colleges, internships, applications, and saved items.
+
+Figure 2.1 — High-level system architecture: browser → Next.js frontend → FastAPI backend → PostgreSQL (Neon).
+
+Deployment: the frontend is hosted on Vercel, the backend API is hosted on Render, and the database runs on Neon's managed PostgreSQL service. Each layer scales and deploys independently.
+
+3. User Roles
+
+Every user in JoinSchooling belongs to exactly one role, and that role determines which dashboard they land on, which pages they can open, which API endpoints they can call, and which database records they can touch.
+
+Role
+
+Primary Purpose
+
+Key Capabilities
+
+Student
+
+Discover & apply to opportunities
+
+Browse colleges/internships, save items, apply, track applications, use AI Finder
+
+Recruiter
+
+Represent a company
+
+Post internships, review applications, update candidate status
+
+College Representative
+
+Represent an institution
+
+Manage college info, programs, and institutional opportunities
+
+Mentor
+
+Provide guidance
+
+View assigned students, respond to guidance requests, give recommendations
+
+Admin
+
+Control the platform
+
+Manage users, colleges, recruiters, applications, and platform settings
+
+4. Sign-Up (Registration) Flow
+
+A new user begins on the landing page and chooses to register. They enter their basic details, and the system determines or asks for the account type (Student, Recruiter, College Representative, or Mentor). Details are validated on both the client and the server before the account is created.
+
+Figure 4.1 — Step-by-step sign-up flow, from the landing page to redirect-to-login.
+
+4.1 What happens on the server
+
+The submitted email is checked for duplicates.
+
+The password is hashed (never stored in plain text).
+
+The role is recorded against the new user record.
+
+A confirmation response is returned and the user is redirected to Login.
+
+Known gap: registration currently behaves primarily around the student flow. It should be explicitly extended so every role (Recruiter, College Representative, Mentor) has an equally first-class registration path rather than being treated as a variant of student sign-up.
+
+5. Login & Role-Based Redirect
+
+Login takes an email and password, validates them against the stored hash, and — on success — issues authentication tokens and resolves the user's role so the frontend can send them to the correct dashboard.
+
+Figure 5.1 — Login flow: credential validation, token issuance, role resolution, and dashboard redirect.
+
+6. Authentication Architecture (JWT)
+
+Authentication is based on JSON Web Tokens. On successful login the backend issues a short-lived access token and a longer-lived refresh token. The access token travels with every subsequent API request; when it expires, the frontend silently exchanges the refresh token for a new access token so the user's session continues without interruption.
+
+Figure 6.1 — JWT access/refresh token lifecycle across a session.
+
+6.1 Security Principle
+
+Frontend role checks exist for user experience only. The backend independently re-validates the user's role and resource ownership on every request — hiding a button from a student is not a security control by itself; the backend must also reject a Student calling an Admin-only endpoint.
+
+7. Protected Routes & Authorization
+
+Every page in the authenticated application is a protected route. Before rendering, the frontend checks that the user is logged in and that their role is permitted to view that page. The backend performs the equivalent check independently for every API call, and additionally verifies resource ownership (for example, a Recruiter may only edit internships that belong to their own company).
+
+Figure 7.1 — Protected route and role-based authorization flow, front end and back end.
+
+8. Student Dashboard
+
+The Student Dashboard is the home screen after login. It answers one question: "What's important for me right now?" It surfaces saved items, application counts, AI-recommended opportunities, and recent activity in one view.
+
+Figure 8.1 — Student Dashboard layout: navigation sidebar, stat cards, and recommended/recent activity feed.
+
+Saved / Applied / Pending counters
+
+Recommended opportunities (AI-ranked)
+
+Recent application activity
+
+Quick navigation to Colleges, Internships, Saved, AI Finder, and Profile
+
+9. College Discovery
+
+The Colleges section lets a student search and filter institutions by location, course, and type, then open a detail page with programs, eligibility, and related opportunities before deciding to save the college or continue researching.
+
+Figure 9.1 — College discovery flow, from search to save/continue.
+
+10. Internship Discovery
+
+The Internship section is one of the most-used modules. Students search and filter by skill, location, duration, and company, open a detailed listing, and decide whether to save it or apply immediately.
+
+Figure 10.1 — Internship discovery flow, from browse to save/apply decision.
+
+11. Internship Detail — Save & Apply
+
+The detail page gives the student everything needed to make an informed decision: company, required skills, eligibility, duration, and deadline. From here they can either save the internship for later or apply immediately, which creates an application record linked to that student and that internship.
+
+Figure 11.1 — Save vs. Apply branching flow from the internship detail page.
+
+12. Saved Items
+
+Saved Items is the student's personal shortlist — colleges and internships they want to revisit without searching again. Each saved record links a user to an opportunity.
+
+Figure 12.1 — Saved items workflow: discover, save, revisit, then apply or remove.
+
+13. Applications Dashboard & Status Lifecycle
+
+Once a student applies, the opportunity moves into My Applications, where its status is tracked through a defined lifecycle. This same status value should be shared between frontend and backend so both sides always agree on where an application stands.
+
+Figure 13.1 — Application status lifecycle: Applied → Under Review → Shortlisted → Interview → Selected/Rejected.
+
+14. AI Finder
+
+AI Finder lets a student describe what they want in plain language — for example, "Python internship in Hyderabad" — instead of manually filtering. The AI layer extracts structured requirements (skill, location, role, education, preferences) and searches real platform data. It is explicitly designed to retrieve existing opportunities, not invent ones that don't exist in the database.
+
+Figure 14.1 — AI Finder: intent understanding → requirement extraction → search over real data → ranked results.
+
+15. Recruiter Dashboard & Flow
+
+Recruiters manage their company's presence on the platform: posting internships, tracking how many applications each listing receives, and reviewing candidates.
+
+Figure 15.1 — Recruiter Dashboard layout.
+
+Figure 15.2 — End-to-end recruiter flow, from login to updating a candidate's status.
+
+Ownership rule: a recruiter may only manage internships that belong to their own company record. This must be enforced by the backend on every request, not assumed from the UI.
+
+16. College Dashboard
+
+The college-side dashboard gives an institution's representative a management view of their own programs, students, and applications. A college representative must only see data belonging to their own institution — Representative A cannot see Institution B's records.
+
+Figure 16.1 — College Dashboard layout.
+
+17. Mentor Dashboard
+
+The Mentor Dashboard is built around guidance rather than opportunity administration — mentors see the students assigned to them, respond to guidance requests, schedule sessions, and send recommendations.
+
+Figure 17.1 — Mentor Dashboard layout.
+
+18. Admin Dashboard
+
+The Admin Dashboard is the platform's control center: user management, institution and recruiter management, opportunity oversight, and system-wide monitoring.
+
+Figure 18.1 — Admin Dashboard layout.
+
+19. Database Design (Conceptual)
+
+The relational model centers on Users (with a Role and Profile), Colleges (with Programs), Companies (owned by Recruiters, with Internships), Applications (linking a Student, an Internship, and a Status), and SavedItems (linking a User to an Opportunity).
+
+Figure 19.1 — Core entity relationships across the platform.
+
+Note: production uses PostgreSQL on Neon. A proper migration strategy (e.g. Alembic) should replace any SQLite-oriented create-all defaults left over from early development, to avoid schema drift between environments.
+
+20. Logout Flow
+
+Logging out clears the session on the frontend — access token, refresh token, and any cached user state — and returns the user to the landing or login page. From that point, every protected route is inaccessible again until the user logs back in.
+
+Figure 20.1 — Logout flow: session cleared, tokens invalidated, protected routes locked again.
+
+21. Complete End-to-End Journey (Student Example)
+
+Bringing every preceding section together, a full student journey looks like this — register, complete a profile, discover opportunities (browsing or AI Finder), evaluate, save and/or apply, track the outcome as the recruiter updates status, see that update reflected on the dashboard, and eventually log out.
+
+Figure 21.1 — Complete student journey from sign-up to logout.
+
+22. Security Architecture
+
+Password hashing — passwords are never stored or compared in plain text
+
+JWT access + refresh tokens for session management
+
+Protected routes on the frontend for user experience
+
+Backend authorization as the real security boundary, re-checked on every request
+
+Resource-ownership checks (e.g. a Recruiter cannot edit another Recruiter's internship)
+
+Rate limiting and security headers on the API
+
+The guiding principle: frontend checks are for experience, backend checks are for security. Both must exist, but only the backend check can actually be trusted.
+
+23. Known Implementation Gaps
+
+The platform already has a substantial working implementation, but the following areas are explicitly still being hardened and should not be treated as complete:
+
+Registration is currently oriented around the student flow and needs equal support for all roles.
+
+The College Representative ↔ College relationship needs to be properly modeled and enforced.
+
+Recruiter ↔ Company ownership needs to be consistently enforced at the API layer.
+
+Google OAuth buttons exist in the UI, but the full OAuth flow is not yet complete.
+
+Some dashboard sections still show demo/fallback data instead of live production data.
+
+Database setup still shows SQLite-oriented patterns; a formal migration tool (Alembic) is needed for PostgreSQL/Neon in production.
+
+24. Technology Stack Summary
+
+Layer
+
+Technology
+
+Hosting
+
+Frontend
+
+Next.js 15 / React
+
+Vercel
+
+Backend API
+
+FastAPI (Python)
+
+Render
+
+Database
+
+PostgreSQL
+
+Neon
+
+Auth
+
+JWT (access + refresh tokens)
+
+Backend-issued
+
+25. Conclusion
+
+JoinSchooling's value is in unifying a journey that is normally scattered across many disconnected websites: college research, internship search, applications, saved shortlists, and career guidance, wrapped around role-specific dashboards and an AI layer that retrieves real data rather than inventing it. The architecture — Next.js, FastAPI, PostgreSQL, JWT authentication — is a sound foundation. The immediate priority is hardening the gaps in Section 23 (multi-role registration, ownership enforcement, OAuth completion, and production-grade migrations) so every dashboard shown in this report is backed by real, correctly-scoped, backend-authorized data.

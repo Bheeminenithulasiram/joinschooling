@@ -99,9 +99,12 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
       role: "mentor",
       is_email_verified: true,
       mentor_profile: {
-        company_name: "Google India",
-        domain: "Software Engineering & Distributed Systems",
-        experience_years: 6,
+        first_name: name?.split(" ")[0] || "Arjun",
+        last_name: name?.split(" ")[1] || "Sundaram",
+        company_or_institution: "Google India",
+        designation: "Senior Software Engineer",
+        domain_expertise: "Software Engineering & Distributed Systems",
+        graduation_batch: 2020,
         bio: "Senior Software Engineer guiding students on system design and algorithms.",
         is_verified: true,
       }
@@ -120,19 +123,15 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
 
   return {
     id: "session-student-id",
-    email: email || "student@joinschooling.com",
+    email: email || "student@joinschooling.in",
     role: "student",
     is_email_verified: true,
     student: {
       first_name: name?.split(" ")[0] || "Student",
-      last_name: name?.split(" ")[1] || "User",
+      last_name: name?.split(" ")[1] || "",
       graduation_year: 2026,
-      preferred_course: "Computer Science Engineering",
-      tenth_percentage: 94.2,
-      twelfth_percentage: 91.0,
-      cgpa: 9.1,
-      skills: ["Java", "React", "Python", "DSA"],
-      preferred_companies: ["Amazon", "Microsoft", "Google"]
+      skills: [],
+      preferred_companies: []
     }
   };
 }
@@ -324,16 +323,12 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
   if (pathname === "/api/v1/me/dashboard") {
     const snap: DashboardSnapshot = {
       stats: {
-        applications: 3,
-        saved_colleges: 4,
-        saved_internships: 5,
-        unread_notifs: 2,
+        applications: 0,
+        saved_colleges: 0,
+        saved_internships: 0,
+        unread_notifs: 0,
       },
-      recent_applications: [
-        { id: "app-1", target_kind: "internship", target_id: "Amazon — SDE Intern", status: "shortlisted", submitted_at: new Date(Date.now() - 2 * 86400000).toISOString() },
-        { id: "app-2", target_kind: "internship", target_id: "Microsoft — AI Research", status: "under_review", submitted_at: new Date(Date.now() - 5 * 86400000).toISOString() },
-        { id: "app-3", target_kind: "college", target_id: "IIT Bombay — CSE", status: "submitted", submitted_at: new Date(Date.now() - 8 * 86400000).toISOString() },
-      ],
+      recent_applications: [],
       recommended_colleges: colleges.slice(0, 4).map((c) => ({
         id: c.id,
         slug: c.slug,
@@ -361,11 +356,11 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
         college_name: user?.college_rep?.college_name || "VNR VJIET",
       },
       stats: {
-        student_inquiries: 142,
-        profile_views: 18450,
+        student_inquiries: 0,
+        profile_views: 0,
         is_published: true,
       },
-      inquiries: mockCollegeInquiries,
+      inquiries: [],
     } as T;
   }
 
@@ -373,17 +368,17 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
   if (pathname === "/api/v1/me/recruiter-dashboard") {
     return {
       recruiter: {
-        name: user?.recruiter_profile?.first_name ? `${user.recruiter_profile.first_name} ${user.recruiter_profile.last_name}` : "Meenakshi Sundaram",
+        name: user?.recruiter_profile?.first_name ? `${user.recruiter_profile.first_name} ${user.recruiter_profile.last_name}` : "Recruiter",
         designation: user?.recruiter_profile?.designation || "Lead University Recruiter",
-        company_name: user?.recruiter_profile?.company_name || "Amazon India",
+        company_name: user?.recruiter_profile?.company_name || "Company",
         is_verified: true,
       },
       stats: {
-        active_postings: 6,
-        total_applicants: 185,
+        active_postings: 0,
+        total_applicants: 0,
       },
-      recent_postings: internships.slice(0, 3),
-      applicants: mockRecruiterApplicants,
+      recent_postings: [],
+      applicants: [],
     } as T;
   }
 
@@ -391,41 +386,29 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
   if (pathname === "/api/v1/me/mentor-dashboard") {
     return {
       mentor: {
-        name: user?.mentor_profile?.company_name ? "Arjun Sundaram" : "Arjun Sundaram",
-        domain: user?.mentor_profile?.domain || "Software Engineering & Cloud Architecture",
-        company_name: user?.mentor_profile?.company_name || "Google India",
-        experience_years: user?.mentor_profile?.experience_years || 6,
+        name: user?.mentor_profile?.first_name ? `${user.mentor_profile.first_name} ${user.mentor_profile.last_name}` : "Industry Mentor",
+        domain: user?.mentor_profile?.domain_expertise || "Software Engineering",
+        company_name: user?.mentor_profile?.company_or_institution || "Tech Industry",
+        experience_years: 5,
       },
       stats: {
-        active_mentees: 8,
-        completed_sessions: 24,
-        upcoming_sessions: 3,
-        rating: 4.9,
+        active_mentees: 0,
+        completed_sessions: 0,
+        upcoming_sessions: 0,
+        rating: 5.0,
       },
-      sessions: [
-        { id: "s-1", mentee_name: "Rahul Sharma", domain: "Full Stack Roadmap", scheduled_at: "Today, 5:00 PM", status: "confirmed" },
-        { id: "s-2", mentee_name: "Ananya Iyer", domain: "Resume Review & DSA", scheduled_at: "Tomorrow, 6:30 PM", status: "pending" },
-      ],
+      sessions: [],
     } as T;
   }
 
   // 9. Saved items
-  if (pathname === "/api/v1/saved") {
-    return [
-      { id: "s-1", kind: "college", target_id: "col-1" },
-      { id: "s-2", kind: "college", target_id: "col-3" },
-      { id: "s-3", kind: "internship", target_id: "int-1" },
-    ] as T;
+  if (pathname === "/api/v1/saved" || pathname === "/api/v1/saved/colleges" || pathname === "/api/v1/me/saved/colleges" || pathname === "/api/v1/saved/internships" || pathname === "/api/v1/me/saved/internships") {
+    return [] as T;
   }
 
   // 10. Student applications
   if (pathname === "/api/v1/me/applications") {
-    const apps: ApplicationOut[] = [
-      { id: "app-1", target_kind: "internship", target_id: "Amazon — SDE Intern", status: "shortlisted", submitted_at: new Date(Date.now() - 2 * 86400000).toISOString() },
-      { id: "app-2", target_kind: "internship", target_id: "Microsoft — AI Research", status: "under_review", submitted_at: new Date(Date.now() - 5 * 86400000).toISOString() },
-      { id: "app-3", target_kind: "college", target_id: "IIT Bombay — CSE", status: "submitted", submitted_at: new Date(Date.now() - 8 * 86400000).toISOString() },
-    ];
-    return apps as T;
+    return [] as T;
   }
 
   return {} as T;

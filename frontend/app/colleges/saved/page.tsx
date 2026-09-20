@@ -14,52 +14,62 @@ const BANNERS = [
   "linear-gradient(135deg,#6366f1,#ec4899)",
 ];
 
-const DEMO: CollegeCard[] = [
-  { id: "1", slug: "iit-bombay",     name: "IIT Bombay",     short_name: "IITB",    city: "Mumbai",     state: "Maharashtra", type: "government", nirf_rank: 3,   avg_package_lpa: 21.8, placement_percent: 98, rating: 4.9, reviews_count: 5420 },
-  { id: "2", slug: "iiit-hyderabad", name: "IIIT Hyderabad", short_name: "IIIT-H",  city: "Hyderabad",  state: "Telangana",   type: "deemed",     nirf_rank: 47,  avg_package_lpa: 26.4, placement_percent: 99, rating: 4.8, reviews_count: 3100 },
-  { id: "3", slug: "bits-pilani",    name: "BITS Pilani",    short_name: "BITS",    city: "Pilani",     state: "Rajasthan",   type: "deemed",     nirf_rank: 25,  avg_package_lpa: 18.9, placement_percent: 96, rating: 4.7, reviews_count: 4210 },
-];
-
 export default async function SavedCollegesPage() {
-  let items: CollegeCard[] = DEMO;
-  let isDemo = true;
+  let items: CollegeCard[] = [];
   try {
     items = await api<CollegeCard[]>("/api/v1/me/saved/colleges");
-    isDemo = false;
-  } catch { /* keep demo */ }
+  } catch {
+    items = [];
+  }
 
   return (
     <>
-      <PageHeader eyebrow="Your shortlist" title="Saved colleges" subtitle="Colleges you've bookmarked to review later." />
+      <PageHeader
+        eyebrow="Your Personal Shortlist"
+        title="Saved Colleges"
+        subtitle="Institutions you've bookmarked to compare, review cutoffs, or submit applications."
+      />
       <div className="container-page py-10">
-        {isDemo && (
-          <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
-            <b>Demo data</b> — log in to see your saved shortlist.
-          </div>
-        )}
-
         {items.length === 0 ? (
-          <div className="card grid place-items-center p-14 text-center">
-            <Bookmark className="text-ink-300" size={40} />
-            <div className="mt-3 font-display text-lg font-bold">Nothing saved yet</div>
-            <div className="mt-1 max-w-sm text-sm text-ink-500">Bookmark colleges as you browse to build your shortlist here.</div>
-            <Link href="/colleges" className="btn-primary mt-4">Browse colleges <ArrowRight size={16} /></Link>
+          <div className="card grid place-items-center p-14 text-center border-slate-200 shadow-sm bg-white">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-3">
+              <Bookmark size={28} />
+            </div>
+            <div className="font-display text-lg font-bold text-slate-900">No colleges saved yet</div>
+            <div className="mt-1 max-w-sm text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Explore NIRF rankings, campus cutoff benchmarks, and fee structures to bookmark institutions to your shortlist.
+            </div>
+            <Link href="/colleges" className="btn-primary mt-5 text-xs font-bold py-2.5 px-5 inline-flex items-center gap-2">
+              Browse Colleges & Cutoffs <ArrowRight size={14} />
+            </Link>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((c, i) => (
-              <Link key={c.id} href={`/colleges/${c.slug}`} className="card overflow-hidden transition hover:shadow-md hover:border-brand-300">
+              <Link
+                key={c.id}
+                href={`/colleges/${c.slug}`}
+                className="card overflow-hidden transition hover:shadow-md hover:border-blue-400 bg-white group cursor-pointer"
+              >
                 <div className="h-20" style={{ background: BANNERS[i % BANNERS.length] }} />
-                <div className="p-5">
+                <div className="p-5 space-y-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="brand">{c.type}</Badge>
                     {c.nirf_rank != null && <Badge variant="amber">NIRF #{c.nirf_rank}</Badge>}
                   </div>
-                  <div className="mt-2 font-display text-lg font-bold">{c.short_name ?? c.name}</div>
-                  <div className="mt-1 flex items-center gap-1 text-xs text-ink-500"><MapPin size={12}/> {c.city}, {c.state}</div>
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1"><Star size={14} className="text-amber-500" /> <b>{c.rating}</b></div>
-                    {c.avg_package_lpa != null && <div className="font-semibold text-brand-700">₹{c.avg_package_lpa} LPA avg</div>}
+                  <div className="font-display text-base font-bold text-slate-900 group-hover:text-blue-700 transition">
+                    {c.short_name ?? c.name}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-slate-500">
+                    <MapPin size={12} className="text-slate-400" /> {c.city}, {c.state}
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1">
+                      <Star size={13} className="text-amber-500 fill-amber-500" /> <b className="text-slate-900">{c.rating}</b>
+                    </div>
+                    {c.avg_package_lpa != null && (
+                      <div className="font-bold text-emerald-700">₹{c.avg_package_lpa} LPA avg</div>
+                    )}
                   </div>
                 </div>
               </Link>

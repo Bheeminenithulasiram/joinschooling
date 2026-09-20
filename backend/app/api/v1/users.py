@@ -130,6 +130,42 @@ def get_my_applications(current: User = Depends(get_current_user), db: Session =
     return [ApplicationOut.model_validate(r) for r in rows]
 
 
+@router.get("/me/saved/colleges")
+def get_my_saved_colleges(current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from app.schemas import CollegeCard
+    saved_rows = (
+        db.query(SavedItem)
+        .filter(SavedItem.user_id == current.id, SavedItem.kind == "college")
+        .order_by(desc(SavedItem.created_at))
+        .all()
+    )
+    college_ids = [r.target_id for r in saved_rows]
+    if not college_ids:
+        return []
+    colleges = db.query(College).filter(College.id.in_(college_ids), College.deleted_at.is_(None)).all()
+    col_map = {c.id: c for c in colleges}
+    ordered = [col_map[cid] for cid in college_ids if cid in col_map]
+    return [CollegeCard.model_validate(c) for c in ordered]
+
+
+@router.get("/me/saved/internships")
+def get_my_saved_internships(current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from app.schemas import InternshipCard
+    saved_rows = (
+        db.query(SavedItem)
+        .filter(SavedItem.user_id == current.id, SavedItem.kind == "internship")
+        .order_by(desc(SavedItem.created_at))
+        .all()
+    )
+    internship_ids = [r.target_id for r in saved_rows]
+    if not internship_ids:
+        return []
+    internships = db.query(Internship).filter(Internship.id.in_(internship_ids), Internship.deleted_at.is_(None)).all()
+    int_map = {i.id: i for i in internships}
+    ordered = [int_map[iid] for iid in internship_ids if iid in int_map]
+    return [InternshipCard.model_validate(i) for i in ordered]
+
+
 @router.get("/me/college-dashboard")
 def college_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
     if current.role not in ("college_rep", "admin"):
