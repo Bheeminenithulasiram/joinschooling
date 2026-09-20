@@ -92,6 +92,22 @@ async function getDemoUserFromCookies(): Promise<UserOut | null> {
     };
   }
 
+  if (role === "mentor") {
+    return {
+      id: "session-mentor-id",
+      email: email || "mentor@google.com",
+      role: "mentor",
+      is_email_verified: true,
+      mentor_profile: {
+        company_name: "Google India",
+        domain: "Software Engineering & Distributed Systems",
+        experience_years: 6,
+        bio: "Senior Software Engineer guiding students on system design and algorithms.",
+        is_verified: true,
+      }
+    };
+  }
+
   if (role === "admin") {
     return {
       id: "session-admin-id",
@@ -368,6 +384,28 @@ function resolveLocalMock<T = any>(path: string, opts: FetchOpts = {}, user: Use
       },
       recent_postings: internships.slice(0, 3),
       applicants: mockRecruiterApplicants,
+    } as T;
+  }
+
+  // 8b. Mentor Dashboard
+  if (pathname === "/api/v1/me/mentor-dashboard") {
+    return {
+      mentor: {
+        name: user?.mentor_profile?.company_name ? "Arjun Sundaram" : "Arjun Sundaram",
+        domain: user?.mentor_profile?.domain || "Software Engineering & Cloud Architecture",
+        company_name: user?.mentor_profile?.company_name || "Google India",
+        experience_years: user?.mentor_profile?.experience_years || 6,
+      },
+      stats: {
+        active_mentees: 8,
+        completed_sessions: 24,
+        upcoming_sessions: 3,
+        rating: 4.9,
+      },
+      sessions: [
+        { id: "s-1", mentee_name: "Rahul Sharma", domain: "Full Stack Roadmap", scheduled_at: "Today, 5:00 PM", status: "confirmed" },
+        { id: "s-2", mentee_name: "Ananya Iyer", domain: "Resume Review & DSA", scheduled_at: "Tomorrow, 6:30 PM", status: "pending" },
+      ],
     } as T;
   }
 
