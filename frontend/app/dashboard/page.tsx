@@ -57,10 +57,16 @@ export default async function DashboardPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/mentorship"
-              className="btn bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
+              href="/profile"
+              className="btn bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
             >
-              <Users size={14} /> Book Alumni Mentorship
+              <Award size={14} className="text-blue-600" /> View & Edit Profile
+            </Link>
+            <Link
+              href="/mentorship"
+              className="btn bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
+            >
+              <Users size={14} /> 1:1 Mentorship
             </Link>
             <form action={logoutAction}>
               <button className="btn bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 px-4 rounded-xl transition font-semibold">
@@ -170,7 +176,12 @@ export default async function DashboardPage() {
         {/* Sidebar */}
         <aside className="space-y-6">
           <div className="card p-6 space-y-4 border border-slate-200 shadow-sm">
-            <h3 className="font-display text-base font-bold text-slate-900">Academic Profile</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-base font-bold text-slate-900">Academic Profile</h3>
+              <Link href="/profile" className="text-xs font-bold text-blue-600 hover:underline">
+                Edit →
+              </Link>
+            </div>
             <dl className="text-xs space-y-2.5 divide-y divide-slate-100">
               <div className="flex justify-between pt-1">
                 <dt className="text-slate-500 font-medium">Student Name</dt>
@@ -182,13 +193,21 @@ export default async function DashboardPage() {
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">Current CGPA</dt>
-                <dd className="font-bold text-brand-700">9.1 / 10</dd>
+                <dd className="font-bold text-blue-600">9.1 / 10</dd>
               </div>
               <div className="flex justify-between pt-2">
                 <dt className="text-slate-500 font-medium">Graduation Year</dt>
                 <dd className="font-bold text-slate-900">{user?.student?.graduation_year ? `${user.student.graduation_year} Batch` : "2026 Batch"}</dd>
               </div>
             </dl>
+            <div className="pt-2 border-t border-slate-100">
+              <Link
+                href="/profile"
+                className="btn-outline text-xs font-bold w-full py-2 flex items-center justify-center gap-1"
+              >
+                Open Full Profile Dashboard →
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-2xl bg-slate-900 p-6 text-white space-y-3 shadow-md border border-slate-800">

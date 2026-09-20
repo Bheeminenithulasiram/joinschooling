@@ -19,6 +19,8 @@ export type StudentProfile = {
   last_name: string;
   avatar_url?: string | null;
   headline?: string | null;
+  bio?: string | null;
+  degree?: string | null;
   tenth_percentage?: number | null;
   twelfth_percentage?: number | null;
   cgpa?: number | null;

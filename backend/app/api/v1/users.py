@@ -110,6 +110,22 @@ def dashboard(current: User = Depends(get_current_user), db: Session = Depends(g
     )
 
 
+@router.get("/me/applications", response_model=List[ApplicationOut])
+def get_my_applications(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> List[ApplicationOut]:
+    if current.role not in ("student", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Student access only. Authenticated role: {current.role}",
+        )
+    rows = (
+        db.query(Application)
+        .filter(Application.student_id == current.id)
+        .order_by(desc(Application.submitted_at))
+        .all()
+    )
+    return [ApplicationOut.model_validate(r) for r in rows]
+
+
 @router.get("/me/college-dashboard")
 def college_dashboard(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict[str, Any]:
     if current.role not in ("college_rep", "admin"):

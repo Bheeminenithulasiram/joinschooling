@@ -132,6 +132,9 @@ class StudentProfile(BaseModel):
     last_name: str
     avatar_url: Optional[str] = None
     headline: Optional[str] = None
+    bio: Optional[str] = None
+    degree: Optional[str] = None
+    graduation_year: Optional[int] = None
     tenth_percentage: Optional[float] = None
     twelfth_percentage: Optional[float] = None
     cgpa: Optional[float] = None
@@ -173,6 +176,9 @@ class StudentProfileUpdate(BaseModel):
     last_name: Optional[str] = None
     avatar_url: Optional[str] = None
     headline: Optional[str] = None
+    bio: Optional[str] = None
+    degree: Optional[str] = None
+    graduation_year: Optional[int] = None
     tenth_percentage: Optional[float] = None
     twelfth_percentage: Optional[float] = None
     cgpa: Optional[float] = None
