@@ -20,8 +20,8 @@ def run(
     current: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AiFinderResponse:
-    if current.role != "student":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Students only")
+    if current.role not in ("student", "admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Students and admins only")
     return ai_finder_service.run(db, current.id, payload)
 
 

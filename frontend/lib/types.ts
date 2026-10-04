@@ -80,6 +80,8 @@ export type UserOut = {
   mentor_profile?: MentorProfile | null;
 };
 
+export type LandingCollege = CollegeCard;
+
 export type CollegeCard = {
   id: string;
   slug: string;
@@ -135,6 +137,8 @@ export type PagedColleges = { items: CollegeCard[]; pagination: Pagination };
 
 export type CompanyOut = { id: string; name: string; slug: string; logo_url?: string | null; industry?: string | null };
 
+export type LandingInternship = InternshipCard;
+
 export type InternshipCard = {
   id: string;
   slug: string;
@@ -145,6 +149,7 @@ export type InternshipCard = {
   stipend_min?: number | null;
   stipend_max?: number | null;
   location_city?: string | null;
+  skills?: string[];
   posted_at: string;
   apply_deadline?: string | null;
   company?: CompanyOut | null;

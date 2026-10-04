@@ -10,10 +10,16 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   let user: UserOut | null = null;
+  let adminData: any = null;
   let isDemoAdmin = false;
 
   try {
-    user = await api<UserOut>("/api/v1/me");
+    const [u, d] = await Promise.all([
+      api<UserOut>("/api/v1/me"),
+      api<any>("/api/v1/me/admin-dashboard").catch(() => null),
+    ]);
+    user = u;
+    adminData = d;
   } catch {
     // If not authenticated or backend offline, provide demo admin preview
     isDemoAdmin = true;
@@ -25,10 +31,10 @@ export default async function AdminPage() {
     };
   }
 
-  const collegesCount = colleges.length;
-  const internshipsCount = internships.length;
+  const collegesCount = adminData?.stats?.colleges ?? colleges.length;
+  const internshipsCount = adminData?.stats?.internships ?? internships.length;
   const inquiriesCount = mockCollegeInquiries.length;
-  const applicantsCount = mockRecruiterApplicants.length;
+  const applicantsCount = adminData?.stats?.applications ?? mockRecruiterApplicants.length;
 
   return (
     <>

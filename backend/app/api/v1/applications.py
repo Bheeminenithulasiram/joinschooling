@@ -26,7 +26,15 @@ def my_applications(current: User = Depends(get_current_user), db: Session = Dep
         .order_by(desc(Application.submitted_at))
         .all()
     )
-    return [ApplicationOut.model_validate(r) for r in rows]
+    internship_ids = [r.target_id for r in rows if r.target_kind == "internship"]
+    internships_map = {i.id: i for i in db.query(Internship).filter(Internship.id.in_(internship_ids)).all()} if internship_ids else {}
+    results = []
+    for r in rows:
+        out = ApplicationOut.model_validate(r)
+        if r.target_kind == "internship" and r.target_id in internships_map:
+            out.target_title = internships_map[r.target_id].title
+        results.append(out)
+    return results
 
 
 @router.get("/candidates", response_model=List[ApplicationOut])
@@ -61,19 +69,27 @@ def recruiter_candidates(
         query = query.filter(Application.target_id == internship_id)
 
     apps = query.order_by(desc(Application.submitted_at)).all()
+    if not apps:
+        return []
+
+    student_ids = list({a.student_id for a in apps})
+    target_ids = list({a.target_id for a in apps})
+
+    students_map = {s.user_id: s for s in db.query(Student).filter(Student.user_id.in_(student_ids)).all()}
+    users_map = {u.id: u for u in db.query(User).filter(User.id.in_(student_ids)).all()}
+    internships_map = {i.id: i for i in db.query(Internship).filter(Internship.id.in_(target_ids)).all()}
+
     results = []
     for a in apps:
         out = ApplicationOut.model_validate(a)
-        # Enrich with student details
-        student = db.query(Student).filter(Student.user_id == a.student_id).first()
-        student_user = db.query(User).get(a.student_id)
+        student = students_map.get(a.student_id)
+        student_user = users_map.get(a.student_id)
+        internship = internships_map.get(a.target_id)
         if student:
             out.student_name = f"{student.first_name} {student.last_name}"
             out.student_cgpa = float(student.cgpa) if student.cgpa else None
         if student_user:
             out.student_email = student_user.email
-        # Target title
-        internship = db.query(Internship).get(a.target_id)
         if internship:
             out.target_title = internship.title
         results.append(out)

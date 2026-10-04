@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { colleges } from "@/lib/mock";
@@ -24,6 +24,20 @@ export default function ComparePage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([colleges[0].id, colleges[1].id, colleges[2].id]);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const idsParam = params.get("ids");
+      if (idsParam) {
+        const parsed = idsParam.split(",").map((s) => s.trim()).filter(Boolean);
+        const valid = colleges.filter((c) => parsed.includes(c.id) || parsed.includes(c.slug)).map((c) => c.id);
+        if (valid.length >= 2) {
+          setSelectedIds(valid.slice(0, 4));
+        }
+      }
+    }
+  }, []);
 
   const selectedColleges = colleges.filter((c) => selectedIds.includes(c.id));
 

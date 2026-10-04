@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import logging
-from app.api.v1 import ai_finder, applications, auth, colleges, internships, saved, users, health
+from app.api.v1 import ai_finder, applications, auth, colleges, internships, saved, users, health, public
 from app.core.config import settings
 from app.database.session import Base, engine
 from app.middlewares.errors import install_error_handlers
@@ -56,6 +56,7 @@ def create_app() -> FastAPI:
     # Routers
     api_prefix = settings.API_V1_PREFIX
     app.include_router(health.router)
+    app.include_router(public.router, prefix=api_prefix)
     app.include_router(auth.router, prefix=api_prefix)
     app.include_router(users.router, prefix=api_prefix)
     app.include_router(colleges.router, prefix=api_prefix)

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useTransition } from "react";
-import { saveItemAction } from "@/lib/actions/apply";
+import { toggleSaveItemAction } from "@/lib/actions/apply";
 import { Bookmark, Check } from "lucide-react";
 import { AuthGateModal } from "@/components/auth/AuthGateModal";
 import { useToast } from "@/components/ui/Toast";
@@ -38,7 +38,7 @@ export default function SaveButton({
     start(async () => {
       const nextState = !saved;
       setSaved(nextState);
-      await saveItemAction(kind, targetId);
+      await toggleSaveItemAction(kind, targetId, nextState);
       if (nextState) {
         success(`Added to your saved ${kind}s!`);
       } else {

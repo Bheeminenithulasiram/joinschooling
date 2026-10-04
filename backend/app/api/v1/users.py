@@ -127,7 +127,22 @@ def get_my_applications(current: User = Depends(get_current_user), db: Session =
         .order_by(desc(Application.submitted_at))
         .all()
     )
-    return [ApplicationOut.model_validate(r) for r in rows]
+    # Batch pre-fetch to avoid N+1 queries
+    internship_ids = [r.target_id for r in rows if r.target_kind == "internship"]
+    college_ids = [r.target_id for r in rows if r.target_kind == "college"]
+    
+    internships_map = {i.id: i for i in db.query(Internship).filter(Internship.id.in_(internship_ids)).all()} if internship_ids else {}
+    colleges_map = {c.id: c for c in db.query(College).filter(College.id.in_(college_ids)).all()} if college_ids else {}
+    
+    results = []
+    for r in rows:
+        out = ApplicationOut.model_validate(r)
+        if r.target_kind == "internship" and r.target_id in internships_map:
+            out.target_title = internships_map[r.target_id].title
+        elif r.target_kind == "college" and r.target_id in colleges_map:
+            out.target_title = colleges_map[r.target_id].name
+        results.append(out)
+    return results
 
 
 @router.get("/me/saved/colleges")

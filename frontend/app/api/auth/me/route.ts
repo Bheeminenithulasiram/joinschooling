@@ -55,6 +55,14 @@ export async function GET(req: NextRequest) {
         company_name: "Company",
         designation: "Recruitment Lead",
       } : undefined,
+      mentor_profile: role === "mentor" ? {
+        first_name: name?.split(" ")[0] || "Industry",
+        last_name: name?.split(" ")[1] || "Mentor",
+        company_or_institution: "Tech Industry",
+        designation: "Senior Staff Mentor",
+        domain_expertise: "Software Engineering & Systems",
+        is_verified: true,
+      } : undefined,
     };
     return NextResponse.json({ user });
   }

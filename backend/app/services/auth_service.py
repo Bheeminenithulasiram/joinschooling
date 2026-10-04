@@ -422,17 +422,13 @@ def get_auth_showcase(db: Session) -> AuthShowcaseResponse:
     )
 
     images: list[str] = []
-    # Sanitize and replace any old apple photo links directly
     clean_campus_img = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop"
     for c in colleges:
-        if c.banner_url and "1503676260728" in c.banner_url:
-            c.banner_url = clean_campus_img
-            try:
-                db.commit()
-            except Exception:
-                db.rollback()
-        if c.banner_url and c.banner_url not in images:
-            images.append(c.banner_url)
+        banner = c.banner_url
+        if banner and "1503676260728" in banner:
+            banner = clean_campus_img
+        if banner and banner not in images:
+            images.append(banner)
 
     # Curated high-res authentic university campus architecture
     fallbacks = [

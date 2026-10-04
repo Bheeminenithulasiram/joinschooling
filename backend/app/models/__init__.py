@@ -379,7 +379,7 @@ class AiFinderRun(Base):
 
 __all__ = [
     "User", "RefreshToken", "EmailVerificationToken", "Student",
-    "CollegeRepresentative", "CompanyRecruiter",
+    "CollegeRepresentative", "CompanyRecruiter", "Mentor",
     "Company", "College", "Course", "Placement",
     "Internship", "Application", "SavedItem", "Review",
     "Notification", "AiFinderRun",

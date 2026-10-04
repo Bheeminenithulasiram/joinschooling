@@ -93,7 +93,14 @@ def save(payload: SavedCreate, current: User = Depends(get_current_user), db: Se
 
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 def unsave(item_id: str, current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> None:
-    row = db.query(SavedItem).filter(SavedItem.id == item_id, SavedItem.user_id == current.id).first()
+    row = (
+        db.query(SavedItem)
+        .filter(
+            (SavedItem.id == item_id) | (SavedItem.target_id == item_id),
+            SavedItem.user_id == current.id,
+        )
+        .first()
+    )
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     db.delete(row)

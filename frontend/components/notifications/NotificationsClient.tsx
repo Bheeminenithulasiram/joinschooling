@@ -44,9 +44,12 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     addToast("All notifications marked as read.", "success");
+    try {
+      await fetch("/api/v1/me/notifications/read", { method: "POST" });
+    } catch {}
   };
 
   const handleMarkRead = (id: string) => {

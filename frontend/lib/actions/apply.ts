@@ -44,14 +44,24 @@ export async function submitCollegeInquiryAction(collegeSlug: string, formData: 
   }
 }
 
-export async function saveItemAction(kind: string, targetId: string): Promise<ApplyResult> {
+export async function toggleSaveItemAction(kind: string, targetId: string, shouldSave: boolean): Promise<ApplyResult> {
   try {
-    await api(`/api/v1/saved`, { method: "POST", body: JSON.stringify({ kind, target_id: targetId }) });
+    if (shouldSave) {
+      await api(`/api/v1/saved`, { method: "POST", body: JSON.stringify({ kind, target_id: targetId }) });
+    } else {
+      await api(`/api/v1/saved/${targetId}`, { method: "DELETE" });
+    }
     revalidatePath("/dashboard");
+    revalidatePath("/colleges/saved");
+    revalidatePath("/internships/saved");
     return { ok: true };
   } catch (e: any) {
     return { ok: true };
   }
+}
+
+export async function saveItemAction(kind: string, targetId: string): Promise<ApplyResult> {
+  return toggleSaveItemAction(kind, targetId, true);
 }
 
 export type AiFinderInput = {

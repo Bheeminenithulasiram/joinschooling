@@ -44,11 +44,12 @@ function createSessionToken(role: string, email: string, name?: string) {
   };
 }
 
-export async function quickDemoLoginAction(role: "student" | "college_rep" | "recruiter" | "admin", redirectPath?: string): Promise<void> {
+export async function quickDemoLoginAction(role: "student" | "college_rep" | "recruiter" | "mentor" | "admin", redirectPath?: string): Promise<void> {
   const demoProfiles = {
     student: { email: "kiran.student@educonnect.dev", name: "Kiran Kumar", role: "student" },
     college_rep: { email: "admissions@vnrvjiet.ac.in", name: "Dr. K. Srinivas Rao", role: "college_rep" },
     recruiter: { email: "recruiting@amazon.com", name: "Meenakshi Sundaram", role: "recruiter" },
+    mentor: { email: "mentor@joinschooling.com", name: "Vikram Malhotra", role: "mentor" },
     admin: { email: "admin@joinschooling.com", name: "Super Admin", role: "admin" },
   };
 

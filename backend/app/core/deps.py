@@ -86,4 +86,5 @@ def require_verified_email(user: User = Depends(get_current_user)) -> User:
 require_student = require_role("student", "admin")
 require_college_rep = require_role("college_rep", "admin")
 require_recruiter = require_role("recruiter", "admin")
+require_mentor = require_role("mentor", "admin")
 require_admin = require_role("admin")

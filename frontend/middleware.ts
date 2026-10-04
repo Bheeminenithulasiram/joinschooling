@@ -45,6 +45,8 @@ function getOwnDashboardRoute(role?: string | null): string {
       return "/dashboard/college";
     case "recruiter":
       return "/dashboard/recruiter";
+    case "mentor":
+      return "/dashboard/mentor";
     case "admin":
       return "/admin";
     case "student":
@@ -138,11 +140,17 @@ export async function middleware(req: NextRequest) {
     if (activeRole !== "recruiter" && activeRole !== "admin") {
       redirectTarget = ownDashboard;
     }
+  } else if (pathname.startsWith("/dashboard/mentor")) {
+    if (activeRole !== "mentor" && activeRole !== "admin") {
+      redirectTarget = ownDashboard;
+    }
   } else if (pathname === "/dashboard" || pathname === "/dashboard/") {
     if (activeRole === "college_rep") {
       redirectTarget = "/dashboard/college";
     } else if (activeRole === "recruiter") {
       redirectTarget = "/dashboard/recruiter";
+    } else if (activeRole === "mentor") {
+      redirectTarget = "/dashboard/mentor";
     } else if (activeRole === "admin") {
       redirectTarget = "/admin";
     }

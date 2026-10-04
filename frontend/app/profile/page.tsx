@@ -27,6 +27,8 @@ export default async function ProfilePage() {
     redirect("/dashboard/college");
   } else if (user.role === "recruiter") {
     redirect("/dashboard/recruiter");
+  } else if (user.role === "mentor") {
+    redirect("/dashboard/mentor");
   } else if (user.role === "admin") {
     redirect("/admin");
   }
