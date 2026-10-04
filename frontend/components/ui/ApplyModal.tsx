@@ -10,7 +10,7 @@ interface ApplyModalProps {
   internship: {
     id: string;
     title: string;
-    company: string;
+    company: any;
     stipend_min?: number;
     stipend_max?: number;
   };
@@ -20,6 +20,7 @@ export function ApplyModal({ isOpen, onClose, internship }: ApplyModalProps) {
   const { success, error } = useToast();
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const companyName = typeof internship.company === "object" ? internship.company?.name || "Company" : internship.company || "Company";
   const [formData, setFormData] = useState({
     fullName: "Kiran Kumar",
     email: "kiran.k@educonnect.dev",
@@ -40,7 +41,7 @@ export function ApplyModal({ isOpen, onClose, internship }: ApplyModalProps) {
       const res = await applyInternshipAction(internship.id, formData.coverLetter);
       if (res.ok) {
         setSubmitted(true);
-        success(`Application submitted to ${internship.company}!`);
+        success(`Application submitted to ${companyName}!`);
         setTimeout(() => {
           setSubmitted(false);
           onClose();
@@ -72,14 +73,14 @@ export function ApplyModal({ isOpen, onClose, internship }: ApplyModalProps) {
             </div>
             <h3 className="font-display text-2xl font-bold text-slate-900">Application Submitted!</h3>
             <p className="text-sm text-slate-500 max-w-xs mx-auto">
-              Your profile has been forwarded to the {internship.company} recruitment team. Track updates in your Dashboard.
+              Your profile has been forwarded to the {companyName} recruitment team. Track updates in your Dashboard.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700 border border-brand-200">
-                <Briefcase size={13} /> {internship.company}
+                <Briefcase size={13} /> {companyName}
               </div>
               <h2 className="mt-2 font-display text-2xl font-extrabold text-slate-900">{internship.title}</h2>
               <p className="text-xs text-slate-500">
