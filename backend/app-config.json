@@ -1,0 +1,14 @@
+{
+  "command": "python run.py",
+  "buildPath": "/",
+  "stack": "python3_11",
+  "env_variables": {
+    "APP_ENV": "production",
+    "DEBUG": "false",
+    "DATABASE_URL": "sqlite:///./educonnect.db",
+    "JWT_SECRET": "joinschooling-super-secure-production-ready-jwt-secret-key-32-chars-min-2026-x99",
+    "BACKEND_CORS_ORIGINS": "https://joinschooling-ebbwhyju.onslate.in,https://joinschooling.vercel.app,http://localhost:3000"
+  },
+  "memory": 512
+}
+

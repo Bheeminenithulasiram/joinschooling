@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # CORS
     BACKEND_CORS_ORIGINS: Union[List[str], str] = Field(
-        default_factory=lambda: ["http://localhost:3000"]
+        default_factory=lambda: ["http://localhost:3000", "https://joinschooling.vercel.app", "https://joinschooling-ebbwhyju.onslate.in"]
     )
 
     # Redis / Celery
