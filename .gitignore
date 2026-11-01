@@ -46,3 +46,19 @@ htmlcov/
 Thumbs.db
 *.zip
 *.tar.gz
+
+# AI & Agent Framework Scaffolding
+.agent/
+.agents/
+.gemini/
+.gsd/
+adapters/
+model_capabilities.yaml
+GSD-STYLE.md
+PROJECT_RULES.md
+
+# Cloud & Build Artifacts
+.catalyst/
+packages/
+packages_test/
+
