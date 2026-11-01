@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const API_BASE = process.env.API_BASE ?? (process.env.NODE_ENV === "production" ? "https://joinschooling-api-heot.onrender.com" : "http://localhost:8000");
+const API_BASE = process.env.API_BASE ?? (process.env.NODE_ENV === "production" ? "https://joinschooling-api-50047318333.development.catalystappsail.in" : "http://localhost:8000");
 
 const nextConfig = {
   reactStrictMode: true,

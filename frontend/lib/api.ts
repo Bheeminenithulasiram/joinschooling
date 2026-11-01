@@ -26,7 +26,7 @@ import type {
 } from "@/lib/types";
 
 export const API_BASE =
-  process.env.API_INTERNAL_BASE ?? process.env.API_BASE ?? (process.env.NODE_ENV === "production" ? "https://joinschooling-api-heot.onrender.com" : "http://localhost:8000");
+  process.env.API_INTERNAL_BASE ?? process.env.API_BASE ?? (process.env.NODE_ENV === "production" ? "https://joinschooling-api-50047318333.development.catalystappsail.in" : "http://localhost:8000");
 
 export const ACCESS_COOKIE = "ec_at";
 export const REFRESH_COOKIE = "ec_rt";
