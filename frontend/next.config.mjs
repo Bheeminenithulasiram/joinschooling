@@ -1,3 +1,9 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const API_BASE = process.env.API_BASE ?? (process.env.NODE_ENV === "production" ? "https://joinschooling-api-50047318333.development.catalystappsail.in" : "http://localhost:8000");
 
@@ -5,6 +11,7 @@ const nextConfig = {
   reactStrictMode: true,
   images: { unoptimized: true },
   output: "standalone",
+  outputFileTracingRoot: __dirname,
   env: {
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "984571154887-n473mh9lnvta8h0d8r0qimuj8pomudlc.apps.googleusercontent.com",
   },
