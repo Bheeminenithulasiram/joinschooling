@@ -8,7 +8,6 @@ const STATIC_PATHS = [
   "",
   "/colleges",
   "/internships",
-  "/ai-finder",
   "/scholarships",
   "/hackathons",
   "/workshops",

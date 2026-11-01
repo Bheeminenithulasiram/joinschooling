@@ -171,15 +171,15 @@ export default async function ApplicationsPage() {
             </div>
             <h3 className="font-display text-xl font-bold">Want to rank in the top 10% of applicants?</h3>
             <p className="text-xs text-slate-300 max-w-xl">
-              Use our AI College & Internship Finder to compute your exact percentile score, cutoff match probability, and personalized skill gap fixes.
+              Connect with verified alumni and industry mentors to review your resume, practice mock interviews, and elevate your application profile.
             </p>
           </div>
 
           <Link
-            href="/ai-finder"
+            href="/mentorship"
             className="btn bg-white hover:bg-slate-100 text-brand-900 font-bold px-6 py-3 rounded-xl text-xs shrink-0 shadow-lg flex items-center gap-2"
           >
-            Launch AI Finder <ArrowRight size={14} />
+            Book 1:1 Mentorship <ArrowRight size={14} />
           </Link>
         </div>
       </div>

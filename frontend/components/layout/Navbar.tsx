@@ -14,7 +14,6 @@ import {
   FileText,
   User,
   ChevronDown,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { logoutAction } from "@/lib/actions/auth";
@@ -97,7 +96,6 @@ export function Navbar() {
     { href: "/internships", label: "Internships & Jobs" },
     { href: "/compare", label: "Compare Colleges" },
     { href: "/mentorship", label: "1:1 Mentorship" },
-    { href: "/ai-finder", label: "AI Matcher" },
   ];
 
   const displayName = currentUser?.name || currentUser?.email?.split("@")[0] || "User";

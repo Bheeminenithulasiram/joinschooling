@@ -102,9 +102,6 @@ export default async function HomePage() {
               <Link href="/mentorship" className="btn bg-slate-800 hover:bg-slate-700 text-white text-xs py-2 px-3.5 font-semibold border border-slate-700 flex items-center gap-1.5">
                 <Users size={13} /> 1:1 Mentorship
               </Link>
-              <Link href="/ai-finder" className="btn bg-slate-800 hover:bg-slate-700 text-white text-xs py-2 px-3.5 font-semibold border border-slate-700 flex items-center gap-1.5">
-                <Sparkles size={13} className="text-amber-400" /> AI Matcher
-              </Link>
             </div>
           )}
 
@@ -312,8 +309,8 @@ export default async function HomePage() {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3 shrink-0">
-                <Link href="/ai-finder" className="btn-primary text-xs py-2.5 px-4 font-bold shadow-sm">
-                  Run AI Course Matcher →
+                <Link href="/colleges" className="btn-primary text-xs py-2.5 px-4 font-bold shadow-sm">
+                  Explore Top Colleges →
                 </Link>
                 <Link href="/mentorship" className="btn bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 text-xs py-2.5 px-4 font-bold shadow-xs">
                   Book 1:1 Mentor

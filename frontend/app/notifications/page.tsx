@@ -75,7 +75,7 @@ export default async function NotificationsPage() {
       <PageHeader
         eyebrow="Real-Time Alerts"
         title="Notifications & Updates"
-        subtitle="Keep track of your application milestones, admissions counseling updates, and AI-Finder alerts."
+        subtitle="Keep track of your application milestones, admissions counseling updates, and placement alerts."
       />
       <div className="container-page py-10">
         <NotificationsClient initialNotifications={items} />
