@@ -50,16 +50,16 @@ export function CollegeDetailClient({ college, initiallySaved = false }: { colle
       <InquiryModal isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} college={college} />
 
       {/* Classic Dark Navy Institutional Banner */}
-      <div className="bg-slate-900 text-white py-12 border-b border-slate-800">
+      <div className="bg-[#101A32] text-white py-12 border-b border-slate-800">
         <div className="container-page space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">
+            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
               NIRF #{college.nirf_rank || "Top Ranked"}
             </span>
-            <span className="rounded bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white">
+            <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
               {college.placement_percent}% Placement Rate
             </span>
-            <span className="rounded bg-slate-800 px-2.5 py-1 text-xs font-semibold capitalize border border-slate-700">
+            <span className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold capitalize border border-slate-700 text-slate-300">
               {college.type} Institution
             </span>
           </div>
@@ -74,7 +74,7 @@ export function CollegeDetailClient({ college, initiallySaved = false }: { colle
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Star size={14} className="text-amber-400 fill-amber-400" /> <b>{college.rating}</b> ({college.reviews_count} verified reviews)
+              <Star size={14} className="text-amber-400 fill-amber-400" /> <b className="text-white">{college.rating}</b> ({college.reviews_count} verified reviews)
             </span>
             {college.website && (
               <>
@@ -83,7 +83,7 @@ export function CollegeDetailClient({ college, initiallySaved = false }: { colle
                   href={college.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-blue-400 hover:underline"
+                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline transition"
                 >
                   <Globe size={13} /> Official Website
                 </a>

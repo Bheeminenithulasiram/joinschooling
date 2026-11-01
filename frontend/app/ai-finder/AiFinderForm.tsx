@@ -253,7 +253,7 @@ export default function AiFinderForm() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-600 text-white shadow-glow">
               <Sparkles size={28} />
             </div>
-            <h3 className="font-display text-2xl font-bold text-slate-900">Personalized AI Matcher</h3>
+            <h3 className="font-display text-2xl font-bold text-slate-900">Personalized College Matcher</h3>
             <p className="text-xs sm:text-sm text-slate-500 max-w-sm leading-relaxed">
               Adjust your GPA and budget constraints on the left and click <b>Calculate AI Recommendations</b> to see custom institution shortlists with admit probabilities.
             </p>

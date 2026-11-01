@@ -245,7 +245,7 @@ export function RecruiterDashboardClient({ data }: { data: any }) {
       )}
 
       {/* Classic Dark Navy Header Banner */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white">
+      <div className="rounded-2xl border border-slate-800 bg-[#101A32] p-6 sm:p-8 text-white shadow-md">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">
@@ -262,12 +262,12 @@ export function RecruiterDashboardClient({ data }: { data: any }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setPostModalOpen(true)}
-              className="btn bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3.5 rounded-lg transition flex items-center gap-1.5"
+              className="btn-primary text-xs font-semibold py-2 px-3.5 rounded-xl shadow-sm flex items-center gap-1.5"
             >
               <PlusCircle size={14} /> Post New Opportunity
             </button>
             <form action={logoutAction}>
-              <button className="btn bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 px-3.5 rounded-lg transition font-semibold">
+              <button className="btn bg-white/10 hover:bg-white/20 text-slate-300 text-xs py-2 px-3.5 rounded-xl transition font-semibold">
                 Sign Out
               </button>
             </form>

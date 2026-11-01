@@ -1,20 +1,13 @@
 import Link from "next/link";
-import { Search, Filter, MapPin, Star, Building2, Compass, ShieldCheck } from "lucide-react";
+import { Search, Filter, Compass, ShieldCheck, Building2 } from "lucide-react";
 import { states, colleges as mockColleges } from "@/lib/mock";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Badge } from "@/components/ui/Badge";
+import { CollegeCard } from "@/components/colleges/CollegeCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { apiPublic } from "@/lib/api";
 import type { PagedColleges } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-const BANNERS = [
-  "linear-gradient(135deg,#1e3a8a,#0f172a)",
-  "linear-gradient(135deg,#0f2b48,#1e293b)",
-  "linear-gradient(135deg,#1e40af,#0369a1)",
-  "linear-gradient(135deg,#0f172a,#334155)",
-  "linear-gradient(135deg,#0369a1,#0f2b48)",
-];
 
 async function fetchColleges(sp: Record<string, string | undefined>): Promise<PagedColleges> {
   const params = new URLSearchParams();
@@ -84,18 +77,26 @@ export default async function CollegesPage({
   const data = await fetchColleges(sp);
 
   return (
-    <>
+    <div className="space-y-8 pb-20">
       <PageHeader
         eyebrow={`${data.pagination.total.toLocaleString()}+ Verified Institutions`}
         title="Colleges & Cutoffs Directory"
         subtitle="Explore verified NIRF rankings, autonomous and government accreditation, fee structures, and placement track records."
+        actions={
+          <Link
+            href="/compare"
+            className="btn-outline text-xs inline-flex items-center gap-1.5"
+          >
+            <Compass size={14} className="text-blue-600" /> Side-by-Side Compare
+          </Link>
+        }
       />
 
-      <div className="container-page py-10 space-y-6">
+      <div className="container-page space-y-6">
         {/* Quick Filter Strip */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-bold text-slate-500 uppercase tracking-wider">Quick Filters:</span>
+            <span className="font-bold text-slate-500 uppercase tracking-wider text-[11px]">Quick Filters:</span>
             {[
               { label: "Top NIRF Ranks", query: "sort=nirf_rank" },
               { label: "Highest Package", query: "sort=avg_package" },
@@ -114,22 +115,19 @@ export default async function CollegesPage({
             ))}
           </div>
 
-          <Link
-            href="/compare"
-            className="btn-outline text-xs inline-flex items-center gap-1.5"
-          >
-            <Compass size={14} className="text-blue-600" /> Side-by-Side College Comparison
-          </Link>
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+            <ShieldCheck size={14} /> Official NIRF &amp; NAAC Benchmarks
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[270px_1fr]">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
           {/* Classic Left Filter Sidebar */}
           <form className="card h-fit p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
                 <Filter size={14} className="text-blue-600" /> Filter Directory
               </div>
-              <Link href="/colleges" className="text-xs text-blue-600 hover:underline">
+              <Link href="/colleges" className="text-xs text-blue-600 font-semibold hover:underline">
                 Reset
               </Link>
             </div>
@@ -182,7 +180,7 @@ export default async function CollegesPage({
               </select>
             </div>
 
-            <button type="submit" className="btn-primary w-full text-xs py-2 font-semibold">
+            <button type="submit" className="btn-primary w-full text-xs py-2.5 font-bold">
               Apply Filters
             </button>
           </form>
@@ -193,91 +191,26 @@ export default async function CollegesPage({
               <div>
                 Showing <b className="text-slate-900">{data.items.length}</b> institutions
               </div>
-              <div className="flex items-center gap-1.5 text-emerald-700">
-                <ShieldCheck size={14} /> Official NIRF & NAAC Benchmarks
-              </div>
             </div>
 
             {data.items.length === 0 ? (
-              <div className="card grid place-items-center p-14 text-center space-y-3">
-                <Building2 className="text-slate-300 mx-auto" size={44} />
-                <h3 className="font-display text-base font-bold text-slate-900">No institutions found</h3>
-                <p className="text-xs text-slate-500 max-w-sm">
-                  No colleges matched your selected filter criteria. Try clearing search keywords.
-                </p>
-                <Link href="/colleges" className="btn-primary text-xs mt-2">
-                  Clear Filters
-                </Link>
-              </div>
+              <EmptyState
+                icon={Building2}
+                title="No institutions found"
+                description="No colleges matched your selected filter criteria. Try clearing search keywords or adjusting state filters."
+                actionHref="/colleges"
+                actionLabel="Clear Filters"
+              />
             ) : (
-              <div className="grid gap-5 md:grid-cols-2">
-                {data.items.map((c, i) => (
-                  <Link
-                    key={c.id}
-                    href={`/colleges/${c.slug}`}
-                    className="group card overflow-hidden hover:border-blue-500 hover:shadow-md transition duration-200 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div
-                        className="relative h-28 p-4 text-white flex flex-col justify-between"
-                        style={{ background: BANNERS[i % BANNERS.length] }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <span className="rounded bg-black/50 px-2 py-0.5 text-xs font-bold">
-                            NIRF #{c.nirf_rank || "—"}
-                          </span>
-                          <span className="rounded bg-white text-slate-900 px-2 py-0.5 text-xs font-bold flex items-center gap-1">
-                            <Star size={12} className="text-amber-500 fill-amber-500" /> {c.rating}
-                          </span>
-                        </div>
-                        <div className="text-xs font-medium text-slate-200">
-                          {c.city}, {c.state}
-                        </div>
-                      </div>
-
-                      <div className="p-5 space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h3 className="font-display text-base font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
-                              {c.short_name || c.name}
-                            </h3>
-                            <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
-                              <MapPin size={12} className="text-slate-400 shrink-0" /> {c.city}, {c.state}
-                            </div>
-                          </div>
-                          <Badge variant="brand" className="shrink-0 text-[10px] capitalize">
-                            {c.type}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-center">
-                          <div className="rounded-lg bg-slate-50 p-2">
-                            <div className="text-xs font-bold text-blue-700">₹{c.avg_package_lpa || "—"}L</div>
-                            <div className="text-[10px] uppercase text-slate-400 font-semibold">Avg Pkg</div>
-                          </div>
-                          <div className="rounded-lg bg-slate-50 p-2">
-                            <div className="text-xs font-bold text-emerald-700">{c.placement_percent || "—"}%</div>
-                            <div className="text-[10px] uppercase text-slate-400 font-semibold">Placement</div>
-                          </div>
-                          <div className="rounded-lg bg-slate-50 p-2">
-                            <div className="text-xs font-bold text-slate-800">₹{c.fees_per_year_lpa || "2.5"}L</div>
-                            <div className="text-[10px] uppercase text-slate-400 font-semibold">Fees / yr</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="px-5 pb-4 pt-1 flex items-center justify-between border-t border-slate-50 text-xs font-bold text-blue-600">
-                      <span>View Courses & Admissions</span>
-                      <span>→</span>
-                    </div>
-                  </Link>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {data.items.map((college) => (
+                  <CollegeCard key={college.id} college={college} />
                 ))}
               </div>
             )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

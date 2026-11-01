@@ -46,7 +46,7 @@ export function CollegeDashboardClient({ data }: { data: any }) {
   return (
     <div className="container-page py-8 space-y-6">
       {/* Classic Dark Navy Institutional Banner */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white">
+      <div className="rounded-2xl border border-slate-800 bg-[#101A32] p-6 sm:p-8 text-white shadow-md">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold">
@@ -63,12 +63,12 @@ export function CollegeDashboardClient({ data }: { data: any }) {
           <div className="flex items-center gap-2">
             <Link
               href={`/colleges/vnr-vjiet`}
-              className="btn bg-slate-800 hover:bg-slate-700 text-white text-xs px-3.5 py-2 rounded-lg"
+              className="btn bg-white/10 hover:bg-white/20 text-white text-xs px-3.5 py-2 rounded-xl transition"
             >
               View Public College Page
             </Link>
             <form action={logoutAction}>
-              <button className="btn bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-lg">
+              <button className="btn bg-white/10 hover:bg-white/20 text-slate-300 text-xs px-3.5 py-2 rounded-xl transition">
                 Log out
               </button>
             </form>

@@ -42,17 +42,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="container-page py-10 space-y-8">
-      {/* Welcome Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-white shadow-md relative overflow-hidden">
+      {/* Welcome Banner in Brand Deep Navy */}
+      <div className="rounded-3xl border border-slate-800 bg-[#101A32] p-7 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold border border-brand-500/30">
-              <GraduationCap size={14} className="text-brand-300" /> Student Admissions & Career Desk
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+              <GraduationCap size={14} className="text-blue-300" /> Student Admissions &amp; Career Desk
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               Welcome back, {displayName}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
               Track your college admissions, internship applications, and 1:1 alumni mentorship bookings.
             </p>
           </div>
@@ -62,11 +62,11 @@ export default async function DashboardPage() {
               href="/profile"
               className="btn bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
             >
-              <Award size={14} className="text-blue-600" /> View & Edit Profile
+              <Award size={14} className="text-blue-600" /> Profile &amp; Skills
             </Link>
             <Link
               href="/mentorship"
-              className="btn bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
+              className="btn bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
             >
               <Users size={14} /> 1:1 Mentorship
             </Link>
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Metrics Grid - 100% Clickable with Real Dynamic DB Counts */}
+      {/* Metrics Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -87,49 +87,49 @@ export default async function DashboardPage() {
             icon: GraduationCap,
             l: "Saved Colleges",
             v: dash?.stats?.saved_colleges ?? 0,
-            sub: "Click to view saved colleges →",
-            tint: "from-brand-700 to-navy-900",
+            sub: "View saved institutions →",
+            color: "bg-blue-50 text-blue-700",
           },
           {
             href: "/applications",
             icon: Briefcase,
             l: "Live Applications",
             v: dash?.stats?.applications ?? 0,
-            sub: "Click to track applications →",
-            tint: "from-blue-600 to-navy-800",
+            sub: "Track your applications →",
+            color: "bg-purple-50 text-purple-700",
           },
           {
             href: "/internships/saved",
             icon: Bookmark,
             l: "Saved Internships",
             v: dash?.stats?.saved_internships ?? 0,
-            sub: "Click to view saved roles →",
-            tint: "from-emerald-700 to-teal-900",
+            sub: "View saved drives →",
+            color: "bg-emerald-50 text-emerald-700",
           },
           {
             href: "/profile",
             icon: TrendingUp,
             l: "Verified CGPA",
             v: user?.student?.cgpa ? `${user.student.cgpa} / 10` : "—",
-            sub: user?.student?.cgpa ? "Click to edit academic profile →" : "Add CGPA in profile →",
-            tint: "from-slate-700 to-slate-900",
+            sub: user?.student?.cgpa ? "Academic details verified →" : "Add CGPA in profile →",
+            color: "bg-slate-100 text-slate-800",
           },
         ].map((s) => (
           <Link
             key={s.l}
             href={s.href}
-            className="card p-5 space-y-2 border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition cursor-pointer group bg-white"
+            className="card p-5 space-y-2 hover:border-blue-400 hover:shadow-md transition group bg-white"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-blue-700 transition">
                 {s.l}
               </span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${s.tint} text-white shadow-xs group-hover:scale-105 transition`}>
-                <s.icon size={18} />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${s.color} font-bold shadow-2xs group-hover:scale-105 transition`}>
+                <s.icon size={19} />
               </div>
             </div>
             <div className="font-display text-3xl font-extrabold text-slate-900">{s.v}</div>
-            <div className="text-[11px] text-blue-600 font-medium group-hover:underline flex items-center gap-1">
+            <div className="text-[11px] text-blue-600 font-semibold group-hover:underline flex items-center gap-1">
               {s.sub}
             </div>
           </Link>
@@ -140,11 +140,11 @@ export default async function DashboardPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
         <div className="space-y-8">
           {/* Applications Timeline */}
-          <div className="card p-6 sm:p-8 space-y-5 border border-slate-200 shadow-sm">
+          <div className="card p-6 sm:p-8 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h2 className="font-display text-lg font-bold text-slate-900">Your Submitted Applications</h2>
-                <p className="text-xs text-slate-500">Real-time status updates from corporate hiring & admissions desks.</p>
+                <p className="text-xs text-slate-500">Real-time status updates from corporate hiring &amp; admissions desks.</p>
               </div>
               <Link href="/internships" className="btn-outline text-xs py-1.5 px-3 font-semibold">
                 Explore Drives →
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
                   <Link
                     key={app.id}
                     href="/applications"
-                    className="rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 hover:bg-slate-100/70 hover:border-blue-300 transition"
+                    className="rounded-xl border border-slate-200/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 hover:bg-slate-100/70 hover:border-blue-300 transition"
                   >
                     <div className="space-y-0.5">
                       <div className="font-bold text-slate-900 text-sm">
@@ -184,8 +184,8 @@ export default async function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center space-y-3 bg-slate-50/40">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center space-y-3 bg-slate-50/40">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                   <Briefcase size={22} />
                 </div>
                 <div className="space-y-1">
@@ -196,7 +196,7 @@ export default async function DashboardPage() {
                 </div>
                 <div className="pt-1">
                   <Link href="/internships" className="btn-primary text-xs py-2 px-4 shadow-sm font-bold inline-flex items-center gap-1.5">
-                    Browse Internships & Jobs <ArrowRight size={14} />
+                    Browse Internships &amp; Jobs <ArrowRight size={14} />
                   </Link>
                 </div>
               </div>
@@ -204,13 +204,13 @@ export default async function DashboardPage() {
           </div>
 
           {/* Recommended Colleges */}
-          <div className="card p-6 sm:p-8 space-y-5 border border-slate-200 shadow-sm">
+          <div className="card p-6 sm:p-8 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h2 className="font-display text-lg font-bold text-slate-900">Featured Accredited Institutions</h2>
                 <p className="text-xs text-slate-500">Benchmark NIRF rankings and placement records.</p>
               </div>
-              <Link href="/colleges" className="text-xs font-bold text-brand-700 hover:underline">
+              <Link href="/colleges" className="text-xs font-bold text-blue-700 hover:underline">
                 Explore All →
               </Link>
             </div>
@@ -220,15 +220,15 @@ export default async function DashboardPage() {
                 <Link
                   key={c.id}
                   href={`/colleges/${c.slug}`}
-                  className="rounded-xl border border-slate-200 p-4 space-y-2 hover:border-brand-500 hover:shadow-sm transition bg-white"
+                  className="rounded-2xl border border-slate-200/80 p-4 space-y-2 hover:border-blue-400 hover:shadow-sm transition bg-white"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold bg-slate-900 text-white px-2 py-0.5 rounded">
+                    <span className="text-xs font-bold bg-[#101A32] text-white px-2 py-0.5 rounded-md">
                       NIRF #{c.nirf_rank || "—"}
                     </span>
                     <span className="text-xs font-bold text-slate-700">★ {c.rating}</span>
                   </div>
-                  <div className="font-bold text-slate-900 text-sm">{c.short_name || c.name}</div>
+                  <div className="font-display text-sm font-bold text-slate-900 truncate">{c.short_name || c.name}</div>
                   <div className="text-xs text-slate-500">{c.city}, {c.state} · ₹{c.avg_package_lpa}L avg</div>
                 </Link>
               ))}
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          <div className="card p-6 space-y-4 border border-slate-200 shadow-sm">
+          <div className="card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-display text-base font-bold text-slate-900">Academic Profile</h3>
               <Link href="/profile" className="text-xs font-bold text-blue-600 hover:underline">
@@ -280,17 +280,17 @@ export default async function DashboardPage() {
                 href="/profile"
                 className="btn-outline text-xs font-bold w-full py-2 flex items-center justify-center gap-1"
               >
-                Open Full Profile Dashboard →
+                Open Full Profile Desk →
               </Link>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-6 text-white space-y-3 shadow-md border border-slate-800">
+          <div className="rounded-3xl bg-[#101A32] p-6 text-white space-y-3 shadow-md border border-slate-800">
             <div className="flex items-center gap-2">
-              <Users size={18} className="text-brand-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-300">1:1 Mentorship</span>
+              <Users size={18} className="text-blue-400" />
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-300">1:1 Mentorship</span>
             </div>
-            <h4 className="font-display text-base font-bold">Connect with Top Tier Alumni</h4>
+            <h4 className="font-display text-base font-bold text-white">Connect with Top Tier Alumni</h4>
             <p className="text-xs text-slate-300 leading-relaxed">
               Book real 1:1 sessions with verified engineers and alumni from Google, Amazon, Microsoft, and IITs.
             </p>
@@ -306,4 +306,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Star, GraduationCap } from "lucide-react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import type { LandingCollege, CollegeCard as CollegeCardType } from "@/lib/types";
 
@@ -22,7 +22,7 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:border-slate-300 hover:shadow-md transition duration-200 flex flex-col justify-between group ${className}`}
+      className={`bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs hover:border-blue-300 hover:shadow-md transition duration-200 flex flex-col justify-between group ${className}`}
     >
       <div>
         {/* College Cover Banner with Floating Ranking Badge */}
@@ -39,7 +39,7 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
           {/* Badge: Official National Ranking vs Platform Rating */}
           {college.nirf_rank ? (
             <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-lg shadow-sm border border-slate-200/80 text-right">
-              <div className="text-[11px] font-extrabold text-slate-900 leading-tight">
+              <div className="text-[11px] font-extrabold text-blue-700 leading-tight">
                 NIRF #{college.nirf_rank}
               </div>
               <div className="text-[9px] text-slate-500 font-semibold leading-tight">
@@ -48,11 +48,11 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
             </div>
           ) : college.rating ? (
             <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-lg shadow-sm border border-slate-200/80 text-right">
-              <div className="text-[11px] font-extrabold text-amber-600 leading-tight">
-                ★ {college.rating} / 5
+              <div className="text-[11px] font-extrabold text-amber-600 leading-tight flex items-center gap-1 justify-end">
+                <Star size={11} className="fill-amber-400 text-amber-400" /> {college.rating}
               </div>
               <div className="text-[9px] text-slate-500 font-semibold leading-tight">
-                Platform Rating
+                Rating
               </div>
             </div>
           ) : null}
@@ -63,7 +63,7 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
           <div>
             <Link
               href={detailUrl}
-              className="font-serif text-base font-bold text-slate-900 hover:text-blue-600 transition line-clamp-1"
+              className="font-display text-base font-bold text-slate-900 hover:text-blue-600 transition line-clamp-1"
             >
               {college.name}
             </Link>
@@ -77,16 +77,16 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
           </div>
 
           {/* Placement & Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
             <div>
-              <div className="text-xs font-bold text-slate-900">
-                {college.avg_package_lpa ? `₹${college.avg_package_lpa} LPA` : "Available on request"}
+              <div className="font-display text-xs font-extrabold text-slate-900">
+                {college.avg_package_lpa ? `₹${college.avg_package_lpa} LPA` : "On Request"}
               </div>
-              <div className="text-[10px] text-slate-500 font-medium">Average Placement Package</div>
+              <div className="text-[10px] text-slate-500 font-medium">Avg Placement</div>
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900">
-                {college.placement_percent ? `${college.placement_percent}%` : "Verified track record"}
+              <div className="font-display text-xs font-extrabold text-emerald-600">
+                {college.placement_percent ? `${college.placement_percent}%` : "Verified"}
               </div>
               <div className="text-[10px] text-slate-500 font-medium">Placement Rate</div>
             </div>
@@ -98,9 +98,9 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
       <div className="px-5 pb-5 pt-1">
         <Link
           href={detailUrl}
-          className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition"
+          className="w-full btn-outline py-2 text-xs font-bold text-slate-800 hover:text-blue-600 hover:border-blue-300 flex items-center justify-center gap-1.5 rounded-xl transition"
         >
-          <span>View College</span>
+          <span>View College Details</span>
           <ArrowRight size={13} />
         </Link>
       </div>
@@ -110,7 +110,7 @@ export function CollegeCard({ college, className = "" }: CollegeCardProps) {
 
 export function CollegeCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs animate-pulse flex flex-col justify-between">
+    <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs animate-pulse flex flex-col justify-between">
       <div>
         <div className="h-44 w-full bg-slate-200" />
         <div className="p-5 space-y-3">
@@ -123,7 +123,7 @@ export function CollegeCardSkeleton() {
         </div>
       </div>
       <div className="px-5 pb-5">
-        <div className="h-4 bg-slate-200 rounded-md w-24" />
+        <div className="h-8 bg-slate-200 rounded-xl w-full" />
       </div>
     </div>
   );

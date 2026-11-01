@@ -139,9 +139,9 @@ export function StudentProfileClient({ user, dash }: StudentProfileClientProps) 
   const initials = `${firstName[0] || "S"}${lastName[0] || ""}`.toUpperCase();
 
   return (
-    <div className="container-page py-10 space-y-8">
+    <div className="container-page py-8 space-y-8">
       {/* Profile Header Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
+      <div className="rounded-2xl border border-slate-800 bg-[#101A32] p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-4 sm:gap-6">
             <div className="flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-display text-2xl sm:text-3xl font-extrabold shadow-lg border-2 border-white/20">

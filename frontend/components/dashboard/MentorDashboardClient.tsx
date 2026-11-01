@@ -84,7 +84,7 @@ export function MentorDashboardClient({ data }: MentorDashboardClientProps) {
   return (
     <div className="container-page py-10 space-y-8">
       {/* Welcome Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
+      <div className="rounded-2xl border border-slate-800 bg-[#101A32] p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-400/30">

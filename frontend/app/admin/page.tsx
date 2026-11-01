@@ -39,7 +39,7 @@ export default async function AdminPage() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-slate-900 text-white py-8 border-b border-slate-800">
+      <div className="bg-[#101A32] text-white py-8 border-b border-slate-800">
         <div className="container-page flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold mb-2">
@@ -53,7 +53,7 @@ export default async function AdminPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/colleges"
-              className="btn bg-slate-800 hover:bg-slate-700 text-white text-xs rounded-xl px-3.5 py-2 transition"
+              className="btn bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl px-3.5 py-2 transition"
             >
               Public Directory
             </Link>

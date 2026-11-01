@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Briefcase, ArrowRight, Sparkles, Clock, CheckCircle2, Building2, GraduationCap, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Timestamp } from "@/components/ui/Timestamp";
 import { api } from "@/lib/api";
 import type { ApplicationOut } from "@/lib/types";
@@ -96,18 +97,13 @@ export default async function ApplicationsPage() {
           </div>
 
           {items.length === 0 ? (
-            <div className="card grid place-items-center p-14 text-center border-slate-200 shadow-sm bg-white">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-3">
-                <Briefcase size={28} />
-              </div>
-              <div className="font-display text-lg font-bold text-slate-900">No applications submitted yet</div>
-              <div className="mt-1 max-w-sm text-xs sm:text-sm text-slate-500 leading-relaxed">
-                When you apply to verified campus drives or college programs, their real-time interview stages will be tracked here.
-              </div>
-              <Link href="/internships" className="btn-primary mt-5 text-xs font-bold py-2.5 px-5 inline-flex items-center gap-2">
-                Browse Verified Internships <ArrowRight size={14} />
-              </Link>
-            </div>
+            <EmptyState
+              icon={Briefcase}
+              title="No applications submitted yet"
+              description="When you apply to verified campus drives or college programs, their real-time interview stages will be tracked here."
+              actionLabel="Browse Verified Internships"
+              actionHref="/internships"
+            />
           ) : (
             <div className="space-y-3">
               {items.map((app) => (
@@ -163,21 +159,21 @@ export default async function ApplicationsPage() {
           )}
         </div>
 
-        {/* AI Boost Banner */}
-        <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-950 to-indigo-950 p-6 md:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+        {/* Mentorship Support Banner */}
+        <div className="rounded-2xl bg-[#101A32] p-6 md:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold">
-              <Sparkles size={13} /> Boost Your Match Odds
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+              <Sparkles size={13} /> Elevate Your Career Potential
             </div>
-            <h3 className="font-display text-xl font-bold">Want to rank in the top 10% of applicants?</h3>
+            <h3 className="font-display text-xl font-bold text-white">Want to stand out to top recruiters?</h3>
             <p className="text-xs text-slate-300 max-w-xl">
-              Connect with verified alumni and industry mentors to review your resume, practice mock interviews, and elevate your application profile.
+              Connect with verified alumni and industry mentors to review your resume, practice mock technical interviews, and elevate your application profile.
             </p>
           </div>
 
           <Link
             href="/mentorship"
-            className="btn bg-white hover:bg-slate-100 text-brand-900 font-bold px-6 py-3 rounded-xl text-xs shrink-0 shadow-lg flex items-center gap-2"
+            className="btn bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 py-3 rounded-xl text-xs shrink-0 shadow-sm flex items-center gap-2 transition"
           >
             Book 1:1 Mentorship <ArrowRight size={14} />
           </Link>

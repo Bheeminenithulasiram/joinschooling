@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { domains, internships as mockInternships } from "@/lib/mock";
 import { Search, MapPin, Clock, Filter, Briefcase, Building2, CheckCircle2 } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { apiPublic } from "@/lib/api";
 import type { PagedInternships } from "@/lib/types";
 
@@ -73,18 +74,26 @@ export default async function InternshipsPage({
   const data = await fetchInternships(sp);
 
   return (
-    <>
+    <div className="space-y-8 pb-20">
       <PageHeader
         eyebrow={`${data.pagination.total.toLocaleString()}+ Verified Openings`}
-        title="Internships & Campus Hiring Drives"
-        subtitle="Explore verified tech, data science, and product internships from verified enterprise and high-growth employers."
+        title="Internships &amp; Campus Hiring Drives"
+        subtitle="Explore verified tech, data science, and product internships from enterprise and high-growth employers."
+        actions={
+          <Link
+            href="/auth/register?role=recruiter"
+            className="btn-outline text-xs inline-flex items-center gap-1.5"
+          >
+            <Building2 size={14} className="text-blue-600" /> Post a Drive
+          </Link>
+        }
       />
 
-      <div className="container-page py-10 space-y-6">
+      <div className="container-page space-y-6">
         {/* Quick Domain Filters */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-bold text-slate-500 uppercase tracking-wider">Domains:</span>
+            <span className="font-bold text-slate-500 uppercase tracking-wider text-[11px]">Domains:</span>
             {domains.map((d) => (
               <Link
                 key={d}
@@ -96,22 +105,19 @@ export default async function InternshipsPage({
             ))}
           </div>
 
-          <Link
-            href="/dashboard/recruiter"
-            className="btn-outline text-xs inline-flex items-center gap-1.5"
-          >
-            <Building2 size={14} className="text-blue-600" /> Are you an Employer? Post a Drive
-          </Link>
+          <span className="flex items-center gap-1 text-xs text-emerald-700 font-semibold">
+            <CheckCircle2 size={14} /> PPO Conversion Opportunities
+          </span>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[270px_1fr]">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
           {/* Filters Form */}
           <form className="card h-fit p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
                 <Filter size={14} className="text-blue-600" /> Filter Roles
               </div>
-              <Link href="/internships" className="text-xs text-blue-600 hover:underline">
+              <Link href="/internships" className="text-xs text-blue-600 font-semibold hover:underline">
                 Reset
               </Link>
             </div>
@@ -172,7 +178,7 @@ export default async function InternshipsPage({
               </select>
             </div>
 
-            <button type="submit" className="btn-primary w-full text-xs py-2 font-semibold">
+            <button type="submit" className="btn-primary w-full text-xs py-2.5 font-bold">
               Apply Filters
             </button>
           </form>
@@ -183,34 +189,28 @@ export default async function InternshipsPage({
               <div>
                 Showing <b className="text-slate-900">{data.items.length}</b> verified opportunities
               </div>
-              <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                <CheckCircle2 size={13} /> PPO Conversion Opportunities
-              </span>
             </div>
 
             {data.items.length === 0 ? (
-              <div className="card grid place-items-center p-14 text-center space-y-3">
-                <Briefcase className="text-slate-300 mx-auto" size={44} />
-                <h3 className="font-display text-base font-bold text-slate-900">No internships matched</h3>
-                <p className="text-xs text-slate-500 max-w-sm">
-                  Try adjusting your search criteria or clearing filters.
-                </p>
-                <Link href="/internships" className="btn-primary text-xs mt-2">
-                  Clear Filters
-                </Link>
-              </div>
+              <EmptyState
+                icon={Briefcase}
+                title="No internships matched"
+                description="Try adjusting your keyword criteria, changing work mode, or clearing stipend filters."
+                actionHref="/internships"
+                actionLabel="Clear Filters"
+              />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {data.items.map((i) => (
                   <Link
                     key={i.id}
                     href={`/internships/${i.slug}`}
-                    className="card p-5 hover:border-blue-400 hover:shadow-sm transition duration-150 block group"
+                    className="card p-5 sm:p-6 hover:border-blue-400 hover:shadow-md transition duration-150 block group"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 border border-slate-200 font-bold text-slate-800 text-sm">
-                          {i.company?.name ? i.company.name.substring(0, 2).toUpperCase() : "CO"}
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 font-black text-blue-700 text-sm">
+                          {i.company?.name ? i.company.name.substring(0, 2).toUpperCase() : "TC"}
                         </div>
 
                         <div className="space-y-1">
@@ -223,16 +223,16 @@ export default async function InternshipsPage({
                             </Badge>
                           </div>
 
-                          <p className="text-xs font-semibold text-slate-700">
-                            {i.company?.name || "Tech Employer"} · <span className="text-slate-500">{i.location_city || "Pan India"}</span>
+                          <p className="text-xs font-semibold text-slate-600">
+                            {i.company?.name || "Tech Employer"} · <span className="text-slate-400">{i.location_city || "Pan India"}</span>
                           </p>
 
                           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-1">
-                            <span className="flex items-center gap-1"><MapPin size={12} /> {i.location_city || "Remote"}</span>
+                            <span className="flex items-center gap-1"><MapPin size={12} className="text-slate-400" /> {i.location_city || "Remote"}</span>
                             <span>•</span>
-                            <span className="flex items-center gap-1"><Clock size={12} /> {i.duration_months} Months</span>
+                            <span className="flex items-center gap-1"><Clock size={12} className="text-slate-400" /> {i.duration_months} Months</span>
                             <span>•</span>
-                            <span className="text-slate-700 font-medium">{i.domain}</span>
+                            <span className="text-slate-600 font-semibold">{i.domain}</span>
                           </div>
                         </div>
                       </div>
@@ -240,13 +240,13 @@ export default async function InternshipsPage({
                       <div className="sm:text-right border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 flex sm:flex-col justify-between sm:justify-center items-center sm:items-end">
                         {i.stipend_max && (
                           <div>
-                            <div className="font-display text-base font-bold text-blue-700">
+                            <div className="font-display text-base font-black text-emerald-600">
                               ₹{i.stipend_min?.toLocaleString()}–{i.stipend_max?.toLocaleString()}
                             </div>
                             <div className="text-[10px] text-slate-400 uppercase font-semibold">per month stipend</div>
                           </div>
                         )}
-                        <span className="btn-primary text-xs py-1.5 px-3.5 mt-2 font-semibold">
+                        <span className="btn-primary text-xs py-2 px-4 mt-2 font-bold shadow-2xs">
                           View Details →
                         </span>
                       </div>
@@ -258,6 +258,6 @@ export default async function InternshipsPage({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

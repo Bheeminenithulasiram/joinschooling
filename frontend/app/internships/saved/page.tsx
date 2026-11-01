@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bookmark, ArrowRight, MapPin, Clock } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { api } from "@/lib/api";
 import type { InternshipCard } from "@/lib/types";
 
@@ -24,18 +25,13 @@ export default async function SavedInternshipsPage() {
       />
       <div className="container-page py-10">
         {items.length === 0 ? (
-          <div className="card grid place-items-center p-14 text-center border-slate-200 shadow-sm bg-white">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-3">
-              <Bookmark size={28} />
-            </div>
-            <div className="font-display text-lg font-bold text-slate-900">No internships saved yet</div>
-            <div className="mt-1 max-w-sm text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Explore verified tech drives, AI research, and campus opportunities with transparent stipends to save roles here.
-            </div>
-            <Link href="/internships" className="btn-primary mt-5 text-xs font-bold py-2.5 px-5 inline-flex items-center gap-2">
-              Browse Internships & Jobs <ArrowRight size={14} />
-            </Link>
-          </div>
+          <EmptyState
+            icon={Bookmark}
+            title="No internships saved yet"
+            description="Explore verified tech drives, career tracks, and campus opportunities with transparent stipends to save roles here."
+            actionLabel="Browse Internships & Jobs"
+            actionHref="/internships"
+          />
         ) : (
           <div className="grid gap-4">
             {items.map((i) => (

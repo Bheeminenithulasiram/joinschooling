@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Bell, CheckCircle2, ArrowRight, MessageSquare, Briefcase, GraduationCap, Sparkles, Check } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Timestamp } from "@/components/ui/Timestamp";
 import { useToast } from "@/components/ui/Toast";
 
@@ -100,15 +101,11 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
 
       {/* Notifications List */}
       {displayedList.length === 0 ? (
-        <div className="card grid place-items-center p-14 text-center border border-slate-200">
-          <Bell className="text-slate-300" size={44} />
-          <div className="mt-3 font-display text-lg font-bold text-slate-900">You're all caught up!</div>
-          <p className="mt-1 text-xs text-slate-500 max-w-sm">
-            {filter === "unread"
-              ? "No unread alerts at this time."
-              : "We'll notify you when colleges update your admissions status or recruiters screen your resume."}
-          </p>
-        </div>
+        <EmptyState
+          icon={Bell}
+          title="You're all caught up!"
+          description={filter === "unread" ? "No unread alerts at this time." : "We'll notify you when colleges update your admissions status or recruiters screen your resume."}
+        />
       ) : (
         <div className="card divide-y divide-slate-100 border border-slate-200 shadow-xs overflow-hidden">
           {displayedList.map((n) => {

@@ -38,6 +38,8 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
     }
   };
 
+  const companyName = internship.company?.name || internship.company || "Tech Employer";
+
   return (
     <>
       <AuthGateModal
@@ -48,17 +50,17 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
       />
       <ApplyModal isOpen={applyModalOpen} onClose={() => setApplyModalOpen(false)} internship={internship} />
 
-      {/* Classic Dark Navy Header */}
-      <div className="bg-slate-900 py-10 text-white border-b border-slate-800">
-        <div className="container-page space-y-4">
+      {/* Modern Deep Navy Header */}
+      <div className="bg-[#101A32] py-10 text-white border-b border-slate-800">
+        <div className="container-page space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700">
-                {(internship.company?.name || internship.company || "CO").substring(0, 2).toUpperCase()}
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white font-black text-lg border border-white/10 backdrop-blur-xs">
+                {companyName.substring(0, 2).toUpperCase()}
               </div>
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     {internship.title}
                   </h1>
                   <Badge variant={internship.work_mode === "remote" ? "green" : "blue"}>
@@ -66,29 +68,29 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
                   </Badge>
                 </div>
                 <p className="text-xs text-slate-300 font-medium">
-                  {internship.company?.name || internship.company} · {internship.location_city || internship.city || "Pan India"}
+                  {companyName} · {internship.location_city || internship.city || "Pan India"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2.5">
               <SaveButton kind="internship" targetId={internship.id} initiallySaved={initiallySaved} />
-              <button onClick={handleShare} className="btn-outline text-xs py-2 px-3">
+              <button onClick={handleShare} className="btn-outline text-xs py-2 px-3 bg-white/10 text-white border-white/20 hover:bg-white/20">
                 <Share2 size={14} /> Share
               </button>
               <button
                 onClick={handleApplyClick}
-                className="btn-primary text-xs py-2 px-4 font-semibold"
+                className="btn-primary text-xs py-2.5 px-5 font-bold shadow-sm"
               >
                 <Send size={14} /> Apply Now
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-800 pt-5 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-800/80 pt-5 text-xs">
             <div>
               <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Monthly Stipend</div>
-              <div className="font-display text-lg font-bold text-blue-400 mt-0.5">
+              <div className="font-display text-lg font-black text-emerald-400 mt-0.5">
                 ₹{internship.stipend_min?.toLocaleString()}–{internship.stipend_max?.toLocaleString()}
               </div>
             </div>
@@ -100,7 +102,7 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Open Positions</div>
-              <div className="font-display text-lg font-bold text-emerald-400 mt-0.5">
+              <div className="font-display text-lg font-bold text-blue-400 mt-0.5">
                 {internship.openings || 10} Openings
               </div>
             </div>
@@ -141,7 +143,7 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
 
             {internship.requirements && internship.requirements.length > 0 && (
               <section className="card p-6 space-y-3">
-                <h2 className="font-display text-base font-bold text-slate-900">Eligibility & Requirements</h2>
+                <h2 className="font-display text-base font-bold text-slate-900">Eligibility &amp; Requirements</h2>
                 <ul className="space-y-2">
                   {internship.requirements.map((req: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2 text-xs text-slate-700">
@@ -158,7 +160,7 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
                 <h2 className="font-display text-base font-bold text-slate-900">Required Skills</h2>
                 <div className="flex flex-wrap gap-1.5">
                   {internship.skills.map((s: string) => (
-                    <span key={s} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-800">
+                    <span key={s} className="rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-800">
                       {s}
                     </span>
                   ))}
@@ -169,16 +171,16 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
 
           {/* Sidebar */}
           <aside className="space-y-6">
-            <div className="card p-5 space-y-3 border-blue-200 bg-blue-50/40">
-              <h3 className="font-display text-sm font-bold text-slate-900">Ready to Submit?</h3>
+            <div className="card p-6 space-y-3 border-blue-200 bg-blue-50/50">
+              <h3 className="font-display text-base font-bold text-slate-900">Ready to Submit?</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Direct submission to the {internship.company?.name || internship.company} campus hiring team.
+                Direct submission to the {companyName} campus hiring team.
               </p>
               <button
                 onClick={handleApplyClick}
-                className="btn-primary w-full py-2.5 text-xs font-semibold"
+                className="btn-primary w-full py-2.5 text-xs font-bold"
               >
-                <Send size={13} /> Submit 1-Click Application
+                <Send size={13} /> Submit Application
               </button>
             </div>
           </aside>

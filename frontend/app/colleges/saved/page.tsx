@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bookmark, ArrowRight, MapPin, Star } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { api } from "@/lib/api";
 import type { CollegeCard } from "@/lib/types";
 
@@ -31,18 +32,13 @@ export default async function SavedCollegesPage() {
       />
       <div className="container-page py-10">
         {items.length === 0 ? (
-          <div className="card grid place-items-center p-14 text-center border-slate-200 shadow-sm bg-white">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-3">
-              <Bookmark size={28} />
-            </div>
-            <div className="font-display text-lg font-bold text-slate-900">No colleges saved yet</div>
-            <div className="mt-1 max-w-sm text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Explore NIRF rankings, campus cutoff benchmarks, and fee structures to bookmark institutions to your shortlist.
-            </div>
-            <Link href="/colleges" className="btn-primary mt-5 text-xs font-bold py-2.5 px-5 inline-flex items-center gap-2">
-              Browse Colleges & Cutoffs <ArrowRight size={14} />
-            </Link>
-          </div>
+          <EmptyState
+            icon={Bookmark}
+            title="No colleges saved yet"
+            description="Explore NIRF rankings, campus cutoff benchmarks, and fee structures to bookmark institutions to your shortlist."
+            actionLabel="Browse Colleges & Cutoffs"
+            actionHref="/colleges"
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((c, i) => (

@@ -35,9 +35,9 @@ const DEMO: Notification[] = [
   },
   {
     id: "n3",
-    kind: "ai",
-    title: "New 95% AI Match Found: Microsoft SWE Intern",
-    body: "Your profile matches 95% of required skills for Summer 2026 drive.",
+    kind: "internship",
+    title: "New Opportunity Match: Microsoft SWE Intern",
+    body: "Your profile matches required skills for the upcoming Summer 2026 drive.",
     href: "/internships/microsoft-swe-intern",
     read: false,
     created_at: new Date(Date.now() - 22 * 3600_000).toISOString(),
