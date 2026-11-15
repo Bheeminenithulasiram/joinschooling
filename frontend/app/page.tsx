@@ -1,3 +1,4 @@
+import { AnimatedHero } from "@/components/home/AnimatedHero";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -134,125 +135,9 @@ export default async function HomePage() {
   return (
     <div className="space-y-12 sm:space-y-16 pb-20 overflow-hidden">
       {/* ========================================================= */}
-      {/* 1. HERO SECTION (2-Column with Student Illustration)     */}
+      {/* 1. ANIMATED HERO SECTION (Background Crossfade & Text)   */}
       {/* ========================================================= */}
-      <section className="relative pt-6 sm:pt-10">
-        <div className="container-page">
-          <div className="grid lg:grid-cols-12 gap-10 items-center">
-            {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Trust Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-900 text-xs font-semibold shadow-2xs">
-                <Flame size={14} className="text-amber-500 fill-amber-500" />
-                <span>India's Trusted Education & Career Platform</span>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-[54px] font-black text-slate-900 tracking-tight leading-[1.12]">
-                Discover Colleges, Internships <br />
-                <span className="text-blue-600">&amp; Career Opportunities</span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base text-slate-600 max-w-xl leading-relaxed">
-                Explore verified colleges, real cutoffs, internship drives, and direct recruitment from top employers — all in one trusted platform.
-              </p>
-
-              {/* Search Bar */}
-              <div className="pt-2 max-w-xl">
-                <form
-                  action="/colleges"
-                  method="GET"
-                  className="bg-white rounded-full p-2 pl-5 border border-slate-200/90 shadow-xl shadow-slate-200/40 flex items-center gap-2 transition focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100/50"
-                >
-                  <Search size={18} className="text-slate-400 shrink-0" />
-                  <input
-                    name="q"
-                    type="text"
-                    placeholder="Search for colleges, courses, internships, or companies..."
-                    className="flex-1 bg-transparent py-1.5 text-xs sm:text-sm text-slate-900 outline-none placeholder:text-slate-400 font-medium"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-6 rounded-full shadow-md transition flex items-center gap-1.5 shrink-0"
-                  >
-                    Search <ArrowRight size={13} />
-                  </button>
-                </form>
-
-                {/* Popular Keywords Chips */}
-                <div className="flex flex-wrap items-center gap-2 mt-4 text-xs">
-                  <span className="font-bold text-slate-700 mr-1">Popular:</span>
-                  {[
-                    { label: "IIT Bombay", href: "/colleges/iit-bombay" },
-                    { label: "VNR VJIET", href: "/colleges/vnr-vjiet" },
-                    { label: "Amazon SDE Intern", href: "/internships/software-engineering-intern-amazon" },
-                    { label: "Data Science Intern", href: "/internships?q=Data+Science" },
-                    { label: "Compare Colleges", href: "/compare" },
-                  ].map((chip) => (
-                    <Link
-                      key={chip.label}
-                      href={chip.href}
-                      className="rounded-full bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-slate-200/70 px-3 py-1 text-[11px] font-medium text-slate-600 transition"
-                    >
-                      {chip.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Illustration Column */}
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[480px]">
-                {/* Soft Gradient Background Curved Shape */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 via-sky-50 to-indigo-100 rounded-3xl transform -rotate-1 scale-102" />
-
-                {/* Main Hero Student Image */}
-                <div className="relative rounded-3xl overflow-hidden border border-white/80 shadow-2xl bg-slate-100 aspect-4/5 sm:aspect-auto sm:h-[430px]">
-                  <img
-                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=900&auto=format&fit=crop"
-                    alt="Student discovering campus and career opportunities on JoinSchooling"
-                    className="w-full h-full object-cover object-top"
-                  />
-                  {/* Subtle Image Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
-                </div>
-
-                {/* Handwritten Floating Text Callout: "Build Your Dream Career" */}
-                <div className="absolute -top-3 left-4 sm:-top-5 sm:left-6 z-10 bg-white/95 backdrop-blur-md border border-blue-100 px-4 py-2 rounded-2xl shadow-lg -rotate-3">
-                  <div className="flex items-center gap-2">
-                    <span className="font-display font-black italic text-blue-700 text-sm sm:text-base">
-                      Build Your Dream Career
-                    </span>
-                    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 9l6 6-6 6" />
-                      <path d="M4 4v7a4 4 0 0 0 4 4h11" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Floating Checklist Card on Bottom-Right */}
-                <div className="absolute -bottom-4 -right-2 sm:-bottom-6 sm:-right-4 z-10 bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-2.5 min-w-[170px] sm:min-w-[190px]">
-                  {[
-                    "Find Colleges",
-                    "Get Internships",
-                    "Apply for Jobs",
-                    "Grow with Us",
-                  ].map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white shrink-0">
-                        <Check size={12} strokeWidth={3} />
-                      </div>
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AnimatedHero />
 
       {/* ========================================================= */}
       {/* 2. METRIC COUNTER STRIP (Horizontal Stat Bar)            */}
