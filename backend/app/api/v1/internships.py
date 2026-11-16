@@ -29,6 +29,7 @@ def list_internships(
     duration_months: Optional[int] = None,
     company_id: Optional[str] = None,
     sort: Optional[str] = None,
+    type: Optional[str] = None,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -38,6 +39,7 @@ def list_internships(
         q=q, domain=domain, work_mode=work_mode,
         min_stipend=min_stipend, duration_months=duration_months,
         company_id=company_id, sort=sort,
+        opportunity_type=type,
         page=page, page_size=page_size,
     )
     return PagedInternships(items=[InternshipCard.model_validate(i) for i in items], pagination=pagination)

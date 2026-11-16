@@ -305,6 +305,7 @@ class Internship(Base, TimestampMixin, SoftDeleteMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
     apply_deadline: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     posted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+    opportunity_type: Mapped[str] = mapped_column(String(20), default="internship")
 
     company = relationship("Company")
 

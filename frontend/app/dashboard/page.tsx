@@ -1,4 +1,3 @@
-import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Briefcase, GraduationCap, Bookmark, TrendingUp, Users, ArrowRight, CheckCircle2, Award, Building2 } from "lucide-react";
@@ -43,8 +42,42 @@ export default async function DashboardPage() {
 
   return (
     <div className="container-page py-10 space-y-8">
-      {/* Animated Hero Banner with Background Crossfade & Text Transition */}
-      <DashboardHero displayName={displayName} />
+      {/* Welcome Banner in Brand Deep Navy */}
+      <div className="rounded-3xl border border-slate-800 bg-[#101A32] p-7 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+              <GraduationCap size={14} className="text-blue-300" /> Student Admissions &amp; Career Desk
+            </div>
+            <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+              Welcome back, {displayName}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              Track your college admissions, internship applications, and 1:1 alumni mentorship bookings.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/profile"
+              className="btn bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
+            >
+              <Award size={14} className="text-blue-600" /> Profile &amp; Skills
+            </Link>
+            <Link
+              href="/mentorship"
+              className="btn bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5"
+            >
+              <Users size={14} /> 1:1 Mentorship
+            </Link>
+            <form action={logoutAction}>
+              <button className="btn bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 px-4 rounded-xl transition font-semibold">
+                Sign Out
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
 
       {/* Metrics Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

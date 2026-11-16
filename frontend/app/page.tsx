@@ -1,4 +1,9 @@
-import { AnimatedHero } from "@/components/home/AnimatedHero";
+import { HeroSection } from "@/components/home/HeroSection";
+import { EcosystemSection } from "@/components/home/EcosystemSection";
+import { TopColleges3DStage } from "@/components/home/TopColleges3DStage";
+import { InternshipsShowcase } from "@/components/home/InternshipsShowcase";
+import { FaqSection } from "@/components/home/FaqSection";
+import { BottomCtaSection } from "@/components/home/BottomCtaSection";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -16,6 +21,7 @@ import {
   Flame,
   Trophy,
   Rocket,
+  Sparkles,
   ChevronLeft,
   ChevronRight,
   IndianRupee,
@@ -134,377 +140,39 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12 sm:space-y-16 pb-20 overflow-hidden">
-      {/* ========================================================= */}
-      {/* 1. ANIMATED HERO SECTION (Background Crossfade & Text)   */}
-      {/* ========================================================= */}
-      <AnimatedHero />
+      {/* ========================================================================= */}
+      {/* 1. HERO SECTION WITH ATTACHED METRIC STRIP (Dynamic Count-Up & Previews)   */}
+      {/* ========================================================================= */}
+      <HeroSection />
+
+      {/* ========================================================================= */}
+      {/* 2. "EXPLORE OUR ECOSYSTEM" (Interactive Expand Accordion from Gemini Share) */}
+      {/* ========================================================================= */}
+      <EcosystemSection />
 
       {/* ========================================================= */}
-      {/* 2. METRIC COUNTER STRIP (Horizontal Stat Bar)            */}
+      {/* 3. "TOP ACCREDITED COLLEGES & UNIVERSITIES" (3D Stage)   */}
       {/* ========================================================= */}
-      <section className="container-page">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-md p-4 sm:p-6 grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-          {/* Stat 1 */}
-          <div className="flex items-center gap-3.5 pt-2 md:pt-0">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold shrink-0">
-              <GraduationCap size={22} />
-            </div>
-            <div>
-              <div className="font-display text-lg sm:text-xl font-black text-slate-900 leading-tight">12,500+</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">Accredited Colleges</div>
-            </div>
-          </div>
-
-          {/* Stat 2 */}
-          <div className="flex items-center gap-3.5 pt-2 md:pt-0 md:pl-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 font-bold shrink-0">
-              <Briefcase size={22} />
-            </div>
-            <div>
-              <div className="font-display text-lg sm:text-xl font-black text-slate-900 leading-tight">8,400+</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">Active Internship Drives</div>
-            </div>
-          </div>
-
-          {/* Stat 3 */}
-          <div className="flex items-center gap-3.5 pt-2 md:pt-0 md:pl-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 font-bold shrink-0">
-              <IndianRupee size={22} />
-            </div>
-            <div>
-              <div className="font-display text-lg sm:text-xl font-black text-slate-900 leading-tight">₹1.5 L/mo</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">Top Tech Stipend</div>
-            </div>
-          </div>
-
-          {/* Stat 4 */}
-          <div className="flex items-center gap-3.5 pt-2 md:pt-0 md:pl-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 font-bold shrink-0">
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <div className="font-display text-lg sm:text-xl font-black text-slate-900 leading-tight">100%</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">Database Verified</div>
-            </div>
-          </div>
-
-          {/* Stat 5 */}
-          <div className="flex items-center gap-3.5 pt-2 md:pt-0 md:pl-5 col-span-2 md:col-span-1">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 font-bold shrink-0">
-              <Users size={22} />
-            </div>
-            <div>
-              <div className="font-display text-lg sm:text-xl font-black text-slate-900 leading-tight">500+</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-0.5">Hiring Employers</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TopColleges3DStage />
 
       {/* ========================================================= */}
-      {/* 3. "EXPLORE OUR ECOSYSTEM" (3-Sided Audience Cards)      */}
+      {/* 4. "LATEST VERIFIED TECH INTERNSHIPS" (Slant-Cut Hover)   */}
       {/* ========================================================= */}
-      <section className="container-page space-y-6">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="text-xs font-bold text-indigo-600 tracking-wide uppercase flex items-center gap-2">
-              <span className="w-4 h-0.5 bg-indigo-600 inline-block" /> Explore Our Ecosystem
-            </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-              A Complete <span className="text-blue-600">Higher Education &amp; Career</span> Platform
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
-            <p className="text-xs text-slate-500 max-w-sm">
-              Everything you need — whether you're a student, a college, or a recruiter.
-            </p>
-            <Link
-              href="/colleges"
-              className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shrink-0"
-            >
-              Explore All →
-            </Link>
-          </div>
-        </div>
-
-        {/* 3 Audience Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Card 1: For Students */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-br from-blue-50/90 to-sky-100/70 border border-blue-200/70 shadow-xs flex flex-col justify-between overflow-hidden min-h-[280px]">
-            <div className="space-y-3 z-10 max-w-[65%]">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white font-bold shadow-xs">
-                  <GraduationCap size={18} />
-                </div>
-                <div className="flex gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                </div>
-              </div>
-
-              <h3 className="font-display text-xl font-extrabold text-slate-900">For Students</h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Find and compare colleges, check cutoffs &amp; placements, and apply for verified internships.
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/auth/register"
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition"
-                >
-                  Register as Student →
-                </Link>
-              </div>
-            </div>
-
-            {/* Cutout Corner Image */}
-            <div className="absolute right-0 bottom-0 w-[45%] h-[85%] pointer-events-none">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop"
-                alt="Student Profile"
-                className="w-full h-full object-cover object-top rounded-tl-3xl opacity-90 mix-blend-multiply"
-              />
-            </div>
-          </div>
-
-          {/* Card 2: For Colleges */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-br from-emerald-50/90 to-teal-100/70 border border-emerald-200/70 shadow-xs flex flex-col justify-between overflow-hidden min-h-[280px]">
-            <div className="space-y-3 z-10 max-w-[65%]">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold shadow-xs">
-                  <Building2 size={18} />
-                </div>
-                <div className="flex gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                </div>
-              </div>
-
-              <h3 className="font-display text-xl font-extrabold text-slate-900">For Colleges</h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Showcase programs, publish cutoffs, manage internships &amp; hiring drives.
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/auth/register?role=college_rep"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition"
-                >
-                  Register as College Rep →
-                </Link>
-              </div>
-            </div>
-
-            {/* Cutout Corner Image */}
-            <div className="absolute right-0 bottom-0 w-[45%] h-[85%] pointer-events-none">
-              <img
-                src="https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=500&auto=format&fit=crop"
-                alt="Colleges Campus"
-                className="w-full h-full object-cover object-center rounded-tl-3xl opacity-85 mix-blend-multiply"
-              />
-            </div>
-          </div>
-
-          {/* Card 3: For Recruiters */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-br from-purple-50/90 to-indigo-100/70 border border-purple-200/70 shadow-xs flex flex-col justify-between overflow-hidden min-h-[280px]">
-            <div className="space-y-3 z-10 max-w-[65%]">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-600 text-white font-bold shadow-xs">
-                  <Briefcase size={18} />
-                </div>
-                <div className="flex gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                </div>
-              </div>
-
-              <h3 className="font-display text-xl font-extrabold text-slate-900">For Recruiters</h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Post openings, screen candidates, and run campus recruitment drives.
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/auth/register?role=recruiter"
-                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition"
-                >
-                  Register as Recruiter →
-                </Link>
-              </div>
-            </div>
-
-            {/* Cutout Corner Image */}
-            <div className="absolute right-0 bottom-0 w-[45%] h-[85%] pointer-events-none">
-              <img
-                src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=500&auto=format&fit=crop"
-                alt="Recruiter Handshake"
-                className="w-full h-full object-cover object-center rounded-tl-3xl opacity-85 mix-blend-multiply"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <InternshipsShowcase />
 
       {/* ========================================================= */}
-      {/* 4. "TOP ACCREDITED COLLEGES & UNIVERSITIES" (Row of 5)   */}
+      {/* 5. READY TO START YOUR JOURNEY BANNER                     */}
       {/* ========================================================= */}
-      <section className="container-page space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🏆</span>
-            <h2 className="font-display text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Top Accredited Colleges &amp; Universities
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Carousel Arrow Controls */}
-            <div className="hidden sm:flex items-center gap-1">
-              <button
-                type="button"
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 transition"
-                aria-label="Previous colleges"
-              >
-                <ChevronLeft size={15} />
-              </button>
-              <button
-                type="button"
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 transition"
-                aria-label="Next colleges"
-              >
-                <ChevronRight size={15} />
-              </button>
-            </div>
-            <Link
-              href="/colleges"
-              className="text-xs font-bold text-slate-700 hover:text-blue-600 transition"
-            >
-              View All Colleges →
-            </Link>
-          </div>
-        </div>
-
-        {/* 5 Compact Horizontal College Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          {displayColleges.map((col) => (
-            <Link
-              key={col.slug}
-              href={`/colleges/${col.slug}`}
-              className="group bg-white rounded-2xl p-3 border border-slate-200/80 shadow-xs hover:border-blue-400 hover:shadow-md transition flex items-center gap-3"
-            >
-              <div className="relative w-13 h-13 rounded-xl overflow-hidden bg-slate-100 shrink-0">
-                <img
-                  src={col.image}
-                  alt={col.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition"
-                />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-extrabold text-amber-500">#{col.rank}</span>
-                  <h4 className="font-display text-xs font-bold text-slate-900 truncate group-hover:text-blue-600 transition">
-                    {col.name}
-                  </h4>
-                </div>
-                <p className="text-[10px] text-slate-400 truncate mt-0.5">{col.location}</p>
-                <div className="flex items-center gap-1 mt-1 text-[10px] text-slate-600">
-                  <Star size={11} className="text-amber-400 fill-amber-400" />
-                  <span className="font-bold text-slate-800">{col.rating}</span>
-                  <span className="text-slate-400">({col.reviews})</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* 5. "LATEST VERIFIED TECH INTERNSHIPS" (4 Clean Cards)    */}
-      {/* ========================================================= */}
-      <section className="container-page space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🚀</span>
-            <h2 className="font-display text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Latest Verified Tech Internships
-            </h2>
-          </div>
-          <Link
-            href="/internships"
-            className="text-xs font-bold text-slate-700 hover:text-blue-600 transition"
-          >
-            View All Internships →
-          </Link>
-        </div>
-
-        {/* 4 Clean Internship Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {displayInternships.map((job) => (
-            <div
-              key={job.company}
-              className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-blue-400 hover:shadow-md transition flex flex-col justify-between"
-            >
-              <div>
-                {/* Header: Company & Monogram Logo */}
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="text-xs font-semibold text-slate-400">{job.company}</span>
-                    <h4 className="font-display text-sm font-bold text-slate-900 leading-snug mt-0.5">
-                      {job.role}
-                    </h4>
-                  </div>
-                  <div className={`h-9 w-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${job.logoBg}`}>
-                    {job.letter}
-                  </div>
-                </div>
-
-                {/* Skill Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-3.5">
-                  {job.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Footer: Stipend + View Details Button */}
-              <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="font-display font-extrabold text-xs text-emerald-600">
-                    {job.stipend}
-                  </span>
-                </div>
-                <Link
-                  href={`/internships/${job.slug}`}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-2xs transition"
-                >
-                  View Details →
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* 6. BOTTOM CALL-TO-ACTION BANNER                          */}
-      {/* ========================================================= */}
-      <section className="container-page">
+      <section className="container-page" data-theme="dark">
         <div className="relative rounded-3xl p-7 sm:p-9 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-hidden">
           {/* Subtle Background Pattern Accent */}
           <div className="absolute left-0 top-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute right-0 bottom-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Left Text with Rocket */}
+          {/* Left Text with Icon */}
           <div className="flex items-center gap-4 z-10 text-center md:text-left">
             <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-bold shadow-lg shrink-0">
-              <Rocket size={24} />
+              <Sparkles size={24} />
             </div>
             <div>
               <h3 className="font-display text-xl sm:text-2xl font-black text-white">
@@ -520,12 +188,14 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-3 z-10 shrink-0">
             <Link
               href="/auth/register?role=college_rep"
+              prefetch={true}
               className="bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold py-2.5 px-5 rounded-full backdrop-blur-xs transition"
             >
               Register as College
             </Link>
             <Link
               href="/auth/register?role=recruiter"
+              prefetch={true}
               className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-6 rounded-full shadow-lg transition flex items-center gap-1.5"
             >
               Register as Employer →
@@ -533,6 +203,14 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ========================================================= */}
+      {/* 6. FAQ & CONSULTATION CTA SECTIONS (Streamlined Spacing)   */}
+      {/* ========================================================= */}
+      <div className="space-y-4 sm:space-y-6">
+        <FaqSection />
+        <BottomCtaSection />
+      </div>
     </div>
   );
 }

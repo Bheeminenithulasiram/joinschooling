@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Send, MapPin, Clock, Briefcase, CheckCircle2, ShieldCheck, Share2, Building2 } from "lucide-react";
+import { Send, MapPin, Clock, Briefcase, CheckCircle2, ShieldCheck, Share2, Building2, GraduationCap } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import SaveButton from "@/components/ui/SaveButton";
 import { ApplyModal } from "@/components/ui/ApplyModal";
@@ -39,6 +39,11 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
   };
 
   const companyName = internship.company?.name || internship.company || "Tech Employer";
+  const isJob =
+    internship.opportunity_type === "job" ||
+    (!internship.title?.toLowerCase().includes("intern") && (internship.duration_months >= 12 || !internship.duration_months));
+  const minLpa = internship.stipend_min ? ((internship.stipend_min * 12) / 100000).toFixed(1) : null;
+  const maxLpa = internship.stipend_max ? ((internship.stipend_max * 12) / 100000).toFixed(1) : null;
 
   return (
     <>
@@ -63,6 +68,17 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
                   <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     {internship.title}
                   </h1>
+
+                  {isJob ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">
+                      <Briefcase size={12} className="text-indigo-300" /> Full-Time Job
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-200 border border-blue-400/30">
+                      <GraduationCap size={12} className="text-blue-300" /> Internship
+                    </span>
+                  )}
+
                   <Badge variant={internship.work_mode === "remote" ? "green" : "blue"}>
                     {internship.work_mode}
                   </Badge>
@@ -89,15 +105,21 @@ export function InternshipDetailClient({ internship, initiallySaved = false }: {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-800/80 pt-5 text-xs">
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Monthly Stipend</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                {isJob ? "Annual Compensation (CTC)" : "Monthly Stipend"}
+              </div>
               <div className="font-display text-lg font-black text-emerald-400 mt-0.5">
-                ₹{internship.stipend_min?.toLocaleString()}–{internship.stipend_max?.toLocaleString()}
+                {isJob && minLpa
+                  ? `₹${minLpa}–${maxLpa} LPA`
+                  : `₹${internship.stipend_min?.toLocaleString()}–${internship.stipend_max?.toLocaleString()}`}
               </div>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Duration</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                {isJob ? "Employment Type" : "Duration"}
+              </div>
               <div className="font-display text-lg font-bold text-white mt-0.5">
-                {internship.duration_months} Months
+                {isJob ? "Full-Time (Permanent)" : `${internship.duration_months} Months`}
               </div>
             </div>
             <div>

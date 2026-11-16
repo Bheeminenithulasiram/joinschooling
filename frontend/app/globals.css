@@ -20,16 +20,265 @@
   }
 
   html, body {
-    height: 100%;
+    min-height: 100%;
     scroll-behavior: smooth;
   }
 
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     @apply antialiased font-sans selection:bg-blue-100 selection:text-blue-900;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* ========================================================================= */
+/* ECOSYSTEM EXPANDING ACCORDION STYLES & FLUID TRANSITIONS                  */
+/* ========================================================================= */
+.eco-card {
+  flex: 1;
+  transition: flex 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.45s ease,
+              border-color 0.45s ease,
+              box-shadow 0.45s ease;
+}
+
+@media (min-width: 1024px) {
+  .eco-card.is-active {
+    flex: 2.45;
+  }
+}
+
+/* Background Image Reveal & Subtle Ken Burns Zoom on Hover/Active */
+.eco-bg-img {
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.eco-card.is-active .eco-bg-img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Directional Scrim Overlay for High-Contrast Legibility */
+.eco-scrim {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.eco-card.is-active .eco-scrim {
+  opacity: 1;
+}
+
+/* Prevent text reflow jank while card width expands */
+.eco-expanded-inner {
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .eco-expanded-inner {
+    min-width: 440px;
+    max-width: 520px;
+  }
+}
+
+/* Staggered Text & Element Entrance Animations */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.eco-card.is-active .stagger-item {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.eco-card.is-active .stagger-1 { transition-delay: 0.10s; }
+.eco-card.is-active .stagger-2 { transition-delay: 0.17s; }
+.eco-card.is-active .stagger-3 { transition-delay: 0.24s; }
+.eco-card.is-active .stagger-4 { transition-delay: 0.31s; }
+
+/* Collapsed Teaser Transition */
+.eco-collapsed-footer {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.25s ease 0.15s, transform 0.3s ease 0.15s;
+}
+
+.eco-card.is-active .eco-collapsed-footer {
+  opacity: 0;
+  transform: translateY(8px);
+  transition-delay: 0s;
+  pointer-events: none;
+}
+
+/* Plus/Arrow Badge Rotation */
+.eco-toggle-icon {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease, color 0.35s ease;
+}
+.eco-card.is-active .eco-toggle-icon {
+  transform: rotate(45deg);
+}
+
+/* ========================================================================= */
+/* CONTINUOUS 3D PERSPECTIVE STAGE CAROUSEL FOR ACCREDITED COLLEGES          */
+/* ========================================================================= */
+.stage-3d-viewport {
+  perspective: 1500px;
+  transform-style: preserve-3d;
+}
+
+.stage-3d-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(340px, 84vw);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  user-select: none;
+  backface-visibility: hidden;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-3d-sheen {
+  background: radial-gradient(
+    420px circle at var(--sheen-x, 50%) var(--sheen-y, 35%),
+    rgba(255, 255, 255, 0.36),
+    rgba(37, 99, 235, 0.08) 42%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stage-3d-card.is-center:hover .card-3d-sheen {
+  opacity: 1;
+}
+
+.stats-drawer-3d {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease,
+              margin-top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  margin-top: 0;
+}
+
+.stats-drawer-3d > div {
+  overflow: hidden;
+}
+
+.stage-3d-card.is-center:hover .stats-drawer-3d,
+.stage-3d-card.is-center.is-drawer-open .stats-drawer-3d,
+.stage-3d-card.is-center:focus-within .stats-drawer-3d {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 14px;
+}
+
+.stage-3d-card.is-center:hover .campus-cover-img,
+.stage-3d-card.is-center.is-drawer-open .campus-cover-img {
+  transform: scale(1.05);
+}
+
+/* ========================================================================= */
+/* SLANT-CUT INVERSION HOVER CARDS FOR VERIFIED TECH INTERNSHIPS             */
+/* ========================================================================= */
+.internship-showcase-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease,
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.internship-showcase-card:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 16px 32px -12px rgba(15, 23, 42, 0.08);
+}
+
+/* Diagonal Slant-Cut Right-Half Company Reveal on Hover */
+.internship-slant-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 54%;
+  -webkit-clip-path: polygon(22% 0, 100% 0, 100% 100%, 0% 100%);
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0% 100%);
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.internship-showcase-card:hover .internship-slant-panel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.internship-card-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Dual-Layer Clipped White Overlay: Text overlapping the slant cut turns clean white */
+.internship-white-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  z-index: 3;
+  pointer-events: none;
+  -webkit-clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  transition: clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.internship-showcase-card:hover .internship-white-overlay {
+  -webkit-clip-path: polygon(57.88% 0, 100% 0, 100% 100%, 46% 100%);
+  clip-path: polygon(57.88% 0, 100% 0, 100% 100%, 46% 100%);
+}
+
+.internship-modal-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.internship-modal-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.internship-modal-card {
+  transform: translateY(14px) scale(0.98);
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.internship-modal-backdrop.is-open .internship-modal-card {
+  transform: translateY(0) scale(1);
 }
 
 @layer components {
@@ -139,54 +388,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
-
-/* Hero Vertical Text Transition & Effects */
-@keyframes heroTextSlideIn {
-  0% {
-    transform: translateY(110%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0%);
-    opacity: 1;
-  }
-}
-
-@keyframes heroTextSlideOut {
-  0% {
-    transform: translateY(0%);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-110%);
-    opacity: 0;
-  }
-}
-
-.animate-hero-slide-in {
-  animation: heroTextSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-hero-slide-out {
-  animation: heroTextSlideOut 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes ripplePulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 16px rgba(59, 130, 246, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
-}
-
-.animate-ripple {
-  animation: ripplePulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }

@@ -2,7 +2,17 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { domains, internships as mockInternships } from "@/lib/mock";
-import { Search, MapPin, Clock, Filter, Briefcase, Building2, CheckCircle2 } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Clock,
+  Filter,
+  Briefcase,
+  Building2,
+  CheckCircle2,
+  GraduationCap,
+  Layers,
+} from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { apiPublic } from "@/lib/api";
 import type { PagedInternships } from "@/lib/types";
@@ -15,6 +25,7 @@ async function fetchInternships(sp: Record<string, string | undefined>): Promise
   if (sp.domain) params.set("domain", sp.domain);
   if (sp.work_mode) params.set("work_mode", sp.work_mode);
   if (sp.min_stipend) params.set("min_stipend", sp.min_stipend);
+  if (sp.type) params.set("type", sp.type);
   if (sp.sort) params.set("sort", sp.sort);
   params.set("page_size", "24");
 
@@ -30,6 +41,7 @@ async function fetchInternships(sp: Record<string, string | undefined>): Promise
   const work_mode = sp.work_mode;
   const min_stipend = sp.min_stipend ? Number(sp.min_stipend) : null;
   const sort = sp.sort;
+  const roleType = sp.type;
 
   if (q) {
     items = items.filter(
@@ -43,8 +55,19 @@ async function fetchInternships(sp: Record<string, string | undefined>): Promise
   if (work_mode) items = items.filter((i) => i.work_mode === work_mode);
   if (min_stipend) items = items.filter((i) => i.stipend_min >= min_stipend);
 
+  if (roleType === "job") {
+    items = items.filter(
+      (i) => i.opportunity_type === "job" || (!i.title.toLowerCase().includes("intern") && i.duration_months >= 12)
+    );
+  } else if (roleType === "internship") {
+    items = items.filter(
+      (i) => i.opportunity_type === "internship" || i.title.toLowerCase().includes("intern")
+    );
+  }
+
   if (sort === "stipend_desc") items.sort((a, b) => b.stipend_max - a.stipend_max);
-  else if (sort === "deadline") items.sort((a, b) => new Date(a.apply_deadline).getTime() - new Date(b.apply_deadline).getTime());
+  else if (sort === "deadline")
+    items.sort((a, b) => new Date(a.apply_deadline).getTime() - new Date(b.apply_deadline).getTime());
 
   return {
     items: items.map((i) => ({
@@ -57,6 +80,8 @@ async function fetchInternships(sp: Record<string, string | undefined>): Promise
       stipend_min: i.stipend_min,
       stipend_max: i.stipend_max,
       location_city: i.city,
+      opportunity_type: i.opportunity_type || (i.title.toLowerCase().includes("intern") ? "internship" : "job"),
+      skills: i.skills,
       posted_at: i.posted_at,
       apply_deadline: i.apply_deadline,
       company: { id: i.company, name: i.company, slug: i.company.toLowerCase() },
@@ -72,24 +97,82 @@ export default async function InternshipsPage({
 }) {
   const sp = await searchParams;
   const data = await fetchInternships(sp);
+  const activeType = sp.type || "all";
+
+  const makeTypeHref = (newType: string | null) => {
+    const p = new URLSearchParams();
+    if (newType) p.set("type", newType);
+    if (sp.q) p.set("q", sp.q);
+    if (sp.domain) p.set("domain", sp.domain);
+    if (sp.work_mode) p.set("work_mode", sp.work_mode);
+    if (sp.min_stipend) p.set("min_stipend", sp.min_stipend);
+    if (sp.sort) p.set("sort", sp.sort);
+    const qs = p.toString();
+    return qs ? `/internships?${qs}` : "/internships";
+  };
 
   return (
     <div className="space-y-8 pb-20">
       <PageHeader
-        eyebrow={`${data.pagination.total.toLocaleString()}+ Verified Openings`}
-        title="Internships &amp; Campus Hiring Drives"
-        subtitle="Explore verified tech, data science, and product internships from enterprise and high-growth employers."
+        eyebrow={`${data.pagination.total.toLocaleString()}+ Verified Opportunities`}
+        title="Internships &amp; Full-Time Tech Jobs"
+        subtitle="Explore verified tech internships, graduate engineering roles, and campus hiring drives from enterprise and high-growth employers."
         actions={
           <Link
             href="/auth/register?role=recruiter"
             className="btn-outline text-xs inline-flex items-center gap-1.5"
           >
-            <Building2 size={14} className="text-blue-600" /> Post a Drive
+            <Building2 size={14} className="text-blue-600" /> Post an Opportunity
           </Link>
         }
       />
 
       <div className="container-page space-y-6">
+        {/* Unified Segmented Switcher for Role Types */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
+          <div className="inline-flex items-center gap-1 p-1 rounded-2xl bg-slate-100 border border-slate-200/80 shadow-inner">
+            <Link
+              href={makeTypeHref(null)}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                activeType === "all"
+                  ? "bg-white text-blue-600 shadow-xs border border-slate-200/70"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <Layers size={13} className={activeType === "all" ? "text-blue-600" : "text-slate-400"} />
+              <span>All Opportunities</span>
+            </Link>
+
+            <Link
+              href={makeTypeHref("internship")}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                activeType === "internship"
+                  ? "bg-white text-blue-600 shadow-xs border border-slate-200/70"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <GraduationCap size={14} className={activeType === "internship" ? "text-blue-600" : "text-slate-400"} />
+              <span>Internships</span>
+            </Link>
+
+            <Link
+              href={makeTypeHref("job")}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                activeType === "job"
+                  ? "bg-white text-indigo-600 shadow-xs border border-slate-200/70"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <Briefcase size={13} className={activeType === "job" ? "text-indigo-600" : "text-slate-400"} />
+              <span>Full-Time Jobs</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-emerald-700 font-semibold">
+            <CheckCircle2 size={14} /> Direct Verified Employer Drives
+          </div>
+        </div>
+
         {/* Quick Domain Filters */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -97,7 +180,7 @@ export default async function InternshipsPage({
             {domains.map((d) => (
               <Link
                 key={d}
-                href={`/internships?domain=${d}`}
+                href={`/internships?domain=${d}${activeType !== "all" ? `&type=${activeType}` : ""}`}
                 className="chip text-xs hover:border-blue-500 hover:text-blue-700"
               >
                 {d}
@@ -105,8 +188,8 @@ export default async function InternshipsPage({
             ))}
           </div>
 
-          <span className="flex items-center gap-1 text-xs text-emerald-700 font-semibold">
-            <CheckCircle2 size={14} /> PPO Conversion Opportunities
+          <span className="text-xs text-slate-500">
+            Showing <b className="text-slate-900">{data.items.length}</b> verified positions
           </span>
         </div>
 
@@ -136,6 +219,15 @@ export default async function InternshipsPage({
             </div>
 
             <div>
+              <label className="label">Opportunity Type</label>
+              <select name="type" defaultValue={sp.type ?? ""} className="input text-xs">
+                <option value="">All Types (Internships &amp; Jobs)</option>
+                <option value="internship">Internships Only</option>
+                <option value="job">Full-Time Jobs Only</option>
+              </select>
+            </div>
+
+            <div>
               <label className="label">Work Mode</label>
               <select name="work_mode" defaultValue={sp.work_mode ?? ""} className="input text-xs">
                 <option value="">All Modes</option>
@@ -158,7 +250,7 @@ export default async function InternshipsPage({
             </div>
 
             <div>
-              <label className="label">Min Stipend (₹/mo)</label>
+              <label className="label">Min Compensation (₹/mo)</label>
               <input
                 name="min_stipend"
                 type="number"
@@ -173,7 +265,7 @@ export default async function InternshipsPage({
               <label className="label">Sort By</label>
               <select name="sort" defaultValue={sp.sort ?? ""} className="input text-xs">
                 <option value="">Recently Posted</option>
-                <option value="stipend_desc">Highest Stipend</option>
+                <option value="stipend_desc">Highest Compensation</option>
                 <option value="deadline">Application Deadline</option>
               </select>
             </div>
@@ -183,76 +275,135 @@ export default async function InternshipsPage({
             </button>
           </form>
 
-          {/* Internships List */}
+          {/* Internships & Jobs List */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-medium pb-1">
-              <div>
-                Showing <b className="text-slate-900">{data.items.length}</b> verified opportunities
-              </div>
-            </div>
-
             {data.items.length === 0 ? (
               <EmptyState
                 icon={Briefcase}
-                title="No internships matched"
-                description="Try adjusting your keyword criteria, changing work mode, or clearing stipend filters."
+                title="No opportunities matched"
+                description="Try adjusting your keyword criteria, changing opportunity type, or clearing compensation filters."
                 actionHref="/internships"
                 actionLabel="Clear Filters"
               />
             ) : (
               <div className="space-y-3.5">
-                {data.items.map((i) => (
-                  <Link
-                    key={i.id}
-                    href={`/internships/${i.slug}`}
-                    className="card p-5 sm:p-6 hover:border-blue-400 hover:shadow-md transition duration-150 block group"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 font-black text-blue-700 text-sm">
-                          {i.company?.name ? i.company.name.substring(0, 2).toUpperCase() : "TC"}
-                        </div>
+                {data.items.map((i) => {
+                  const isJob =
+                    i.opportunity_type === "job" ||
+                    (!i.title.toLowerCase().includes("intern") && i.duration_months >= 12);
+                  const minLpa = i.stipend_min ? ((i.stipend_min * 12) / 100000).toFixed(1) : null;
+                  const maxLpa = i.stipend_max ? ((i.stipend_max * 12) / 100000).toFixed(1) : null;
 
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="font-display text-base font-bold text-slate-900 group-hover:text-blue-600 transition">
-                              {i.title}
-                            </h3>
-                            <Badge variant={i.work_mode === "remote" ? "green" : i.work_mode === "hybrid" ? "amber" : "blue"}>
-                              {i.work_mode}
-                            </Badge>
+                  return (
+                    <Link
+                      key={i.id}
+                      href={`/internships/${i.slug}`}
+                      className="card p-5 sm:p-6 hover:border-blue-400 hover:shadow-md transition duration-150 block group"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-black text-sm border ${
+                              isJob
+                                ? "bg-indigo-50 text-indigo-700 border-indigo-100"
+                                : "bg-blue-50 text-blue-700 border-blue-100"
+                            }`}
+                          >
+                            {i.company?.name ? i.company.name.substring(0, 2).toUpperCase() : "TC"}
                           </div>
 
-                          <p className="text-xs font-semibold text-slate-600">
-                            {i.company?.name || "Tech Employer"} · <span className="text-slate-400">{i.location_city || "Pan India"}</span>
-                          </p>
+                          <div className="space-y-1.5">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="font-display text-base font-bold text-slate-900 group-hover:text-blue-600 transition">
+                                {i.title}
+                              </h3>
 
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-1">
-                            <span className="flex items-center gap-1"><MapPin size={12} className="text-slate-400" /> {i.location_city || "Remote"}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1"><Clock size={12} className="text-slate-400" /> {i.duration_months} Months</span>
-                            <span>•</span>
-                            <span className="text-slate-600 font-semibold">{i.domain}</span>
-                          </div>
-                        </div>
-                      </div>
+                              {isJob ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                                  <Briefcase size={10} className="text-indigo-600" /> Full-Time Job
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/80">
+                                  <GraduationCap size={10} className="text-blue-600" /> Internship
+                                </span>
+                              )}
 
-                      <div className="sm:text-right border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 flex sm:flex-col justify-between sm:justify-center items-center sm:items-end">
-                        {i.stipend_max && (
-                          <div>
-                            <div className="font-display text-base font-black text-emerald-600">
-                              ₹{i.stipend_min?.toLocaleString()}–{i.stipend_max?.toLocaleString()}
+                              <Badge
+                                variant={
+                                  i.work_mode === "remote"
+                                    ? "green"
+                                    : i.work_mode === "hybrid"
+                                    ? "amber"
+                                    : "blue"
+                                }
+                              >
+                                {i.work_mode}
+                              </Badge>
                             </div>
-                            <div className="text-[10px] text-slate-400 uppercase font-semibold">per month stipend</div>
+
+                            <p className="text-xs font-semibold text-slate-600">
+                              {i.company?.name || "Tech Employer"} ·{" "}
+                              <span className="text-slate-400">{i.location_city || "Pan India"}</span>
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-0.5">
+                              <span className="flex items-center gap-1">
+                                <MapPin size={12} className="text-slate-400" /> {i.location_city || "Remote"}
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <Clock size={12} className="text-slate-400" />
+                                {isJob ? "Full-Time Role" : `${i.duration_months} Months`}
+                              </span>
+                              <span>•</span>
+                              <span className="text-slate-600 font-semibold">{i.domain}</span>
+                            </div>
+
+                            {i.skills && i.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {i.skills.slice(0, 4).map((skill: string) => (
+                                  <span
+                                    key={skill}
+                                    className="rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        )}
-                        <span className="btn-primary text-xs py-2 px-4 mt-2 font-bold shadow-2xs">
-                          View Details →
-                        </span>
+                        </div>
+
+                        <div className="sm:text-right border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 flex sm:flex-col justify-between sm:justify-center items-center sm:items-end shrink-0">
+                          {isJob ? (
+                            <div>
+                              <div className="font-display text-base font-black text-indigo-700">
+                                ₹{minLpa}–{maxLpa} LPA
+                              </div>
+                              <div className="text-[10px] text-slate-400 uppercase font-semibold">
+                                Annual CTC Package
+                              </div>
+                            </div>
+                          ) : (
+                            i.stipend_max && (
+                              <div>
+                                <div className="font-display text-base font-black text-emerald-600">
+                                  ₹{i.stipend_min?.toLocaleString()}–{i.stipend_max?.toLocaleString()}
+                                </div>
+                                <div className="text-[10px] text-slate-400 uppercase font-semibold">
+                                  per month stipend
+                                </div>
+                              </div>
+                            )
+                          )}
+                          <span className="btn-primary text-xs py-2 px-4 mt-2 font-bold shadow-2xs">
+                            View Details →
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

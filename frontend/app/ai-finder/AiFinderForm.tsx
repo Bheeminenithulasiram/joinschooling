@@ -63,7 +63,7 @@ export default function AiFinderForm() {
       const res = await runAiFinderAction(form);
       if (res.ok) {
         setResult(res.data);
-        success("AI recommendations generated successfully!");
+        success("Personalized recommendations generated successfully!");
       } else {
         setError(res.error || "Failed to generate recommendations");
       }
@@ -242,7 +242,7 @@ export default function AiFinderForm() {
           disabled={pending}
           className="btn-primary w-full py-3.5 text-sm font-bold shadow-glow"
         >
-          <Sparkles size={16} /> {pending ? "Analyzing 12,500+ Institutions..." : "Calculate AI Recommendations"}
+          <Sparkles size={16} /> {pending ? "Analyzing 12,500+ Institutions..." : "Find Matching Colleges"}
         </button>
       </div>
 
@@ -255,7 +255,7 @@ export default function AiFinderForm() {
             </div>
             <h3 className="font-display text-2xl font-bold text-slate-900">Personalized College Matcher</h3>
             <p className="text-xs sm:text-sm text-slate-500 max-w-sm leading-relaxed">
-              Adjust your GPA and budget constraints on the left and click <b>Calculate AI Recommendations</b> to see custom institution shortlists with admit probabilities.
+              Adjust your GPA and budget constraints on the left and click <b>Find Matching Colleges</b> to see custom institution shortlists with admit probabilities.
             </p>
           </div>
         ) : (

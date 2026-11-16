@@ -355,6 +355,7 @@ export type Internship = {
   duration_months: number;
   openings: number;
   domain: string;
+  opportunity_type?: "internship" | "job";
   skills: string[];
   posted_at: string;
   apply_deadline: string;
@@ -574,6 +575,234 @@ export const internships: Internship[] = [
       "Uber ride credits and premium equipment."
     ],
     eligibility_batches: ["2026", "2027"]
+  },
+  {
+    id: "job-1",
+    slug: "microsoft-graduate-sde",
+    title: "Graduate Software Engineer (SDE-1)",
+    company: "Microsoft",
+    logo: "🟦",
+    work_mode: "hybrid",
+    city: "Bengaluru",
+    state: "Karnataka",
+    stipend_min: 175000,
+    stipend_max: 230000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 20,
+    domain: "Software",
+    opportunity_type: "job",
+    skills: ["C#", ".NET Core", "Azure", "Distributed Systems", "DSA"],
+    posted_at: "2026-09-15",
+    apply_deadline: "2026-11-30",
+    is_active: true,
+    description: "Join Microsoft Cloud & Enterprise engineering teams to architect high-scale Azure cloud microservices, developer SDKs, and enterprise systems used by Fortune 500 organizations worldwide.",
+    responsibilities: [
+      "Build end-to-end scalable backend microservices and APIs on Microsoft Azure.",
+      "Participate in architectural reviews and cloud reliability testing.",
+      "Collaborate with global engineering teams across Redmond and India development centers."
+    ],
+    requirements: [
+      "B.Tech / M.Tech in CS, IT, ECE or related engineering field (2025/2026 batch).",
+      "Strong analytical and systems coding skills in C++, C#, Java, or Python.",
+      "Solid understanding of algorithms, data structures, and multi-threading."
+    ],
+    benefits: [
+      "Annual CTC ₹21–28 LPA + Microsoft Stocks (RSUs) & joining bonuses.",
+      "Comprehensive medical insurance for self and family with 100% premium coverage.",
+      "Flexible hybrid work culture and home office setup reimbursement."
+    ],
+    eligibility_batches: ["2025", "2026"]
+  },
+  {
+    id: "job-2",
+    slug: "amazon-cloud-devops",
+    title: "Cloud Support & DevOps Associate",
+    company: "Amazon",
+    logo: "🟠",
+    work_mode: "onsite",
+    city: "Hyderabad",
+    state: "Telangana",
+    stipend_min: 125000,
+    stipend_max: 165000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 15,
+    domain: "DevOps",
+    opportunity_type: "job",
+    skills: ["Linux", "AWS", "Docker", "Kubernetes", "CI/CD", "Python"],
+    posted_at: "2026-09-16",
+    apply_deadline: "2026-11-25",
+    is_active: true,
+    description: "Help global enterprise customers architect, troubleshoot, and scale mission-critical workloads on Amazon Web Services (AWS) cloud infrastructure.",
+    responsibilities: [
+      "Diagnose production incidents and system bottlenecks on AWS cloud infrastructure.",
+      "Develop automation scripts and CI/CD pipelines to streamline customer deployments.",
+      "Act as a deep technical escalation point for enterprise cloud architects."
+    ],
+    requirements: [
+      "Degree in Computer Science, Information Technology, or Electronics (2025/2026).",
+      "Hands-on knowledge of Linux OS, TCP/IP networking, and cloud services.",
+      "Strong verbal and written troubleshooting communication."
+    ],
+    benefits: [
+      "Annual CTC ₹15–20 LPA + AWS Certification Reimbursements.",
+      "Relocation assistance and daily transport support.",
+      "Access to internal Amazon leadership training and transition paths."
+    ],
+    eligibility_batches: ["2025", "2026"]
+  },
+  {
+    id: "job-3",
+    slug: "google-cloud-consultant",
+    title: "Associate Cloud Solutions Consultant",
+    company: "Google",
+    logo: "🟢",
+    work_mode: "hybrid",
+    city: "Bengaluru",
+    state: "Karnataka",
+    stipend_min: 190000,
+    stipend_max: 250000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 12,
+    domain: "Cloud",
+    opportunity_type: "job",
+    skills: ["Google Cloud (GCP)", "Kubernetes", "Python", "Terraform", "BigQuery"],
+    posted_at: "2026-09-18",
+    apply_deadline: "2026-12-05",
+    is_active: true,
+    description: "Deliver cutting-edge Google Cloud Platform (GCP) architectures, multi-tenant Kubernetes clusters, and AI-enabled data pipelines for top-tier enterprise clients.",
+    responsibilities: [
+      "Design reference cloud deployment architectures and terraform modules.",
+      "Work with enterprise customers to migrate legacy workloads to GCP.",
+      "Build automated telemetry dashboards and cost optimization blueprints."
+    ],
+    requirements: [
+      "Graduating senior or recent graduate in CS/IT/Data Engineering (2025/2026).",
+      "Foundational knowledge of cloud infrastructure and distributed data.",
+      "Passion for solving complex customer engineering problems."
+    ],
+    benefits: [
+      "Annual CTC ₹24–30 LPA with Google Stock Units (GSUs).",
+      "Gourmet campus dining and wellness subsidies.",
+      "Dedicated technical mentorship from Google Senior Staff Consultants."
+    ],
+    eligibility_batches: ["2025", "2026"]
+  },
+  {
+    id: "job-4",
+    slug: "swiggy-backend-engineer",
+    title: "Associate Backend Engineer (Golang)",
+    company: "Swiggy",
+    logo: "🟠",
+    work_mode: "remote",
+    city: "Bengaluru",
+    state: "Karnataka",
+    stipend_min: 135000,
+    stipend_max: 180000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 10,
+    domain: "Web",
+    opportunity_type: "job",
+    skills: ["Golang", "Kafka", "PostgreSQL", "Redis", "gRPC", "Docker"],
+    posted_at: "2026-09-19",
+    apply_deadline: "2026-11-28",
+    is_active: true,
+    description: "Engineer high-throughput, low-latency microservices powering 5M+ daily hyper-local food and Instamart grocery orders across India.",
+    responsibilities: [
+      "Implement high-speed routing and dispatch algorithms in Go.",
+      "Optimize Kafka consumer queues to handle festival-day traffic peaks.",
+      "Write integration tests and maintain 99.99% service availability."
+    ],
+    requirements: [
+      "B.Tech in Computer Science or Software Engineering.",
+      "Solid understanding of concurrent programming and database indexing.",
+      "Experience building web services or REST APIs in Go, Python, or Java."
+    ],
+    benefits: [
+      "Annual CTC ₹16–22 LPA + Swiggy food stipends.",
+      "Remote-first flexibility with co-working allowances.",
+      "Rapid meritocratic promotion cycle."
+    ],
+    eligibility_batches: ["2025", "2026"]
+  },
+  {
+    id: "job-5",
+    slug: "goldman-sachs-analyst",
+    title: "Software Engineer Analyst (Fintech Core)",
+    company: "Goldman Sachs",
+    logo: "🪙",
+    work_mode: "hybrid",
+    city: "Bengaluru",
+    state: "Karnataka",
+    stipend_min: 180000,
+    stipend_max: 240000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 16,
+    domain: "Fintech",
+    opportunity_type: "job",
+    skills: ["Java", "C++", "Spring Boot", "SQL", "Algorithms", "Kafka"],
+    posted_at: "2026-09-20",
+    apply_deadline: "2026-12-10",
+    is_active: true,
+    description: "Build algorithmic risk calculation systems, ultra-low latency order matching engines, and financial compliance pipelines for global trading desks.",
+    responsibilities: [
+      "Engineer mission-critical financial software with sub-millisecond execution.",
+      "Develop real-time monitoring tools for regulatory reporting and risk limits.",
+      "Collaborate directly with trading teams across New York, London, and Tokyo."
+    ],
+    requirements: [
+      "B.Tech/Dual Degree in CS, Mathematics, Electrical, or Mechanical.",
+      "Outstanding problem-solving abilities and mathematical intuition.",
+      "Interest in capital markets, equities, and quantitative finance."
+    ],
+    benefits: [
+      "Annual CTC ₹22–29 LPA + Performance Year-End Bonus.",
+      "Comprehensive medical coverage and corporate fitness center.",
+      "Structured 2-year global analyst onboarding program."
+    ],
+    eligibility_batches: ["2025", "2026"]
+  },
+  {
+    id: "job-6",
+    slug: "atlassian-fullstack-engineer",
+    title: "Associate Full-Stack Engineer (Jira & Confluence)",
+    company: "Atlassian",
+    logo: "🔷",
+    work_mode: "remote",
+    city: "Bengaluru",
+    state: "Karnataka",
+    stipend_min: 155000,
+    stipend_max: 210000,
+    stipend_currency: "INR",
+    duration_months: 12,
+    openings: 8,
+    domain: "Web",
+    opportunity_type: "job",
+    skills: ["React", "TypeScript", "Node.js", "GraphQL", "AWS", "REST APIs"],
+    posted_at: "2026-09-21",
+    apply_deadline: "2026-12-15",
+    is_active: true,
+    description: "Craft modern, collaborative web workflows used daily by over 300,000 engineering teams worldwide inside Atlassian Jira and Confluence Cloud.",
+    responsibilities: [
+      "Build snappy, accessible UI components using the Atlassian Design System.",
+      "Implement scalable GraphQL queries and client-side caching.",
+      "Contribute to open-source developer tooling and continuous delivery."
+    ],
+    requirements: [
+      "B.Tech in Computer Science or related degree.",
+      "Proficiency in TypeScript, React, and asynchronous JavaScript.",
+      "Empathy for developer tooling and user experience."
+    ],
+    benefits: [
+      "Annual CTC ₹19–25 LPA + Atlassian Equity (RSUs).",
+      "Work from Anywhere policy with dedicated home office allowance.",
+      "5 paid volunteer days per year and wellness stipend."
+    ],
+    eligibility_batches: ["2025", "2026"]
   }
 ];
 

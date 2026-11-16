@@ -23,6 +23,7 @@ def list_internships(
     duration_months: Optional[int] = None,
     company_id: Optional[str] = None,
     sort: Optional[str] = None,
+    opportunity_type: Optional[str] = None,
     page: int = 1,
     page_size: int = 20,
 ) -> Tuple[List[Internship], Pagination]:
@@ -38,6 +39,8 @@ def list_internships(
         query = query.filter(Internship.domain.ilike(domain))
     if work_mode:
         query = query.filter(Internship.work_mode == work_mode)
+    if opportunity_type:
+        query = query.filter(Internship.opportunity_type == opportunity_type)
     if min_stipend is not None:
         query = query.filter(Internship.stipend_min >= min_stipend)
     if duration_months is not None:
@@ -86,6 +89,7 @@ def create_internship(db: Session, payload, posted_by: Optional[str] = None) -> 
         slug=_unique_slug(db, base_slug),
         domain=payload.domain,
         work_mode=payload.work_mode,
+        opportunity_type=getattr(payload, "opportunity_type", None) or "internship",
         duration_months=payload.duration_months,
         description=payload.description,
         stipend_min=payload.stipend_min,

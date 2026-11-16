@@ -149,6 +149,7 @@ export type InternshipCard = {
   stipend_min?: number | null;
   stipend_max?: number | null;
   location_city?: string | null;
+  opportunity_type?: "internship" | "job";
   skills?: string[];
   posted_at: string;
   apply_deadline?: string | null;

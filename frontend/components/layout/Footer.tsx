@@ -3,7 +3,10 @@ import { GraduationCap, Building2, Briefcase, Heart } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-slate-200 bg-slate-900 text-slate-300">
+    <footer
+      data-theme="dark"
+      className="mt-20 border-t border-slate-800 bg-slate-900 text-slate-300"
+    >
       <div className="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-3">
@@ -39,7 +42,7 @@ export function Footer() {
           <div className="text-xs font-bold uppercase tracking-wider text-white">For Students</div>
           <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
             <li><Link href="/colleges" className="hover:text-white transition">Colleges & Cutoffs</Link></li>
-            <li><Link href="/internships" className="hover:text-white transition">Internships & Hiring</Link></li>
+            <li><Link href="/internships" className="hover:text-white transition">Internships &amp; Jobs</Link></li>
             <li><Link href="/compare" className="hover:text-white transition">Compare Colleges</Link></li>
             <li><Link href="/career" className="hover:text-white transition">Salary Explorer</Link></li>
             <li><Link href="/scholarships" className="hover:text-white transition">Scholarships</Link></li>

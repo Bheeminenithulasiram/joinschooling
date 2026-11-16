@@ -329,6 +329,7 @@ class InternshipCard(BaseModel):
     stipend_min: Optional[int] = None
     stipend_max: Optional[int] = None
     location_city: Optional[str] = None
+    opportunity_type: Optional[str] = "internship"
     posted_at: datetime
     apply_deadline: Optional[datetime] = None
     company: Optional[CompanyOut] = None
@@ -354,6 +355,7 @@ class InternshipCreate(BaseModel):
     slug: Optional[str] = None
     domain: str
     work_mode: Literal["remote", "hybrid", "onsite"]
+    opportunity_type: Optional[str] = "internship"
     duration_months: int = Field(ge=1, le=24)
     description: str
     stipend_min: Optional[int] = Field(default=None, ge=0)
